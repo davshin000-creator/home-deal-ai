@@ -64,16 +64,19 @@ export default function Home() {
   const [findDealsLoading, setFindDealsLoading] = useState(false);
   const [findDealsError, setFindDealsError] = useState("");
 
-  async function analyzeProperty() {
+  async function analyzeProperty(customAddress?: string, customPrice?: number) {
     setAnalyzeError("");
     setAnalyzeResult(null);
 
-    if (!address.trim()) {
+    const finalAddress = customAddress || address;
+    const finalPrice = customPrice || Number(listingPrice);
+
+    if (!finalAddress.trim()) {
       setAnalyzeError("Please enter a property address.");
       return;
     }
 
-    if (!listingPrice.trim() || Number(listingPrice) <= 0) {
+    if (!finalPrice || finalPrice <= 0) {
       setAnalyzeError("Please enter a valid listing price.");
       return;
     }
@@ -85,8 +88,8 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          address,
-          listing_price: Number(listingPrice),
+          address: finalAddress,
+          listing_price: finalPrice,
           down_payment_percent: Number(downPaymentPercent),
           interest_rate: Number(interestRate),
           loan_term_years: Number(loanTermYears),
@@ -158,6 +161,17 @@ export default function Home() {
     setFindDealsLoading(false);
   }
 
+  function analyzeFullProperty(deal: Deal) {
+    setAddress(deal.address);
+    setListingPrice(String(deal.listing_price));
+    analyzeProperty(deal.address, deal.listing_price);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
@@ -176,18 +190,54 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input className="rounded-lg border p-4" placeholder="Property Address" value={address} onChange={(e) => setAddress(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Listing Price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Property Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Listing Price"
+                value={listingPrice}
+                onChange={(e) => setListingPrice(e.target.value)}
+              />
 
               <div className="grid gap-4 md:grid-cols-3">
-                <input className="rounded-lg border p-4" placeholder="Down Payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
-                <input className="rounded-lg border p-4" placeholder="Interest Rate %" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
-                <input className="rounded-lg border p-4" placeholder="Loan Term" value={loanTermYears} onChange={(e) => setLoanTermYears(e.target.value)} />
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Down Payment %"
+                  value={downPaymentPercent}
+                  onChange={(e) => setDownPaymentPercent(e.target.value)}
+                />
+
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Interest Rate %"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                />
+
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Loan Term"
+                  value={loanTermYears}
+                  onChange={(e) => setLoanTermYears(e.target.value)}
+                />
               </div>
 
-              {analyzeError && <div className="rounded-lg bg-red-50 p-4 text-red-700">{analyzeError}</div>}
+              {analyzeError && (
+                <div className="rounded-lg bg-red-50 p-4 text-red-700">
+                  {analyzeError}
+                </div>
+              )}
 
-              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={analyzeProperty} disabled={analyzeLoading}>
+              <button
+                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                onClick={() => analyzeProperty()}
+                disabled={analyzeLoading}
+              >
                 {analyzeLoading ? "Analyzing..." : "Analyze Property"}
               </button>
             </div>
@@ -200,14 +250,45 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input className="rounded-lg border p-4" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Limit" value={limit} onChange={(e) => setLimit(e.target.value)} />
+              <input
+                className="rounded-lg border p-4"
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
 
-              {findDealsError && <div className="rounded-lg bg-red-50 p-4 text-red-700">{findDealsError}</div>}
+              <input
+                className="rounded-lg border p-4"
+                placeholder="State"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              />
 
-              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={findDeals} disabled={findDealsLoading}>
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Max Price"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Limit"
+                value={limit}
+                onChange={(e) => setLimit(e.target.value)}
+              />
+
+              {findDealsError && (
+                <div className="rounded-lg bg-red-50 p-4 text-red-700">
+                  {findDealsError}
+                </div>
+              )}
+
+              <button
+                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                onClick={findDeals}
+                disabled={findDealsLoading}
+              >
                 {findDealsLoading ? "Finding Deals..." : "Find Deals"}
               </button>
             </div>
@@ -218,29 +299,41 @@ export default function Home() {
           <div className="mt-8 grid gap-6">
             <div className="rounded-2xl bg-white p-6 shadow">
               <p className="text-sm text-gray-500">Deal Score</p>
-              <h2 className="mt-2 text-6xl font-bold">{analyzeResult.deal_score}/100</h2>
-              <p className="mt-3 text-xl font-semibold">{analyzeResult.status}</p>
+              <h2 className="mt-2 text-6xl font-bold">
+                {analyzeResult.deal_score}/100
+              </h2>
+              <p className="mt-3 text-xl font-semibold">
+                {analyzeResult.status}
+              </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
-                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.listing_price)}</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {money(analyzeResult.listing_price)}
+                </p>
               </div>
 
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">AI Fair Value</p>
-                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.fair_value)}</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {money(analyzeResult.fair_value)}
+                </p>
               </div>
 
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Rent Yield</p>
-                <p className="mt-2 text-2xl font-bold">{analyzeResult.gross_rent_yield}%</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {analyzeResult.gross_rent_yield}%
+                </p>
               </div>
 
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Cash Flow</p>
-                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.estimated_monthly_cash_flow)} / mo</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {money(analyzeResult.estimated_monthly_cash_flow)} / mo
+                </p>
               </div>
             </div>
 
@@ -255,24 +348,40 @@ export default function Home() {
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-500">🏆 TOP DEALS</p>
+                <p className="text-sm font-semibold text-gray-500">
+                  🏆 TOP DEALS
+                </p>
+
                 <h2 className="text-3xl font-bold">
                   Best Deals in {findDealsResult.city}, {findDealsResult.state}
                 </h2>
+
                 <p className="mt-2 text-gray-600">
-                  Found {findDealsResult.count} analyzed deals under {money(findDealsResult.max_price)}.
+                  Found {findDealsResult.count} analyzed deals under{" "}
+                  {money(findDealsResult.max_price)}.
                 </p>
               </div>
             </div>
 
             <div className="mt-6 grid gap-5">
               {findDealsResult.deals.map((deal, index) => (
-                <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
+                <div
+                  key={index}
+                  className="rounded-2xl border bg-white p-6 shadow-sm"
+                >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-500">#{index + 1} Deal</p>
-                      <h3 className="mt-1 text-2xl font-bold text-gray-900">{deal.address}</h3>
-                      <p className="mt-2 text-sm font-semibold text-gray-700">{deal.status}</p>
+                      <p className="text-sm font-semibold text-gray-500">
+                        #{index + 1} Deal
+                      </p>
+
+                      <h3 className="mt-1 text-2xl font-bold text-gray-900">
+                        {deal.address}
+                      </h3>
+
+                      <p className="mt-2 text-sm font-semibold text-gray-700">
+                        {deal.status}
+                      </p>
                     </div>
 
                     <div className="rounded-2xl bg-gray-100 p-5 text-center">
@@ -285,36 +394,54 @@ export default function Home() {
                   <div className="mt-6 grid gap-4 md:grid-cols-5">
                     <div>
                       <p className="text-sm text-gray-500">Price</p>
-                      <p className="text-lg font-bold">{money(deal.listing_price)}</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.listing_price)}
+                      </p>
                     </div>
 
                     <div>
                       <p className="text-sm text-gray-500">Fair Value</p>
-                      <p className="text-lg font-bold">{money(deal.fair_value)}</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.fair_value)}
+                      </p>
                     </div>
 
                     <div>
                       <p className="text-sm text-gray-500">Discount</p>
-                      <p className="text-lg font-bold">{deal.discount_percent}%</p>
+                      <p className="text-lg font-bold">
+                        {deal.discount_percent}%
+                      </p>
                     </div>
 
                     <div>
                       <p className="text-sm text-gray-500">Rent Yield</p>
-                      <p className="text-lg font-bold">{deal.gross_rent_yield}%</p>
+                      <p className="text-lg font-bold">
+                        {deal.gross_rent_yield}%
+                      </p>
                     </div>
 
                     <div>
                       <p className="text-sm text-gray-500">Cash Flow</p>
-                      <p className="text-lg font-bold">{money(deal.estimated_monthly_cash_flow)}/mo</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.estimated_monthly_cash_flow)}/mo
+                      </p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-xl bg-gray-50 p-4">
                     <p className="text-sm text-gray-600">
-                      Listed at {money(deal.listing_price)} with an estimated fair value of {money(deal.fair_value)}.
-                      Estimated monthly rent is {money(deal.estimated_monthly_rent)}.
+                      Listed at {money(deal.listing_price)} with an estimated
+                      fair value of {money(deal.fair_value)}. Estimated monthly
+                      rent is {money(deal.estimated_monthly_rent)}.
                     </p>
                   </div>
+
+                  <button
+                    className="mt-5 w-full rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
+                    onClick={() => analyzeFullProperty(deal)}
+                  >
+                    Analyze Full Property
+                  </button>
                 </div>
               ))}
             </div>
