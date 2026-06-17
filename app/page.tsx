@@ -395,6 +395,60 @@ export default function Home() {
     setFindDealsLoading(false);
   }
 
+  async function runAlertNow(alert: DealAlert) {
+    setCity(alert.city);
+    setState(alert.state);
+    setMaxPrice(String(alert.max_price));
+
+    setFindDealsError("");
+    setFindDealsResult(null);
+    setSaveMessage("");
+
+    setFindDealsLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/find-deals`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          city: alert.city,
+          state: alert.state,
+          max_price: Number(alert.max_price),
+          limit: isPro ? 50 : 5,
+          is_pro: isPro,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setFindDealsError(errorData.detail || "Could not run this alert.");
+        setFindDealsLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      const filteredDeals = data.deals.filter(
+        (deal: Deal) => deal.deal_score >= Number(alert.min_score)
+      );
+
+      setFindDealsResult({
+        ...data,
+        deals: filteredDeals,
+        result_limit: filteredDeals.length,
+      });
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch {
+      setFindDealsError("Server connection failed.");
+    }
+
+    setFindDealsLoading(false);
+  }
+
   function analyzeFullProperty(deal: Deal) {
     setAddress(deal.address);
     setListingPrice(String(deal.listing_price));
@@ -454,13 +508,41 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input className="rounded-lg border p-4" placeholder="Property Address" value={address} onChange={(e) => setAddress(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Listing Price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Property Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Listing Price"
+                value={listingPrice}
+                onChange={(e) => setListingPrice(e.target.value)}
+              />
 
               <div className="grid gap-4 md:grid-cols-3">
-                <input className="rounded-lg border p-4" placeholder="Down Payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
-                <input className="rounded-lg border p-4" placeholder="Interest Rate %" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
-                <input className="rounded-lg border p-4" placeholder="Loan Term" value={loanTermYears} onChange={(e) => setLoanTermYears(e.target.value)} />
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Down Payment %"
+                  value={downPaymentPercent}
+                  onChange={(e) => setDownPaymentPercent(e.target.value)}
+                />
+
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Interest Rate %"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                />
+
+                <input
+                  className="rounded-lg border p-4"
+                  placeholder="Loan Term"
+                  value={loanTermYears}
+                  onChange={(e) => setLoanTermYears(e.target.value)}
+                />
               </div>
 
               {analyzeError && (
@@ -469,7 +551,11 @@ export default function Home() {
                 </div>
               )}
 
-              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={() => analyzeProperty()} disabled={analyzeLoading}>
+              <button
+                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                onClick={() => analyzeProperty()}
+                disabled={analyzeLoading}
+              >
                 {analyzeLoading ? "Analyzing..." : "Analyze Property"}
               </button>
             </div>
@@ -482,9 +568,26 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input className="rounded-lg border p-4" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+              <input
+                className="rounded-lg border p-4"
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="State"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Max Price"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+              />
 
               {findDealsError && (
                 <div className="rounded-lg bg-red-50 p-4 text-red-700">
@@ -492,7 +595,11 @@ export default function Home() {
                 </div>
               )}
 
-              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={findDeals} disabled={findDealsLoading}>
+              <button
+                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                onClick={findDeals}
+                disabled={findDealsLoading}
+              >
                 {findDealsLoading ? "Finding Deals..." : "Find Deals"}
               </button>
             </div>
@@ -552,17 +659,43 @@ export default function Home() {
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <h2 className="text-3xl font-bold">Deal Alerts</h2>
             <p className="mt-2 text-gray-600">
-              Save your search criteria and get ready for future deal alerts.
+              Save your search criteria and run alerts whenever you want.
             </p>
 
             <div className="mt-5 grid gap-4 md:grid-cols-4">
-              <input className="rounded-lg border p-4" placeholder="City" value={alertCity} onChange={(e) => setAlertCity(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="State" value={alertState} onChange={(e) => setAlertState(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Max Price" value={alertMaxPrice} onChange={(e) => setAlertMaxPrice(e.target.value)} />
-              <input className="rounded-lg border p-4" placeholder="Min Score" value={alertMinScore} onChange={(e) => setAlertMinScore(e.target.value)} />
+              <input
+                className="rounded-lg border p-4"
+                placeholder="City"
+                value={alertCity}
+                onChange={(e) => setAlertCity(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="State"
+                value={alertState}
+                onChange={(e) => setAlertState(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Max Price"
+                value={alertMaxPrice}
+                onChange={(e) => setAlertMaxPrice(e.target.value)}
+              />
+
+              <input
+                className="rounded-lg border p-4"
+                placeholder="Min Score"
+                value={alertMinScore}
+                onChange={(e) => setAlertMinScore(e.target.value)}
+              />
             </div>
 
-            <button className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white" onClick={createAlert}>
+            <button
+              className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white"
+              onClick={createAlert}
+            >
               Create Alert
             </button>
 
@@ -590,9 +723,21 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
-                      Delete
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
+                        onClick={() => runAlertNow(alert)}
+                      >
+                        Run Alert Now
+                      </button>
+
+                      <button
+                        className="rounded-lg border px-4 py-2 font-semibold"
+                        onClick={() => deleteAlert(alert.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -608,7 +753,7 @@ export default function Home() {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Free plan shows {findDealsResult.result_limit} deals. Total analyzed:{" "}
+              Showing {findDealsResult.result_limit} deals. Total analyzed:{" "}
               {findDealsResult.total_analyzed}.
             </p>
 
@@ -620,7 +765,10 @@ export default function Home() {
 
             <div className="mt-6 grid gap-5">
               {findDealsResult.deals.map((deal, index) => (
-                <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
+                <div
+                  key={index}
+                  className="rounded-2xl border bg-white p-6 shadow-sm"
+                >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-gray-500">
@@ -644,19 +792,54 @@ export default function Home() {
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-5">
-                    <div><p className="text-sm text-gray-500">Price</p><p className="text-lg font-bold">{money(deal.listing_price)}</p></div>
-                    <div><p className="text-sm text-gray-500">Fair Value</p><p className="text-lg font-bold">{money(deal.fair_value)}</p></div>
-                    <div><p className="text-sm text-gray-500">Discount</p><p className="text-lg font-bold">{deal.discount_percent}%</p></div>
-                    <div><p className="text-sm text-gray-500">Rent Yield</p><p className="text-lg font-bold">{deal.gross_rent_yield}%</p></div>
-                    <div><p className="text-sm text-gray-500">Cash Flow</p><p className="text-lg font-bold">{money(deal.estimated_monthly_cash_flow)}/mo</p></div>
+                    <div>
+                      <p className="text-sm text-gray-500">Price</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.listing_price)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Fair Value</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.fair_value)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Discount</p>
+                      <p className="text-lg font-bold">
+                        {deal.discount_percent}%
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Rent Yield</p>
+                      <p className="text-lg font-bold">
+                        {deal.gross_rent_yield}%
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Cash Flow</p>
+                      <p className="text-lg font-bold">
+                        {money(deal.estimated_monthly_cash_flow)}/mo
+                      </p>
+                    </div>
                   </div>
 
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    <button className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
+                    <button
+                      className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
+                      onClick={() => analyzeFullProperty(deal)}
+                    >
                       Analyze Full Property
                     </button>
 
-                    <button className="rounded-lg border p-3 font-semibold hover:bg-gray-50" onClick={() => saveDeal(deal)}>
+                    <button
+                      className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
+                      onClick={() => saveDeal(deal)}
+                    >
                       Save Deal
                     </button>
                   </div>
@@ -700,16 +883,23 @@ export default function Home() {
                     <div>
                       <h3 className="text-xl font-bold">{deal.address}</h3>
                       <p className="mt-1 text-gray-600">
-                        Score {deal.deal_score}/100 · {money(deal.listing_price)}
+                        Score {deal.deal_score}/100 ·{" "}
+                        {money(deal.listing_price)}
                       </p>
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => analyzeFullProperty(deal)}>
+                      <button
+                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
+                        onClick={() => analyzeFullProperty(deal)}
+                      >
                         Analyze
                       </button>
 
-                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => removeSavedDeal(deal.address)}>
+                      <button
+                        className="rounded-lg border px-4 py-2 font-semibold"
+                        onClick={() => removeSavedDeal(deal.address)}
+                      >
                         Remove
                       </button>
                     </div>
@@ -721,7 +911,8 @@ export default function Home() {
         )}
 
         <p className="mt-10 text-sm text-gray-500">
-          This analysis is for informational purposes only and is not financial advice.
+          This analysis is for informational purposes only and is not financial
+          advice.
         </p>
       </div>
     </main>
