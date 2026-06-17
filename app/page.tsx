@@ -19,6 +19,9 @@ type AnalyzeResult = {
   deal_score: number;
   summary: string;
   estimated_monthly_cash_flow: number;
+  forecast_score: number;
+  forecast_outlook: string;
+  forecast_reasons: string[];
 };
 
 type Deal = {
@@ -29,6 +32,8 @@ type Deal = {
   discount_percent: number;
   gross_rent_yield: number;
   deal_score: number;
+  forecast_score?: number;
+  forecast_outlook?: string;
   status: string;
   estimated_monthly_cash_flow: number;
 };
@@ -481,8 +486,18 @@ export default function Home() {
       }
 
       const data = await response.json();
-      setAnalyzeResult(data);
-      await saveAnalysisHistory(data);
+      setAnalyzeResult({
+        ...data,
+        forecast_score: data.forecast_score ?? 50,
+        forecast_outlook: data.forecast_outlook ?? "Stable Outlook",
+        forecast_reasons: data.forecast_reasons ?? [],
+      });
+      await saveAnalysisHistory({
+        ...data,
+        forecast_score: data.forecast_score ?? 50,
+        forecast_outlook: data.forecast_outlook ?? "Stable Outlook",
+        forecast_reasons: data.forecast_reasons ?? [],
+      });
       await incrementAnalyzeUsage();
     } catch {
       setAnalyzeError("Server connection failed.");
@@ -722,6 +737,26 @@ export default function Home() {
               <p className="mt-3 text-xl font-semibold">{analyzeResult.status}</p>
             </div>
 
+            <div className="rounded-2xl bg-white p-6 shadow">
+              <p className="text-sm text-gray-500">Home Appreciation Outlook</p>
+
+              <h2 className="mt-2 text-4xl font-bold">
+                {analyzeResult.forecast_outlook || "Stable Outlook"}
+              </h2>
+
+              <p className="mt-2 text-xl font-semibold">
+                Forecast Score: {analyzeResult.forecast_score || 50}/100
+              </p>
+
+              <div className="mt-4 space-y-2">
+                {analyzeResult.forecast_reasons?.map((reason, index) => (
+                  <p key={index} className="text-sm text-gray-700">
+                    ✓ {reason}
+                  </p>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
@@ -896,6 +931,9 @@ export default function Home() {
                             deal_score: Number(item.deal_score),
                             summary: item.summary,
                             estimated_monthly_cash_flow: Number(item.estimated_monthly_cash_flow),
+                            forecast_score: 50,
+                            forecast_outlook: "Stable Outlook",
+                            forecast_reasons: ["Historical analysis"],
                           });
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
