@@ -203,8 +203,12 @@ export default function Home() {
       return;
     }
 
+    const userEmail =
+      user.primaryEmailAddress?.emailAddress || "";
+
     const { error } = await supabase.from("deal_alerts").insert({
       user_id: user.id,
+      email: userEmail,
       city: alertCity.trim(),
       state: alertState.trim().toUpperCase(),
       max_price: Number(alertMaxPrice),
