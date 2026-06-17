@@ -87,9 +87,15 @@ type AnalysisHistory = {
 
 const API_URL = "https://home-deal-api.onrender.com";
 const isPro = false;
+const FREE_ANALYZE_LIMIT = 10;
 
 function money(value: number) {
   return `$${Math.round(Number(value || 0)).toLocaleString()}`;
+}
+
+function getMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function savedRowToDeal(row: SavedDealRow): Deal {
@@ -145,17 +151,64 @@ export default function Home() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyMessage, setHistoryMessage] = useState("");
 
+  const [analyzeCount, setAnalyzeCount] = useState(0);
+  const [findDealsCount, setFindDealsCount] = useState(0);
+
   useEffect(() => {
     if (isSignedIn && user?.id) {
       loadSavedDeals();
       loadAlerts();
       loadAnalysisHistory();
+      loadUsage();
     } else {
       setSavedDeals([]);
       setAlerts([]);
       setAnalysisHistory([]);
+      setAnalyzeCount(0);
+      setFindDealsCount(0);
     }
   }, [isSignedIn, user?.id]);
+
+  async function loadUsage() {
+    if (!user?.id) return;
+
+    const monthKey = getMonthKey();
+
+    const { data } = await supabase
+      .from("usage_limits")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("month_key", monthKey)
+      .maybeSingle();
+
+    if (data) {
+      setAnalyzeCount(Number(data.analyze_count || 0));
+      setFindDealsCount(Number(data.find_deals_count || 0));
+    } else {
+      setAnalyzeCount(0);
+      setFindDealsCount(0);
+    }
+  }
+
+  async function incrementAnalyzeUsage() {
+    if (!user?.id) return;
+
+    const monthKey = getMonthKey();
+    const nextAnalyzeCount = analyzeCount + 1;
+
+    const { error } = await supabase.from("usage_limits").upsert(
+      {
+        user_id: user.id,
+        month_key: monthKey,
+        analyze_count: nextAnalyzeCount,
+        find_deals_count: findDealsCount,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,month_key" }
+    );
+
+    if (!error) setAnalyzeCount(nextAnalyzeCount);
+  }
 
   async function loadSavedDeals() {
     if (!user?.id) return;
@@ -174,11 +227,7 @@ export default function Home() {
       return;
     }
 
-    const deals = (data || []).map((row) =>
-      savedRowToDeal(row as SavedDealRow)
-    );
-
-    setSavedDeals(deals);
+    setSavedDeals((data || []).map((row) => savedRowToDeal(row as SavedDealRow)));
     setSavedDealsLoading(false);
   }
 
@@ -384,6 +433,18 @@ export default function Home() {
     setAnalyzeError("");
     setAnalyzeResult(null);
 
+    if (!isSignedIn || !user?.id) {
+      setAnalyzeError("Please sign in to analyze properties.");
+      return;
+    }
+
+    if (!isPro && analyzeCount >= FREE_ANALYZE_LIMIT) {
+      setAnalyzeError(
+        "You have reached your free monthly analysis limit. Upgrade to Pro to continue."
+      );
+      return;
+    }
+
     const finalAddress = customAddress || address;
     const finalPrice = customPrice || Number(listingPrice);
 
@@ -422,6 +483,7 @@ export default function Home() {
       const data = await response.json();
       setAnalyzeResult(data);
       await saveAnalysisHistory(data);
+      await incrementAnalyzeUsage();
     } catch {
       setAnalyzeError("Server connection failed.");
     }
@@ -484,11 +546,9 @@ export default function Home() {
     setCity(alert.city);
     setState(alert.state);
     setMaxPrice(String(alert.max_price));
-
     setFindDealsError("");
     setFindDealsResult(null);
     setSaveMessage("");
-
     setFindDealsLoading(true);
 
     try {
@@ -523,10 +583,7 @@ export default function Home() {
         result_limit: filteredDeals.length,
       });
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setFindDealsError("Server connection failed.");
     }
@@ -571,26 +628,51 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-2">
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border-2 border-black bg-white p-5 shadow">
             <p className="text-sm font-semibold text-gray-500">CURRENT PLAN</p>
             <h2 className="mt-1 text-2xl font-bold">Free Plan</h2>
             <p className="mt-2 text-gray-600">5 deals per search</p>
           </div>
 
+          <div className="rounded-2xl border bg-white p-5 shadow">
+            <p className="text-sm font-semibold text-gray-500">MONTHLY USAGE</p>
+            <h2 className="mt-1 text-2xl font-bold">
+              {analyzeCount}/{FREE_ANALYZE_LIMIT}
+            </h2>
+            <p className="mt-2 text-gray-600">Free analyses used this month</p>
+          </div>
+
           <div className="rounded-2xl border bg-white p-5 shadow opacity-70">
             <p className="text-sm font-semibold text-gray-500">COMING SOON</p>
             <h2 className="mt-1 text-2xl font-bold">Pro Plan</h2>
-            <p className="mt-2 text-gray-600">Up to 50 deals per search</p>
+            <p className="mt-2 text-gray-600">More searches, alerts, and forecasts</p>
           </div>
         </div>
+
+        {!isSignedIn && (
+          <div className="mb-8 rounded-2xl bg-yellow-50 p-5 text-yellow-900">
+            Please sign in to analyze properties and save your history.
+          </div>
+        )}
+
+        {isSignedIn && !isPro && analyzeCount >= FREE_ANALYZE_LIMIT && (
+          <div className="mb-8 rounded-2xl bg-gray-900 p-6 text-white">
+            <h2 className="text-2xl font-bold">Free limit reached</h2>
+            <p className="mt-2 text-gray-200">
+              You have used all {FREE_ANALYZE_LIMIT} free property analyses this month.
+              Upgrade to Pro to continue.
+            </p>
+            <button className="mt-4 rounded-lg bg-white px-6 py-3 font-semibold text-black">
+              Upgrade to Pro
+            </button>
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="rounded-2xl bg-white p-6 shadow">
             <h2 className="text-2xl font-bold">Analyze Property</h2>
-            <p className="mt-2 text-gray-600">
-              Analyze a specific property by address.
-            </p>
+            <p className="mt-2 text-gray-600">Analyze a specific property by address.</p>
 
             <div className="mt-5 grid gap-4">
               <input className="rounded-lg border p-4" placeholder="Property Address" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -603,9 +685,7 @@ export default function Home() {
               </div>
 
               {analyzeError && (
-                <div className="rounded-lg bg-red-50 p-4 text-red-700">
-                  {analyzeError}
-                </div>
+                <div className="rounded-lg bg-red-50 p-4 text-red-700">{analyzeError}</div>
               )}
 
               <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={() => analyzeProperty()} disabled={analyzeLoading}>
@@ -616,9 +696,7 @@ export default function Home() {
 
           <div className="rounded-2xl bg-white p-6 shadow">
             <h2 className="text-2xl font-bold">Find Best Deals</h2>
-            <p className="mt-2 text-gray-600">
-              Free users can view the top 5 deals per search.
-            </p>
+            <p className="mt-2 text-gray-600">Free users can view the top 5 deals per search.</p>
 
             <div className="mt-5 grid gap-4">
               <input className="rounded-lg border p-4" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
@@ -626,9 +704,7 @@ export default function Home() {
               <input className="rounded-lg border p-4" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
 
               {findDealsError && (
-                <div className="rounded-lg bg-red-50 p-4 text-red-700">
-                  {findDealsError}
-                </div>
+                <div className="rounded-lg bg-red-50 p-4 text-red-700">{findDealsError}</div>
               )}
 
               <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={findDeals} disabled={findDealsLoading}>
@@ -642,41 +718,26 @@ export default function Home() {
           <div className="mt-8 grid gap-6">
             <div className="rounded-2xl bg-white p-6 shadow">
               <p className="text-sm text-gray-500">Deal Score</p>
-              <h2 className="mt-2 text-6xl font-bold">
-                {analyzeResult.deal_score}/100
-              </h2>
-              <p className="mt-3 text-xl font-semibold">
-                {analyzeResult.status}
-              </p>
+              <h2 className="mt-2 text-6xl font-bold">{analyzeResult.deal_score}/100</h2>
+              <p className="mt-3 text-xl font-semibold">{analyzeResult.status}</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
-                <p className="mt-2 text-2xl font-bold">
-                  {money(analyzeResult.listing_price)}
-                </p>
+                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.listing_price)}</p>
               </div>
-
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">AI Fair Value</p>
-                <p className="mt-2 text-2xl font-bold">
-                  {money(analyzeResult.fair_value)}
-                </p>
+                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.fair_value)}</p>
               </div>
-
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Rent Yield</p>
-                <p className="mt-2 text-2xl font-bold">
-                  {analyzeResult.gross_rent_yield}%
-                </p>
+                <p className="mt-2 text-2xl font-bold">{analyzeResult.gross_rent_yield}%</p>
               </div>
-
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Cash Flow</p>
-                <p className="mt-2 text-2xl font-bold">
-                  {money(analyzeResult.estimated_monthly_cash_flow)} / mo
-                </p>
+                <p className="mt-2 text-2xl font-bold">{money(analyzeResult.estimated_monthly_cash_flow)} / mo</p>
               </div>
             </div>
 
@@ -690,9 +751,7 @@ export default function Home() {
         {isSignedIn && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <h2 className="text-3xl font-bold">Deal Alerts</h2>
-            <p className="mt-2 text-gray-600">
-              Save your search criteria and run alerts whenever you want.
-            </p>
+            <p className="mt-2 text-gray-600">Save your search criteria and run alerts whenever you want.</p>
 
             <div className="mt-5 grid gap-4 md:grid-cols-4">
               <input className="rounded-lg border p-4" placeholder="City" value={alertCity} onChange={(e) => setAlertCity(e.target.value)} />
@@ -706,23 +765,17 @@ export default function Home() {
             </button>
 
             {alertMessage && (
-              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
-                {alertMessage}
-              </div>
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">{alertMessage}</div>
             )}
 
-            {alertsLoading && (
-              <p className="mt-4 text-gray-600">Loading alerts...</p>
-            )}
+            {alertsLoading && <p className="mt-4 text-gray-600">Loading alerts...</p>}
 
             <div className="mt-6 grid gap-4">
               {alerts.map((alert) => (
                 <div key={alert.id} className="rounded-2xl border bg-white p-5">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <h3 className="text-xl font-bold">
-                        {alert.city}, {alert.state}
-                      </h3>
+                      <h3 className="text-xl font-bold">{alert.city}, {alert.state}</h3>
                       <p className="mt-1 text-gray-600">
                         Max Price: {money(Number(alert.max_price))} · Min Score: {alert.min_score}
                       </p>
@@ -732,7 +785,6 @@ export default function Home() {
                       <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => runAlertNow(alert)}>
                         Run Alert Now
                       </button>
-
                       <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
                         Delete
                       </button>
@@ -757,9 +809,7 @@ export default function Home() {
             </p>
 
             {saveMessage && (
-              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
-                {saveMessage}
-              </div>
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">{saveMessage}</div>
             )}
 
             <div className="mt-6 grid gap-5">
@@ -767,17 +817,9 @@ export default function Home() {
                 <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-500">
-                        #{index + 1} Deal
-                      </p>
-
-                      <h3 className="mt-1 text-2xl font-bold text-gray-900">
-                        {deal.address}
-                      </h3>
-
-                      <p className="mt-2 text-sm font-semibold text-gray-700">
-                        {deal.status}
-                      </p>
+                      <p className="text-sm font-semibold text-gray-500">#{index + 1} Deal</p>
+                      <h3 className="mt-1 text-2xl font-bold text-gray-900">{deal.address}</h3>
+                      <p className="mt-2 text-sm font-semibold text-gray-700">{deal.status}</p>
                     </div>
 
                     <div className="rounded-2xl bg-gray-100 p-5 text-center">
@@ -799,7 +841,6 @@ export default function Home() {
                     <button className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
                       Analyze Full Property
                     </button>
-
                     <button className="rounded-lg border p-3 font-semibold hover:bg-gray-50" onClick={() => saveDeal(deal)}>
                       Save Deal
                     </button>
@@ -807,37 +848,19 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
-            {!isPro && (
-              <div className="mt-6 rounded-2xl bg-gray-100 p-6 text-center">
-                <h3 className="text-2xl font-bold">
-                  Unlock 50 deals per search
-                </h3>
-                <p className="mt-2 text-gray-600">Pro plan coming soon.</p>
-                <button className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white">
-                  Upgrade to Pro
-                </button>
-              </div>
-            )}
           </div>
         )}
 
         {isSignedIn && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <h2 className="text-3xl font-bold">Analysis History</h2>
-            <p className="mt-2 text-gray-600">
-              Properties you analyzed recently.
-            </p>
+            <p className="mt-2 text-gray-600">Properties you analyzed recently.</p>
 
             {historyMessage && (
-              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
-                {historyMessage}
-              </div>
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">{historyMessage}</div>
             )}
 
-            {historyLoading && (
-              <p className="mt-4 text-gray-600">Loading analysis history...</p>
-            )}
+            {historyLoading && <p className="mt-4 text-gray-600">Loading analysis history...</p>}
 
             {!historyLoading && analysisHistory.length === 0 && (
               <p className="mt-4 text-gray-600">No analysis history yet.</p>
@@ -894,13 +917,9 @@ export default function Home() {
         {isSignedIn && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <h2 className="text-3xl font-bold">Saved Deals</h2>
-            <p className="mt-2 text-gray-600">
-              Properties you saved for later review.
-            </p>
+            <p className="mt-2 text-gray-600">Properties you saved for later review.</p>
 
-            {savedDealsLoading && (
-              <p className="mt-4 text-gray-600">Loading saved deals...</p>
-            )}
+            {savedDealsLoading && <p className="mt-4 text-gray-600">Loading saved deals...</p>}
 
             {!savedDealsLoading && savedDeals.length === 0 && (
               <p className="mt-4 text-gray-600">No saved deals yet.</p>
@@ -921,7 +940,6 @@ export default function Home() {
                       <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => analyzeFullProperty(deal)}>
                         Analyze
                       </button>
-
                       <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => removeSavedDeal(deal.address)}>
                         Remove
                       </button>
@@ -934,20 +952,12 @@ export default function Home() {
         )}
 
         <footer className="mt-10 border-t pt-6 text-sm text-gray-500">
-          <p>
-            This analysis is for informational purposes only and is not financial advice.
-          </p>
+          <p>This analysis is for informational purposes only and is not financial advice.</p>
 
           <div className="mt-3 flex gap-4">
-            <a href="/privacy" className="hover:text-gray-900">
-              Privacy Policy
-            </a>
-            <a href="/terms" className="hover:text-gray-900">
-              Terms of Service
-            </a>
-            <a href="mailto:support@nestrova.com" className="hover:text-gray-900">
-              Contact
-            </a>
+            <a href="/privacy" className="hover:text-gray-900">Privacy Policy</a>
+            <a href="/terms" className="hover:text-gray-900">Terms of Service</a>
+            <a href="mailto:support@nestrova.com" className="hover:text-gray-900">Contact</a>
           </div>
         </footer>
       </div>
