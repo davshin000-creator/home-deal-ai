@@ -914,10 +914,24 @@ export default function Home() {
           </div>
         )}
 
-        <p className="mt-10 text-sm text-gray-500">
-          This analysis is for informational purposes only and is not financial
-          advice.
-        </p>
+        <footer className="mt-10 border-t pt-6 text-sm text-gray-500">
+  <p>
+    This analysis is for informational purposes only and is not financial
+    advice.
+  </p>
+
+  <div className="mt-3 flex gap-4">
+    <a href="/privacy" className="hover:text-gray-900">
+      Privacy Policy
+    </a>
+    <a href="/terms" className="hover:text-gray-900">
+      Terms of Service
+    </a>
+    <a href="mailto:support@nestrova.com" className="hover:text-gray-900">
+      Contact
+    </a>
+  </div>
+</footer>
       </div>
     </main>
   );
