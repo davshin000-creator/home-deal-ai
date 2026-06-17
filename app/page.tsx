@@ -57,6 +57,17 @@ type SavedDealRow = {
   created_at: string;
 };
 
+type DealAlert = {
+  id: string;
+  user_id: string;
+  city: string;
+  state: string;
+  max_price: number;
+  min_score: number;
+  is_active: boolean;
+  created_at: string;
+};
+
 const API_URL = "https://home-deal-api.onrender.com";
 const isPro = false;
 
@@ -95,19 +106,31 @@ export default function Home() {
   const [state, setState] = useState("CA");
   const [maxPrice, setMaxPrice] = useState("1500000");
 
-  const [findDealsResult, setFindDealsResult] = useState<FindDealsResult | null>(null);
+  const [findDealsResult, setFindDealsResult] =
+    useState<FindDealsResult | null>(null);
   const [findDealsLoading, setFindDealsLoading] = useState(false);
   const [findDealsError, setFindDealsError] = useState("");
 
   const [savedDeals, setSavedDeals] = useState<Deal[]>([]);
-  const [saveMessage, setSaveMessage] = useState("");
   const [savedDealsLoading, setSavedDealsLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const [alerts, setAlerts] = useState<DealAlert[]>([]);
+  const [alertsLoading, setAlertsLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const [alertCity, setAlertCity] = useState("Irvine");
+  const [alertState, setAlertState] = useState("CA");
+  const [alertMaxPrice, setAlertMaxPrice] = useState("1500000");
+  const [alertMinScore, setAlertMinScore] = useState("60");
 
   useEffect(() => {
     if (isSignedIn && user?.id) {
       loadSavedDeals();
+      loadAlerts();
     } else {
       setSavedDeals([]);
+      setAlerts([]);
     }
   }, [isSignedIn, user?.id]);
 
@@ -128,9 +151,92 @@ export default function Home() {
       return;
     }
 
-    const deals = (data || []).map((row) => savedRowToDeal(row as SavedDealRow));
+    const deals = (data || []).map((row) =>
+      savedRowToDeal(row as SavedDealRow)
+    );
+
     setSavedDeals(deals);
     setSavedDealsLoading(false);
+  }
+
+  async function loadAlerts() {
+    if (!user?.id) return;
+
+    setAlertsLoading(true);
+
+    const { data, error } = await supabase
+      .from("deal_alerts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setAlertMessage("Could not load alerts.");
+      setAlertsLoading(false);
+      return;
+    }
+
+    setAlerts((data || []) as DealAlert[]);
+    setAlertsLoading(false);
+  }
+
+  async function createAlert() {
+    setAlertMessage("");
+
+    if (!isSignedIn || !user?.id) {
+      setAlertMessage("Please sign in to create alerts.");
+      return;
+    }
+
+    if (!alertCity.trim()) {
+      setAlertMessage("City is required.");
+      return;
+    }
+
+    if (!alertState.trim()) {
+      setAlertMessage("State is required.");
+      return;
+    }
+
+    if (!alertMaxPrice || Number(alertMaxPrice) <= 0) {
+      setAlertMessage("Max price must be greater than 0.");
+      return;
+    }
+
+    const { error } = await supabase.from("deal_alerts").insert({
+      user_id: user.id,
+      city: alertCity.trim(),
+      state: alertState.trim().toUpperCase(),
+      max_price: Number(alertMaxPrice),
+      min_score: Number(alertMinScore),
+      is_active: true,
+    });
+
+    if (error) {
+      setAlertMessage("Could not create alert.");
+      return;
+    }
+
+    setAlertMessage("Alert created successfully.");
+    await loadAlerts();
+  }
+
+  async function deleteAlert(alertId: string) {
+    if (!user?.id) return;
+
+    const { error } = await supabase
+      .from("deal_alerts")
+      .delete()
+      .eq("id", alertId)
+      .eq("user_id", user.id);
+
+    if (error) {
+      setAlertMessage("Could not delete alert.");
+      return;
+    }
+
+    setAlertMessage("Alert deleted.");
+    await loadAlerts();
   }
 
   async function saveDeal(deal: Deal) {
@@ -442,6 +548,58 @@ export default function Home() {
           </div>
         )}
 
+        {isSignedIn && (
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow">
+            <h2 className="text-3xl font-bold">Deal Alerts</h2>
+            <p className="mt-2 text-gray-600">
+              Save your search criteria and get ready for future deal alerts.
+            </p>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-4">
+              <input className="rounded-lg border p-4" placeholder="City" value={alertCity} onChange={(e) => setAlertCity(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="State" value={alertState} onChange={(e) => setAlertState(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Max Price" value={alertMaxPrice} onChange={(e) => setAlertMaxPrice(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Min Score" value={alertMinScore} onChange={(e) => setAlertMinScore(e.target.value)} />
+            </div>
+
+            <button className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white" onClick={createAlert}>
+              Create Alert
+            </button>
+
+            {alertMessage && (
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
+                {alertMessage}
+              </div>
+            )}
+
+            {alertsLoading && (
+              <p className="mt-4 text-gray-600">Loading alerts...</p>
+            )}
+
+            <div className="mt-6 grid gap-4">
+              {alerts.map((alert) => (
+                <div key={alert.id} className="rounded-2xl border bg-white p-5">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold">
+                        {alert.city}, {alert.state}
+                      </h3>
+                      <p className="mt-1 text-gray-600">
+                        Max Price: {money(Number(alert.max_price))} · Min Score:{" "}
+                        {alert.min_score}
+                      </p>
+                    </div>
+
+                    <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {findDealsResult && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <p className="text-sm font-semibold text-gray-500">🏆 TOP DEALS</p>
@@ -450,8 +608,8 @@ export default function Home() {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Free plan shows {findDealsResult.result_limit} deals. Total
-              analyzed: {findDealsResult.total_analyzed}.
+              Free plan shows {findDealsResult.result_limit} deals. Total analyzed:{" "}
+              {findDealsResult.total_analyzed}.
             </p>
 
             {saveMessage && (
@@ -532,9 +690,7 @@ export default function Home() {
             )}
 
             {!savedDealsLoading && savedDeals.length === 0 && (
-              <p className="mt-4 text-gray-600">
-                No saved deals yet.
-              </p>
+              <p className="mt-4 text-gray-600">No saved deals yet.</p>
             )}
 
             <div className="mt-6 grid gap-4">
