@@ -13,6 +13,7 @@ type AnalyzeResult = {
   address: string;
   listing_price: number;
   fair_value: number;
+  estimated_monthly_rent: number;
   gross_rent_yield: number;
   status: string;
   deal_score: number;
@@ -36,9 +37,10 @@ type FindDealsResult = {
   city: string;
   state: string;
   max_price: number;
-  plan: string;
-  result_limit: number;
-  total_analyzed: number;
+  plan?: string;
+  result_limit?: number;
+  total_analyzed?: number;
+  count?: number;
   deals: Deal[];
 };
 
@@ -68,11 +70,26 @@ type DealAlert = {
   created_at: string;
 };
 
+type AnalysisHistory = {
+  id: string;
+  user_id: string;
+  address: string;
+  listing_price: number;
+  fair_value: number;
+  estimated_monthly_rent: number;
+  gross_rent_yield: number;
+  deal_score: number;
+  status: string;
+  estimated_monthly_cash_flow: number;
+  summary: string;
+  created_at: string;
+};
+
 const API_URL = "https://home-deal-api.onrender.com";
 const isPro = false;
 
 function money(value: number) {
-  return `$${Math.round(value).toLocaleString()}`;
+  return `$${Math.round(Number(value || 0)).toLocaleString()}`;
 }
 
 function savedRowToDeal(row: SavedDealRow): Deal {
@@ -124,13 +141,19 @@ export default function Home() {
   const [alertMaxPrice, setAlertMaxPrice] = useState("1500000");
   const [alertMinScore, setAlertMinScore] = useState("60");
 
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyMessage, setHistoryMessage] = useState("");
+
   useEffect(() => {
     if (isSignedIn && user?.id) {
       loadSavedDeals();
       loadAlerts();
+      loadAnalysisHistory();
     } else {
       setSavedDeals([]);
       setAlerts([]);
+      setAnalysisHistory([]);
     }
   }, [isSignedIn, user?.id]);
 
@@ -180,6 +203,64 @@ export default function Home() {
     setAlertsLoading(false);
   }
 
+  async function loadAnalysisHistory() {
+    if (!user?.id) return;
+
+    setHistoryLoading(true);
+
+    const { data, error } = await supabase
+      .from("analysis_history")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setHistoryMessage("Could not load analysis history.");
+      setHistoryLoading(false);
+      return;
+    }
+
+    setAnalysisHistory((data || []) as AnalysisHistory[]);
+    setHistoryLoading(false);
+  }
+
+  async function saveAnalysisHistory(result: AnalyzeResult) {
+    if (!isSignedIn || !user?.id) return;
+
+    await supabase.from("analysis_history").insert({
+      user_id: user.id,
+      address: result.address,
+      listing_price: result.listing_price,
+      fair_value: result.fair_value,
+      estimated_monthly_rent: result.estimated_monthly_rent,
+      gross_rent_yield: result.gross_rent_yield,
+      deal_score: result.deal_score,
+      status: result.status,
+      estimated_monthly_cash_flow: result.estimated_monthly_cash_flow,
+      summary: result.summary,
+    });
+
+    await loadAnalysisHistory();
+  }
+
+  async function deleteAnalysisHistory(historyId: string) {
+    if (!user?.id) return;
+
+    const { error } = await supabase
+      .from("analysis_history")
+      .delete()
+      .eq("id", historyId)
+      .eq("user_id", user.id);
+
+    if (error) {
+      setHistoryMessage("Could not delete analysis.");
+      return;
+    }
+
+    setHistoryMessage("Analysis deleted.");
+    await loadAnalysisHistory();
+  }
+
   async function createAlert() {
     setAlertMessage("");
 
@@ -203,8 +284,7 @@ export default function Home() {
       return;
     }
 
-    const userEmail =
-      user.primaryEmailAddress?.emailAddress || "";
+    const userEmail = user.primaryEmailAddress?.emailAddress || "";
 
     const { error } = await supabase.from("deal_alerts").insert({
       user_id: user.id,
@@ -341,6 +421,7 @@ export default function Home() {
 
       const data = await response.json();
       setAnalyzeResult(data);
+      await saveAnalysisHistory(data);
     } catch {
       setAnalyzeError("Server connection failed.");
     }
@@ -484,9 +565,9 @@ export default function Home() {
         </div>
 
         <div className="mb-10">
-          <h1 className="text-5xl font-bold text-gray-900">Home Deal AI</h1>
+          <h1 className="text-5xl font-bold text-gray-900">Nestrova</h1>
           <p className="mt-3 text-gray-600">
-            Analyze properties and find undervalued real estate deals.
+            Analyze properties, discover real estate deals, and track investment opportunities.
           </p>
         </div>
 
@@ -512,41 +593,13 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input
-                className="rounded-lg border p-4"
-                placeholder="Property Address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="Listing Price"
-                value={listingPrice}
-                onChange={(e) => setListingPrice(e.target.value)}
-              />
+              <input className="rounded-lg border p-4" placeholder="Property Address" value={address} onChange={(e) => setAddress(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Listing Price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
 
               <div className="grid gap-4 md:grid-cols-3">
-                <input
-                  className="rounded-lg border p-4"
-                  placeholder="Down Payment %"
-                  value={downPaymentPercent}
-                  onChange={(e) => setDownPaymentPercent(e.target.value)}
-                />
-
-                <input
-                  className="rounded-lg border p-4"
-                  placeholder="Interest Rate %"
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(e.target.value)}
-                />
-
-                <input
-                  className="rounded-lg border p-4"
-                  placeholder="Loan Term"
-                  value={loanTermYears}
-                  onChange={(e) => setLoanTermYears(e.target.value)}
-                />
+                <input className="rounded-lg border p-4" placeholder="Down Payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
+                <input className="rounded-lg border p-4" placeholder="Interest Rate %" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
+                <input className="rounded-lg border p-4" placeholder="Loan Term" value={loanTermYears} onChange={(e) => setLoanTermYears(e.target.value)} />
               </div>
 
               {analyzeError && (
@@ -555,11 +608,7 @@ export default function Home() {
                 </div>
               )}
 
-              <button
-                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
-                onClick={() => analyzeProperty()}
-                disabled={analyzeLoading}
-              >
+              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={() => analyzeProperty()} disabled={analyzeLoading}>
                 {analyzeLoading ? "Analyzing..." : "Analyze Property"}
               </button>
             </div>
@@ -572,26 +621,9 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4">
-              <input
-                className="rounded-lg border p-4"
-                placeholder="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="State"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="Max Price"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-              />
+              <input className="rounded-lg border p-4" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
 
               {findDealsError && (
                 <div className="rounded-lg bg-red-50 p-4 text-red-700">
@@ -599,11 +631,7 @@ export default function Home() {
                 </div>
               )}
 
-              <button
-                className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
-                onClick={findDeals}
-                disabled={findDealsLoading}
-              >
+              <button className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400" onClick={findDeals} disabled={findDealsLoading}>
                 {findDealsLoading ? "Finding Deals..." : "Find Deals"}
               </button>
             </div>
@@ -667,39 +695,13 @@ export default function Home() {
             </p>
 
             <div className="mt-5 grid gap-4 md:grid-cols-4">
-              <input
-                className="rounded-lg border p-4"
-                placeholder="City"
-                value={alertCity}
-                onChange={(e) => setAlertCity(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="State"
-                value={alertState}
-                onChange={(e) => setAlertState(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="Max Price"
-                value={alertMaxPrice}
-                onChange={(e) => setAlertMaxPrice(e.target.value)}
-              />
-
-              <input
-                className="rounded-lg border p-4"
-                placeholder="Min Score"
-                value={alertMinScore}
-                onChange={(e) => setAlertMinScore(e.target.value)}
-              />
+              <input className="rounded-lg border p-4" placeholder="City" value={alertCity} onChange={(e) => setAlertCity(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="State" value={alertState} onChange={(e) => setAlertState(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Max Price" value={alertMaxPrice} onChange={(e) => setAlertMaxPrice(e.target.value)} />
+              <input className="rounded-lg border p-4" placeholder="Min Score" value={alertMinScore} onChange={(e) => setAlertMinScore(e.target.value)} />
             </div>
 
-            <button
-              className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white"
-              onClick={createAlert}
-            >
+            <button className="mt-4 rounded-lg bg-black px-6 py-3 font-semibold text-white" onClick={createAlert}>
               Create Alert
             </button>
 
@@ -722,23 +724,16 @@ export default function Home() {
                         {alert.city}, {alert.state}
                       </h3>
                       <p className="mt-1 text-gray-600">
-                        Max Price: {money(Number(alert.max_price))} · Min Score:{" "}
-                        {alert.min_score}
+                        Max Price: {money(Number(alert.max_price))} · Min Score: {alert.min_score}
                       </p>
                     </div>
 
                     <div className="flex gap-3">
-                      <button
-                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
-                        onClick={() => runAlertNow(alert)}
-                      >
+                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => runAlertNow(alert)}>
                         Run Alert Now
                       </button>
 
-                      <button
-                        className="rounded-lg border px-4 py-2 font-semibold"
-                        onClick={() => deleteAlert(alert.id)}
-                      >
+                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
                         Delete
                       </button>
                     </div>
@@ -757,8 +752,8 @@ export default function Home() {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Showing {findDealsResult.result_limit} deals. Total analyzed:{" "}
-              {findDealsResult.total_analyzed}.
+              Showing {findDealsResult.result_limit || findDealsResult.deals.length} deals. Total analyzed:{" "}
+              {findDealsResult.total_analyzed || findDealsResult.count || findDealsResult.deals.length}.
             </p>
 
             {saveMessage && (
@@ -769,10 +764,7 @@ export default function Home() {
 
             <div className="mt-6 grid gap-5">
               {findDealsResult.deals.map((deal, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border bg-white p-6 shadow-sm"
-                >
+                <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-gray-500">
@@ -796,54 +788,19 @@ export default function Home() {
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-5">
-                    <div>
-                      <p className="text-sm text-gray-500">Price</p>
-                      <p className="text-lg font-bold">
-                        {money(deal.listing_price)}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">Fair Value</p>
-                      <p className="text-lg font-bold">
-                        {money(deal.fair_value)}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">Discount</p>
-                      <p className="text-lg font-bold">
-                        {deal.discount_percent}%
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">Rent Yield</p>
-                      <p className="text-lg font-bold">
-                        {deal.gross_rent_yield}%
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">Cash Flow</p>
-                      <p className="text-lg font-bold">
-                        {money(deal.estimated_monthly_cash_flow)}/mo
-                      </p>
-                    </div>
+                    <div><p className="text-sm text-gray-500">Price</p><p className="text-lg font-bold">{money(deal.listing_price)}</p></div>
+                    <div><p className="text-sm text-gray-500">Fair Value</p><p className="text-lg font-bold">{money(deal.fair_value)}</p></div>
+                    <div><p className="text-sm text-gray-500">Discount</p><p className="text-lg font-bold">{deal.discount_percent}%</p></div>
+                    <div><p className="text-sm text-gray-500">Rent Yield</p><p className="text-lg font-bold">{deal.gross_rent_yield}%</p></div>
+                    <div><p className="text-sm text-gray-500">Cash Flow</p><p className="text-lg font-bold">{money(deal.estimated_monthly_cash_flow)}/mo</p></div>
                   </div>
 
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    <button
-                      className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
-                      onClick={() => analyzeFullProperty(deal)}
-                    >
+                    <button className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
                       Analyze Full Property
                     </button>
 
-                    <button
-                      className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
-                      onClick={() => saveDeal(deal)}
-                    >
+                    <button className="rounded-lg border p-3 font-semibold hover:bg-gray-50" onClick={() => saveDeal(deal)}>
                       Save Deal
                     </button>
                   </div>
@@ -862,6 +819,75 @@ export default function Home() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {isSignedIn && (
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow">
+            <h2 className="text-3xl font-bold">Analysis History</h2>
+            <p className="mt-2 text-gray-600">
+              Properties you analyzed recently.
+            </p>
+
+            {historyMessage && (
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
+                {historyMessage}
+              </div>
+            )}
+
+            {historyLoading && (
+              <p className="mt-4 text-gray-600">Loading analysis history...</p>
+            )}
+
+            {!historyLoading && analysisHistory.length === 0 && (
+              <p className="mt-4 text-gray-600">No analysis history yet.</p>
+            )}
+
+            <div className="mt-6 grid gap-4">
+              {analysisHistory.map((item) => (
+                <div key={item.id} className="rounded-2xl border bg-white p-5">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold">{item.address}</h3>
+                      <p className="mt-1 text-gray-600">
+                        Score {item.deal_score}/100 · {money(Number(item.listing_price))} · {item.status}
+                      </p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Cash Flow: {money(Number(item.estimated_monthly_cash_flow))}/mo · Rent Yield: {item.gross_rent_yield}%
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
+                        onClick={() => {
+                          setAddress(item.address);
+                          setListingPrice(String(item.listing_price));
+                          setAnalyzeResult({
+                            address: item.address,
+                            listing_price: Number(item.listing_price),
+                            fair_value: Number(item.fair_value),
+                            estimated_monthly_rent: Number(item.estimated_monthly_rent),
+                            gross_rent_yield: Number(item.gross_rent_yield),
+                            status: item.status,
+                            deal_score: Number(item.deal_score),
+                            summary: item.summary,
+                            estimated_monthly_cash_flow: Number(item.estimated_monthly_cash_flow),
+                          });
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      >
+                        View
+                      </button>
+
+                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAnalysisHistory(item.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -887,23 +913,16 @@ export default function Home() {
                     <div>
                       <h3 className="text-xl font-bold">{deal.address}</h3>
                       <p className="mt-1 text-gray-600">
-                        Score {deal.deal_score}/100 ·{" "}
-                        {money(deal.listing_price)}
+                        Score {deal.deal_score}/100 · {money(deal.listing_price)}
                       </p>
                     </div>
 
                     <div className="flex gap-3">
-                      <button
-                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
-                        onClick={() => analyzeFullProperty(deal)}
-                      >
+                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => analyzeFullProperty(deal)}>
                         Analyze
                       </button>
 
-                      <button
-                        className="rounded-lg border px-4 py-2 font-semibold"
-                        onClick={() => removeSavedDeal(deal.address)}
-                      >
+                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => removeSavedDeal(deal.address)}>
                         Remove
                       </button>
                     </div>
@@ -915,23 +934,22 @@ export default function Home() {
         )}
 
         <footer className="mt-10 border-t pt-6 text-sm text-gray-500">
-  <p>
-    This analysis is for informational purposes only and is not financial
-    advice.
-  </p>
+          <p>
+            This analysis is for informational purposes only and is not financial advice.
+          </p>
 
-  <div className="mt-3 flex gap-4">
-    <a href="/privacy" className="hover:text-gray-900">
-      Privacy Policy
-    </a>
-    <a href="/terms" className="hover:text-gray-900">
-      Terms of Service
-    </a>
-    <a href="mailto:support@nestrova.com" className="hover:text-gray-900">
-      Contact
-    </a>
-  </div>
-</footer>
+          <div className="mt-3 flex gap-4">
+            <a href="/privacy" className="hover:text-gray-900">
+              Privacy Policy
+            </a>
+            <a href="/terms" className="hover:text-gray-900">
+              Terms of Service
+            </a>
+            <a href="mailto:support@nestrova.com" className="hover:text-gray-900">
+              Contact
+            </a>
+          </div>
+        </footer>
       </div>
     </main>
   );
