@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  SignedIn,
-  SignedOut,
   SignInButton,
   SignUpButton,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 
 type AnalyzeResult = {
@@ -50,6 +49,8 @@ function money(value: number) {
 }
 
 export default function Home() {
+  const { isSignedIn } = useUser();
+
   const [address, setAddress] = useState("");
   const [listingPrice, setListingPrice] = useState("");
   const [downPaymentPercent, setDownPaymentPercent] = useState("25");
@@ -67,6 +68,49 @@ export default function Home() {
   const [findDealsResult, setFindDealsResult] = useState<FindDealsResult | null>(null);
   const [findDealsLoading, setFindDealsLoading] = useState(false);
   const [findDealsError, setFindDealsError] = useState("");
+
+  const [savedDeals, setSavedDeals] = useState<Deal[]>([]);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("savedDeals");
+
+    if (saved) {
+      setSavedDeals(JSON.parse(saved));
+    }
+  }, []);
+
+  function updateSavedDeals(deals: Deal[]) {
+    setSavedDeals(deals);
+    localStorage.setItem("savedDeals", JSON.stringify(deals));
+  }
+
+  function saveDeal(deal: Deal) {
+    setSaveMessage("");
+
+    if (!isSignedIn) {
+      setSaveMessage("Please sign in to save deals.");
+      return;
+    }
+
+    const alreadySaved = savedDeals.some(
+      (savedDeal) => savedDeal.address === deal.address
+    );
+
+    if (alreadySaved) {
+      setSaveMessage("This deal is already saved.");
+      return;
+    }
+
+    const updatedDeals = [...savedDeals, deal];
+    updateSavedDeals(updatedDeals);
+    setSaveMessage("Deal saved successfully.");
+  }
+
+  function removeSavedDeal(address: string) {
+    const updatedDeals = savedDeals.filter((deal) => deal.address !== address);
+    updateSavedDeals(updatedDeals);
+  }
 
   async function analyzeProperty(customAddress?: string, customPrice?: number) {
     setAnalyzeError("");
@@ -119,6 +163,7 @@ export default function Home() {
   async function findDeals() {
     setFindDealsError("");
     setFindDealsResult(null);
+    setSaveMessage("");
 
     if (!city.trim()) {
       setFindDealsError("Please enter a city.");
@@ -177,23 +222,23 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex justify-end gap-4">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="rounded-lg border px-4 py-2 font-semibold">
-                Sign In
-              </button>
-            </SignInButton>
+          {!isSignedIn && (
+            <>
+              <SignInButton mode="modal">
+                <button className="rounded-lg border px-4 py-2 font-semibold">
+                  Sign In
+                </button>
+              </SignInButton>
 
-            <SignUpButton mode="modal">
-              <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white">
-                Sign Up
-              </button>
-            </SignUpButton>
-          </SignedOut>
+              <SignUpButton mode="modal">
+                <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </>
+          )}
 
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+          {isSignedIn && <UserButton />}
         </div>
 
         <div className="mb-10">
@@ -384,6 +429,12 @@ export default function Home() {
               analyzed: {findDealsResult.total_analyzed}.
             </p>
 
+            {saveMessage && (
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
+                {saveMessage}
+              </div>
+            )}
+
             <div className="mt-6 grid gap-5">
               {findDealsResult.deals.map((deal, index) => (
                 <div
@@ -449,12 +500,21 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <button
-                    className="mt-5 w-full rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
-                    onClick={() => analyzeFullProperty(deal)}
-                  >
-                    Analyze Full Property
-                  </button>
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    <button
+                      className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
+                      onClick={() => analyzeFullProperty(deal)}
+                    >
+                      Analyze Full Property
+                    </button>
+
+                    <button
+                      className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
+                      onClick={() => saveDeal(deal)}
+                    >
+                      Save Deal
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -470,6 +530,49 @@ export default function Home() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {isSignedIn && savedDeals.length > 0 && (
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow">
+            <h2 className="text-3xl font-bold">Saved Deals</h2>
+            <p className="mt-2 text-gray-600">
+              Properties you saved for later review.
+            </p>
+
+            <div className="mt-6 grid gap-4">
+              {savedDeals.map((deal, index) => (
+                <div
+                  key={index}
+                  className="rounded-2xl border bg-white p-5"
+                >
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold">{deal.address}</h3>
+                      <p className="mt-1 text-gray-600">
+                        Score {deal.deal_score}/100 · {money(deal.listing_price)}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
+                        onClick={() => analyzeFullProperty(deal)}
+                      >
+                        Analyze
+                      </button>
+
+                      <button
+                        className="rounded-lg border px-4 py-2 font-semibold"
+                        onClick={() => removeSavedDeal(deal.address)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
