@@ -856,6 +856,24 @@ export default function Home() {
               </p>
             </div>
 
+            <div className="rounded-2xl bg-white p-6 shadow">
+              <h2 className="mb-4 text-xl font-bold">Property Location</h2>
+
+              <iframe
+                title="property-map"
+                width="100%"
+                height="400"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                  analyzeResult.address
+                )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+              />
+
+              <p className="mt-4 text-gray-600">{analyzeResult.address}</p>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
