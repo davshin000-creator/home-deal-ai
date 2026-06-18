@@ -142,6 +142,45 @@ function getDealOverallScore(deal: Deal) {
   );
 }
 
+function getAverageOverallScore(deals: Deal[]) {
+  if (deals.length === 0) return 0;
+
+  const total = deals.reduce((sum, deal) => sum + getDealOverallScore(deal), 0);
+  return Math.round(total / deals.length);
+}
+
+function getAverageCashFlow(deals: Deal[]) {
+  if (deals.length === 0) return 0;
+
+  const total = deals.reduce(
+    (sum, deal) => sum + Number(deal.estimated_monthly_cash_flow || 0),
+    0
+  );
+
+  return Math.round(total / deals.length);
+}
+
+function getAverageAppreciation(deals: Deal[]) {
+  if (deals.length === 0) return 0;
+
+  const total = deals.reduce(
+    (sum, deal) => sum + Number(deal.expected_appreciation ?? 0),
+    0
+  );
+
+  return Number((total / deals.length).toFixed(1));
+}
+
+function getBestSavedDeal(deals: Deal[]) {
+  if (deals.length === 0) return null;
+
+  return deals.reduce((bestDeal, currentDeal) => {
+    return getDealOverallScore(currentDeal) > getDealOverallScore(bestDeal)
+      ? currentDeal
+      : bestDeal;
+  }, deals[0]);
+}
+
 function getInvestmentGrade(score: number) {
   if (score >= 95) return "A+";
   if (score >= 90) return "A";
@@ -1244,38 +1283,151 @@ export default function Home() {
 
         {isSignedIn && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
-            <h2 className="text-3xl font-bold">Saved Deals</h2>
-            <p className="mt-2 text-gray-600">Properties you saved for later review.</p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-500">
+                  ❤️ WATCHLIST
+                </p>
+                <h2 className="text-3xl font-bold">Saved Deals Dashboard</h2>
+                <p className="mt-2 text-gray-600">
+                  Track the properties you saved and compare their investment potential.
+                </p>
+              </div>
 
-            {savedDealsLoading && <p className="mt-4 text-gray-600">Loading saved deals...</p>}
+              {savedDeals.length > 0 && (
+                <div className="rounded-2xl border-2 border-black bg-white px-5 py-4 text-center">
+                  <p className="text-sm text-gray-500">Best Saved Deal</p>
+                  <p className="text-3xl font-bold">
+                    {getInvestmentGrade(
+                      getDealOverallScore(getBestSavedDeal(savedDeals) as Deal)
+                    )}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-700">
+                    {getDealOverallScore(getBestSavedDeal(savedDeals) as Deal)}/100
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {savedDealsLoading && (
+              <p className="mt-4 text-gray-600">Loading saved deals...</p>
+            )}
 
             {!savedDealsLoading && savedDeals.length === 0 && (
               <p className="mt-4 text-gray-600">No saved deals yet.</p>
             )}
 
-            <div className="mt-6 grid gap-4">
-              {savedDeals.map((deal, index) => (
-                <div key={index} className="rounded-2xl border bg-white p-5">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <h3 className="text-xl font-bold">{deal.address}</h3>
-                      <p className="mt-1 text-gray-600">
-                        Score {deal.deal_score}/100 · {money(deal.listing_price)}
-                      </p>
-                    </div>
+            {savedDeals.length > 0 && (
+              <>
+                <div className="mt-6 grid gap-4 md:grid-cols-4">
+                  <div className="rounded-2xl border bg-gray-50 p-5">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Saved Deals
+                    </p>
+                    <p className="mt-2 text-3xl font-bold">{savedDeals.length}</p>
+                  </div>
 
-                    <div className="flex gap-3">
-                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => analyzeFullProperty(deal)}>
-                        Analyze
-                      </button>
-                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => removeSavedDeal(deal.address)}>
-                        Remove
-                      </button>
-                    </div>
+                  <div className="rounded-2xl border bg-gray-50 p-5">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Average Score
+                    </p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {getAverageOverallScore(savedDeals)}/100
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border bg-gray-50 p-5">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Average Cash Flow
+                    </p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {money(getAverageCashFlow(savedDeals))}/mo
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border bg-gray-50 p-5">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Average Appreciation
+                    </p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {getAverageAppreciation(savedDeals) > 0 ? "+" : ""}
+                      {getAverageAppreciation(savedDeals).toFixed(1)}%
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="mt-6 grid gap-4">
+                  {savedDeals.map((deal, index) => {
+                    const overallScore = getDealOverallScore(deal);
+                    const grade = getInvestmentGrade(overallScore);
+                    const appreciation = Number(deal.expected_appreciation ?? 0);
+
+                    return (
+                      <div
+                        key={index}
+                        className="rounded-2xl border bg-white p-5 shadow-sm"
+                      >
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-500">
+                              Saved Property
+                            </p>
+                            <h3 className="mt-1 text-xl font-bold">
+                              {deal.address}
+                            </h3>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                                Overall {overallScore}/100
+                              </span>
+
+                              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                                Cash Flow {money(deal.estimated_monthly_cash_flow)}/mo
+                              </span>
+
+                              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                                Rent Yield {deal.gross_rent_yield}%
+                              </span>
+
+                              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                                Appreciation {appreciation > 0 ? "+" : ""}
+                                {appreciation.toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-3 md:items-end">
+                            <div className="rounded-2xl border-2 border-black bg-white px-5 py-4 text-center">
+                              <p className="text-sm text-gray-500">Grade</p>
+                              <p className="text-4xl font-bold">{grade}</p>
+                              <p className="text-sm font-semibold text-gray-700">
+                                {overallScore}/100
+                              </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                              <button
+                                className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
+                                onClick={() => analyzeFullProperty(deal)}
+                              >
+                                Analyze
+                              </button>
+
+                              <button
+                                className="rounded-lg border px-4 py-2 font-semibold"
+                                onClick={() => removeSavedDeal(deal.address)}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
 
