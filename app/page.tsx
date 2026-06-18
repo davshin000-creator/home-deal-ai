@@ -37,6 +37,7 @@ type Deal = {
   discount_percent: number;
   gross_rent_yield: number;
   deal_score: number;
+  overall_score?: number;
   forecast_score?: number;
   forecast_outlook?: string;
   neighborhood_score?: number;
@@ -121,6 +122,20 @@ function getOverallScore(result: AnalyzeResult) {
   const dealScore = Number(result.deal_score || 0);
   const forecastScore = Number(result.forecast_score || 50);
   const neighborhoodScore = Number(result.neighborhood_score || 50);
+
+  return Math.round(
+    dealScore * 0.4 + forecastScore * 0.35 + neighborhoodScore * 0.25
+  );
+}
+
+function getDealOverallScore(deal: Deal) {
+  if (deal.overall_score !== undefined && deal.overall_score !== null) {
+    return Number(deal.overall_score);
+  }
+
+  const dealScore = Number(deal.deal_score || 0);
+  const forecastScore = Number(deal.forecast_score || 50);
+  const neighborhoodScore = Number(deal.neighborhood_score || 50);
 
   return Math.round(
     dealScore * 0.4 + forecastScore * 0.35 + neighborhoodScore * 0.25
@@ -934,21 +949,7 @@ export default function Home() {
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => runAlertNow(alert)}>
-                        Run Alert Now
-                      </button>
-                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {findDealsResult && (
+                      <button className="rounded-lg bg-black px-4 py-2 font-{findDealsResult && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <p className="text-sm font-semibold text-gray-500">🏆 TOP DEALS</p>
             <h2 className="text-3xl font-bold">
@@ -956,41 +957,121 @@ export default function Home() {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Showing {findDealsResult.result_limit || findDealsResult.deals.length} deals. Total analyzed:{" "}
+              Ranked by Overall Investment Score. Showing{" "}
+              {findDealsResult.result_limit || findDealsResult.deals.length} deals.
+              Total analyzed:{" "}
               {findDealsResult.total_analyzed || findDealsResult.count || findDealsResult.deals.length}.
             </p>
 
             {saveMessage && (
-              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">{saveMessage}</div>
+              <div className="mt-4 rounded-lg bg-gray-100 p-4 text-gray-800">
+                {saveMessage}
+              </div>
             )}
 
             <div className="mt-6 grid gap-5">
-              {findDealsResult.deals.map((deal, index) => (
-                <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-500">#{index + 1} Deal</p>
-                      <h3 className="mt-1 text-2xl font-bold text-gray-900">{deal.address}</h3>
-                      <p className="mt-2 text-sm font-semibold text-gray-700">{deal.status}</p>
+              {findDealsResult.deals.map((deal, index) => {
+                const overallScore = getDealOverallScore(deal);
+                const grade = getInvestmentGrade(overallScore);
+                const appreciation = Number(deal.expected_appreciation ?? 0);
+                const confidence = Number(deal.confidence_score ?? 50);
+
+                return (
+                  <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500">
+                          #{index + 1} Investment Match
+                        </p>
+
+                        <h3 className="mt-1 text-2xl font-bold text-gray-900">
+                          {deal.address}
+                        </h3>
+
+                        <p className="mt-2 text-sm font-semibold text-gray-700">
+                          {deal.status}
+                        </p>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                            Appreciation {appreciation > 0 ? "+" : ""}
+                            {appreciation.toFixed(1)}%
+                          </span>
+
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                            Confidence {confidence}%
+                          </span>
+
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800">
+                            {deal.neighborhood_grade || "Neighborhood Profile"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border-2 border-black bg-white p-5 text-center">
+                        <p className="text-sm text-gray-500">Overall Score</p>
+                        <p className="text-5xl font-bold">{grade}</p>
+                        <p className="mt-1 text-2xl font-semibold">{overallScore}/100</p>
+                      </div>
                     </div>
 
-                    <div className="rounded-2xl bg-gray-100 p-5 text-center">
-                      <p className="text-sm text-gray-500">Deal Score</p>
-                      <p className="text-4xl font-bold">{deal.deal_score}</p>
-                      <p className="text-sm text-gray-500">/100</p>
+                    <div className="mt-6 grid gap-4 md:grid-cols-6">
+                      <div>
+                        <p className="text-sm text-gray-500">Price</p>
+                        <p className="text-lg font-bold">{money(deal.listing_price)}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">Fair Value</p>
+                        <p className="text-lg font-bold">{money(deal.fair_value)}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">Deal Score</p>
+                        <p className="text-lg font-bold">{deal.deal_score}/100</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">Forecast</p>
+                        <p className="text-lg font-bold">{deal.forecast_score ?? 50}/100</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">Neighborhood</p>
+                        <p className="text-lg font-bold">{deal.neighborhood_score ?? 50}/100</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">Cash Flow</p>
+                        <p className="text-lg font-bold">
+                          {money(deal.estimated_monthly_cash_flow)}/mo
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                      <button
+                        className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
+                        onClick={() => analyzeFullProperty(deal)}
+                      >
+                        Analyze Full Property
+                      </button>
+
+                      <button
+                        className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
+                        onClick={() => saveDeal(deal)}
+                      >
+                        Save Deal
+                      </button>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-                  <div className="mt-6 grid gap-4 md:grid-cols-5">
-                    <div><p className="text-sm text-gray-500">Price</p><p className="text-lg font-bold">{money(deal.listing_price)}</p></div>
-                    <div><p className="text-sm text-gray-500">Fair Value</p><p className="text-lg font-bold">{money(deal.fair_value)}</p></div>
-                    <div><p className="text-sm text-gray-500">Discount</p><p className="text-lg font-bold">{deal.discount_percent}%</p></div>
-                    <div><p className="text-sm text-gray-500">Rent Yield</p><p className="text-lg font-bold">{deal.gross_rent_yield}%</p></div>
-                    <div><p className="text-sm text-gray-500">Cash Flow</p><p className="text-lg font-bold">{money(deal.estimated_monthly_cash_flow)}/mo</p></div>
-                  </div>
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    <button className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
+        ibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
                       Analyze Full Property
                     </button>
                     <button className="rounded-lg border p-3 font-semibold hover:bg-gray-50" onClick={() => saveDeal(deal)}>
