@@ -25,6 +25,8 @@ type AnalyzeResult = {
   neighborhood_score: number;
   neighborhood_grade: string;
   neighborhood_reasons: string[];
+  expected_appreciation: number;
+  confidence_score: number;
 };
 
 type Deal = {
@@ -39,6 +41,8 @@ type Deal = {
   forecast_outlook?: string;
   neighborhood_score?: number;
   neighborhood_grade?: string;
+  expected_appreciation?: number;
+  confidence_score?: number;
   status: string;
   estimated_monthly_cash_flow: number;
 };
@@ -95,6 +99,8 @@ type AnalysisHistory = {
   neighborhood_score?: number;
   neighborhood_grade?: string;
   neighborhood_reasons?: string[];
+  expected_appreciation?: number;
+  confidence_score?: number;
   created_at: string;
 };
 
@@ -524,6 +530,8 @@ export default function Home() {
         neighborhood_score: data.neighborhood_score ?? 50,
         neighborhood_grade: data.neighborhood_grade ?? "Stable Neighborhood Profile",
         neighborhood_reasons: data.neighborhood_reasons ?? [],
+        expected_appreciation: data.expected_appreciation ?? 0,
+        confidence_score: data.confidence_score ?? 50,
       });
       await saveAnalysisHistory({
         ...data,
@@ -533,6 +541,8 @@ export default function Home() {
         neighborhood_score: data.neighborhood_score ?? 50,
         neighborhood_grade: data.neighborhood_grade ?? "Stable Neighborhood Profile",
         neighborhood_reasons: data.neighborhood_reasons ?? [],
+        expected_appreciation: data.expected_appreciation ?? 0,
+        confidence_score: data.confidence_score ?? 50,
       });
       await incrementAnalyzeUsage();
     } catch {
@@ -829,6 +839,23 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="rounded-2xl bg-white p-6 shadow">
+              <p className="text-sm text-gray-500">Expected 12-Month Appreciation</p>
+
+              <h2 className="mt-2 text-5xl font-bold">
+                {Number(analyzeResult.expected_appreciation || 0) > 0 ? "+" : ""}
+                {Number(analyzeResult.expected_appreciation || 0).toFixed(1)}%
+              </h2>
+
+              <p className="mt-3 text-xl font-semibold">
+                Confidence: {analyzeResult.confidence_score || 50}%
+              </p>
+
+              <p className="mt-3 text-gray-600">
+                AI estimate based on valuation, rental demand, cash flow, and neighborhood profile.
+              </p>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
@@ -1009,6 +1036,8 @@ export default function Home() {
                             neighborhood_score: item.neighborhood_score ?? 50,
                             neighborhood_grade: item.neighborhood_grade ?? "Stable Neighborhood Profile",
                             neighborhood_reasons: item.neighborhood_reasons ?? ["Historical neighborhood analysis"],
+                            expected_appreciation: item.expected_appreciation ?? 0,
+                            confidence_score: item.confidence_score ?? 50,
                           });
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
