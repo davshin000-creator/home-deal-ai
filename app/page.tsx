@@ -22,6 +22,9 @@ type AnalyzeResult = {
   forecast_score: number;
   forecast_outlook: string;
   forecast_reasons: string[];
+  neighborhood_score: number;
+  neighborhood_grade: string;
+  neighborhood_reasons: string[];
 };
 
 type Deal = {
@@ -34,6 +37,8 @@ type Deal = {
   deal_score: number;
   forecast_score?: number;
   forecast_outlook?: string;
+  neighborhood_score?: number;
+  neighborhood_grade?: string;
   status: string;
   estimated_monthly_cash_flow: number;
 };
@@ -87,6 +92,9 @@ type AnalysisHistory = {
   status: string;
   estimated_monthly_cash_flow: number;
   summary: string;
+  neighborhood_score?: number;
+  neighborhood_grade?: string;
+  neighborhood_reasons?: string[];
   created_at: string;
 };
 
@@ -491,12 +499,18 @@ export default function Home() {
         forecast_score: data.forecast_score ?? 50,
         forecast_outlook: data.forecast_outlook ?? "Stable Outlook",
         forecast_reasons: data.forecast_reasons ?? [],
+        neighborhood_score: data.neighborhood_score ?? 50,
+        neighborhood_grade: data.neighborhood_grade ?? "Stable Neighborhood Profile",
+        neighborhood_reasons: data.neighborhood_reasons ?? [],
       });
       await saveAnalysisHistory({
         ...data,
         forecast_score: data.forecast_score ?? 50,
         forecast_outlook: data.forecast_outlook ?? "Stable Outlook",
         forecast_reasons: data.forecast_reasons ?? [],
+        neighborhood_score: data.neighborhood_score ?? 50,
+        neighborhood_grade: data.neighborhood_grade ?? "Stable Neighborhood Profile",
+        neighborhood_reasons: data.neighborhood_reasons ?? [],
       });
       await incrementAnalyzeUsage();
     } catch {
@@ -757,6 +771,26 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="rounded-2xl bg-white p-6 shadow">
+              <p className="text-sm text-gray-500">Neighborhood Score</p>
+
+              <h2 className="mt-2 text-4xl font-bold">
+                {analyzeResult.neighborhood_grade || "Stable Neighborhood Profile"}
+              </h2>
+
+              <p className="mt-2 text-xl font-semibold">
+                Neighborhood Score: {analyzeResult.neighborhood_score || 50}/100
+              </p>
+
+              <div className="mt-4 space-y-2">
+                {analyzeResult.neighborhood_reasons?.map((reason, index) => (
+                  <p key={index} className="text-sm text-gray-700">
+                    ✓ {reason}
+                  </p>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <p className="text-sm text-gray-500">Listing Price</p>
@@ -931,9 +965,12 @@ export default function Home() {
                             deal_score: Number(item.deal_score),
                             summary: item.summary,
                             estimated_monthly_cash_flow: Number(item.estimated_monthly_cash_flow),
-                            forecast_score: 50,
+                            forecast_score: Number(item.neighborhood_score) ? Number(item.neighborhood_score) : 50,
                             forecast_outlook: "Stable Outlook",
                             forecast_reasons: ["Historical analysis"],
+                            neighborhood_score: item.neighborhood_score ?? 50,
+                            neighborhood_grade: item.neighborhood_grade ?? "Stable Neighborhood Profile",
+                            neighborhood_reasons: item.neighborhood_reasons ?? ["Historical neighborhood analysis"],
                           });
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
