@@ -697,12 +697,82 @@ export default function Home() {
           {isSignedIn && <UserButton />}
         </div>
 
-        <div className="mb-10">
-          <h1 className="text-5xl font-bold text-gray-900">Nestrova</h1>
-          <p className="mt-3 text-gray-600">
-            Analyze properties, discover real estate deals, and track investment opportunities.
-          </p>
-        </div>
+        <section className="mb-10 overflow-hidden rounded-3xl border bg-white p-8 shadow-sm md:p-10">
+          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-xl font-bold text-white">
+                  ◢
+                </div>
+
+                <div>
+                  <p className="text-2xl font-bold tracking-tight text-gray-900">
+                    NESTROVA
+                  </p>
+                  <p className="text-sm font-medium text-gray-500">
+                    AI Real Estate Intelligence
+                  </p>
+                </div>
+              </div>
+
+              <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-gray-900 md:text-6xl">
+                Find Properties With Real Investment Potential
+              </h1>
+
+              <p className="mt-5 max-w-2xl text-lg text-gray-600">
+                Not every house is a good investment. Nestrova helps you identify
+                the ones that are with AI-powered valuation, cash flow analysis,
+                appreciation forecasts, and neighborhood scoring.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <button
+                  className="rounded-xl bg-black px-6 py-4 font-semibold text-white hover:bg-gray-800"
+                  onClick={() => {
+                    document
+                      .getElementById("analyze-property")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  Analyze Property
+                </button>
+
+                <button
+                  className="rounded-xl border px-6 py-4 font-semibold hover:bg-gray-50"
+                  onClick={() => {
+                    document
+                      .getElementById("find-deals")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  Find Deals
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-3 rounded-3xl bg-gray-50 p-5 md:min-w-[320px]">
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-500">AI Fair Value</p>
+                <p className="mt-1 text-lg font-bold">Estimate true property value</p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-500">Cash Flow Projection</p>
+                <p className="mt-1 text-lg font-bold">Model monthly returns</p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-500">12-Month Appreciation</p>
+                <p className="mt-1 text-lg font-bold">See future value potential</p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-500">Neighborhood Analysis</p>
+                <p className="mt-1 text-lg font-bold">Score local investment quality</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <div className="mb-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border-2 border-black bg-white p-5 shadow">
@@ -746,7 +816,7 @@ export default function Home() {
         )}
 
         <div className="grid gap-8 lg:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <div id="analyze-property" className="rounded-2xl bg-white p-6 shadow">
             <h2 className="text-2xl font-bold">Analyze Property</h2>
             <p className="mt-2 text-gray-600">Analyze a specific property by address.</p>
 
@@ -770,7 +840,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <div id="find-deals" className="rounded-2xl bg-white p-6 shadow">
             <h2 className="text-2xl font-bold">Find Best Deals</h2>
             <p className="mt-2 text-gray-600">Free users can view the top 5 deals per search.</p>
 
@@ -949,7 +1019,21 @@ export default function Home() {
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="rounded-lg bg-black px-4 py-2 font-{findDealsResult && (
+                      <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white" onClick={() => runAlertNow(alert)}>
+                        Run Alert Now
+                      </button>
+                      <button className="rounded-lg border px-4 py-2 font-semibold" onClick={() => deleteAlert(alert.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {findDealsResult && (
           <div className="mt-8 rounded-2xl bg-white p-6 shadow">
             <p className="text-sm font-semibold text-gray-500">🏆 TOP DEALS</p>
             <h2 className="text-3xl font-bold">
@@ -957,10 +1041,13 @@ export default function Home() {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Ranked by Overall Investment Score. Showing{" "}
+              Ranked by Overall Investment Score. Showing {" "}
               {findDealsResult.result_limit || findDealsResult.deals.length} deals.
-              Total analyzed:{" "}
-              {findDealsResult.total_analyzed || findDealsResult.count || findDealsResult.deals.length}.
+              Total analyzed: {" "}
+              {findDealsResult.total_analyzed ||
+                findDealsResult.count ||
+                findDealsResult.deals.length}
+              .
             </p>
 
             {saveMessage && (
@@ -977,7 +1064,10 @@ export default function Home() {
                 const confidence = Number(deal.confidence_score ?? 50);
 
                 return (
-                  <div key={index} className="rounded-2xl border bg-white p-6 shadow-sm">
+                  <div
+                    key={index}
+                    className="rounded-2xl border bg-white p-6 shadow-sm"
+                  >
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-gray-500">
@@ -1011,19 +1101,25 @@ export default function Home() {
                       <div className="rounded-2xl border-2 border-black bg-white p-5 text-center">
                         <p className="text-sm text-gray-500">Overall Score</p>
                         <p className="text-5xl font-bold">{grade}</p>
-                        <p className="mt-1 text-2xl font-semibold">{overallScore}/100</p>
+                        <p className="mt-1 text-2xl font-semibold">
+                          {overallScore}/100
+                        </p>
                       </div>
                     </div>
 
                     <div className="mt-6 grid gap-4 md:grid-cols-6">
                       <div>
                         <p className="text-sm text-gray-500">Price</p>
-                        <p className="text-lg font-bold">{money(deal.listing_price)}</p>
+                        <p className="text-lg font-bold">
+                          {money(deal.listing_price)}
+                        </p>
                       </div>
 
                       <div>
                         <p className="text-sm text-gray-500">Fair Value</p>
-                        <p className="text-lg font-bold">{money(deal.fair_value)}</p>
+                        <p className="text-lg font-bold">
+                          {money(deal.fair_value)}
+                        </p>
                       </div>
 
                       <div>
@@ -1033,12 +1129,16 @@ export default function Home() {
 
                       <div>
                         <p className="text-sm text-gray-500">Forecast</p>
-                        <p className="text-lg font-bold">{deal.forecast_score ?? 50}/100</p>
+                        <p className="text-lg font-bold">
+                          {deal.forecast_score ?? 50}/100
+                        </p>
                       </div>
 
                       <div>
                         <p className="text-sm text-gray-500">Neighborhood</p>
-                        <p className="text-lg font-bold">{deal.neighborhood_score ?? 50}/100</p>
+                        <p className="text-lg font-bold">
+                          {deal.neighborhood_score ?? 50}/100
+                        </p>
                       </div>
 
                       <div>
@@ -1067,19 +1167,6 @@ export default function Home() {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        )}
-
-        ibold text-white hover:bg-gray-800" onClick={() => analyzeFullProperty(deal)}>
-                      Analyze Full Property
-                    </button>
-                    <button className="rounded-lg border p-3 font-semibold hover:bg-gray-50" onClick={() => saveDeal(deal)}>
-                      Save Deal
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}
