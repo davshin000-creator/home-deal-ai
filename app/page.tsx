@@ -111,6 +111,28 @@ function getMonthKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function getOverallScore(result: AnalyzeResult) {
+  const dealScore = Number(result.deal_score || 0);
+  const forecastScore = Number(result.forecast_score || 50);
+  const neighborhoodScore = Number(result.neighborhood_score || 50);
+
+  return Math.round(
+    dealScore * 0.4 + forecastScore * 0.35 + neighborhoodScore * 0.25
+  );
+}
+
+function getInvestmentGrade(score: number) {
+  if (score >= 95) return "A+";
+  if (score >= 90) return "A";
+  if (score >= 85) return "A-";
+  if (score >= 80) return "B+";
+  if (score >= 75) return "B";
+  if (score >= 70) return "B-";
+  if (score >= 65) return "C+";
+  if (score >= 60) return "C";
+  return "D";
+}
+
 function savedRowToDeal(row: SavedDealRow): Deal {
   return {
     address: row.address,
@@ -745,6 +767,22 @@ export default function Home() {
 
         {analyzeResult && (
           <div className="mt-8 grid gap-6">
+            <div className="rounded-2xl border-2 border-black bg-white p-6 shadow">
+              <p className="text-sm text-gray-500">Overall Investment Score</p>
+
+              <h2 className="mt-2 text-6xl font-bold">
+                {getInvestmentGrade(getOverallScore(analyzeResult))}
+              </h2>
+
+              <p className="mt-2 text-2xl font-semibold">
+                {getOverallScore(analyzeResult)}/100
+              </p>
+
+              <p className="mt-3 text-gray-600">
+                Weighted from Deal Score, Home Appreciation Outlook, and Neighborhood Score.
+              </p>
+            </div>
+
             <div className="rounded-2xl bg-white p-6 shadow">
               <p className="text-sm text-gray-500">Deal Score</p>
               <h2 className="mt-2 text-6xl font-bold">{analyzeResult.deal_score}/100</h2>
