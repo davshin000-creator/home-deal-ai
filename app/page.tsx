@@ -107,6 +107,7 @@ type AnalysisHistory = {
 
 const API_URL = "https://home-deal-api.onrender.com";
 const isPro = false;
+const PRO_PRICE = "$19/mo";
 const FREE_ANALYZE_LIMIT = 10;
 
 function money(value: number) {
@@ -410,6 +411,11 @@ export default function Home() {
 
   async function createAlert() {
     setAlertMessage("");
+
+    if (!isPro) {
+      setAlertMessage("Deal Alerts are available on Pro. Upgrade is coming soon.");
+      return;
+    }
 
     if (!isSignedIn || !user?.id) {
       setAlertMessage("Please sign in to create alerts.");
@@ -722,6 +728,11 @@ export default function Home() {
   function toggleCompareDeal(deal: Deal) {
     setCompareMessage("");
 
+    if (!isPro) {
+      setCompareMessage("Property Compare is available on Pro. Upgrade is coming soon.");
+      return;
+    }
+
     const alreadySelected = compareDeals.some(
       (compareDeal) => compareDeal.address === deal.address
     );
@@ -876,10 +887,21 @@ export default function Home() {
             <p className="mt-2 text-gray-600">Free analyses used this month</p>
           </div>
 
-          <div className="rounded-2xl border bg-white p-5 shadow opacity-70">
-            <p className="text-sm font-semibold text-gray-500">COMING SOON</p>
-            <h2 className="mt-1 text-2xl font-bold">Pro Plan</h2>
-            <p className="mt-2 text-gray-600">More searches, alerts, and forecasts</p>
+          <div className="rounded-2xl border-2 border-black bg-black p-5 text-white shadow">
+            <p className="text-sm font-semibold text-gray-300">PRO PLAN</p>
+            <h2 className="mt-1 text-2xl font-bold">{PRO_PRICE}</h2>
+
+            <ul className="mt-3 space-y-1 text-sm text-gray-200">
+              <li>✓ 50 Analyses / month</li>
+              <li>✓ 10 Deal Searches / month</li>
+              <li>✓ Property Compare</li>
+              <li>✓ Daily Deal Alerts</li>
+              <li>✓ Priority Features</li>
+            </ul>
+
+            <button className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black">
+              Upgrade Soon
+            </button>
           </div>
         </div>
 
