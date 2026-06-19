@@ -563,6 +563,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: user.id,
           address: finalAddress,
           listing_price: finalPrice,
           down_payment_percent: Number(downPaymentPercent),
@@ -636,6 +637,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: user?.id,
           city,
           state,
           max_price: Number(maxPrice),
@@ -674,6 +676,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: user?.id,
           city: alert.city,
           state: alert.state,
           max_price: Number(alert.max_price),
