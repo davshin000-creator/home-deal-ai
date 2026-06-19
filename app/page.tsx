@@ -233,6 +233,9 @@ export default function Home() {
   const [savedDealsLoading, setSavedDealsLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
+  const [compareDeals, setCompareDeals] = useState<Deal[]>([]);
+  const [compareMessage, setCompareMessage] = useState("");
+
   const [alerts, setAlerts] = useState<DealAlert[]>([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -713,6 +716,48 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function toggleCompareDeal(deal: Deal) {
+    setCompareMessage("");
+
+    const alreadySelected = compareDeals.some(
+      (compareDeal) => compareDeal.address === deal.address
+    );
+
+    if (alreadySelected) {
+      setCompareDeals(
+        compareDeals.filter((compareDeal) => compareDeal.address !== deal.address)
+      );
+      return;
+    }
+
+    if (compareDeals.length >= 2) {
+      setCompareMessage("You can compare up to 2 properties at a time.");
+      return;
+    }
+
+    setCompareDeals([...compareDeals, deal]);
+  }
+
+  function clearCompare() {
+    setCompareDeals([]);
+    setCompareMessage("");
+  }
+
+  function isDealSelectedForCompare(deal: Deal) {
+    return compareDeals.some((compareDeal) => compareDeal.address === deal.address);
+  }
+
+  function getCompareWinner() {
+    if (compareDeals.length < 2) return null;
+
+    const firstScore = getDealOverallScore(compareDeals[0]);
+    const secondScore = getDealOverallScore(compareDeals[1]);
+
+    if (firstScore === secondScore) return null;
+
+    return firstScore > secondScore ? compareDeals[0] : compareDeals[1];
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
@@ -1095,6 +1140,12 @@ export default function Home() {
               </div>
             )}
 
+            {compareMessage && (
+              <div className="mt-4 rounded-lg bg-yellow-50 p-4 text-yellow-900">
+                {compareMessage}
+              </div>
+            )}
+
             <div className="mt-6 grid gap-5">
               {findDealsResult.deals.map((deal, index) => {
                 const overallScore = getDealOverallScore(deal);
@@ -1188,7 +1239,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
                       <button
                         className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
                         onClick={() => analyzeFullProperty(deal)}
@@ -1202,11 +1253,176 @@ export default function Home() {
                       >
                         Save Deal
                       </button>
+
+                      <button
+                        className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
+                        onClick={() => toggleCompareDeal(deal)}
+                      >
+                        {isDealSelectedForCompare(deal) ? "Remove Compare" : "Compare"}
+                      </button>
                     </div>
                   </div>
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {compareDeals.length > 0 && (
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-500">
+                  ⚖️ PROPERTY COMPARE
+                </p>
+                <h2 className="text-3xl font-bold">Compare Properties</h2>
+                <p className="mt-2 text-gray-600">
+                  Select two properties to compare investment potential side by side.
+                </p>
+              </div>
+
+              <button
+                className="rounded-lg border px-4 py-2 font-semibold hover:bg-gray-50"
+                onClick={clearCompare}
+              >
+                Clear Compare
+              </button>
+            </div>
+
+            {compareDeals.length === 1 && (
+              <div className="mt-5 rounded-2xl bg-yellow-50 p-5 text-yellow-900">
+                Select one more property to complete the comparison.
+              </div>
+            )}
+
+            {compareDeals.length === 2 && (
+              <>
+                {getCompareWinner() && (
+                  <div className="mt-5 rounded-2xl border-2 border-black bg-white p-5">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Recommended Pick
+                    </p>
+                    <h3 className="mt-1 text-2xl font-bold">
+                      {getCompareWinner()?.address}
+                    </h3>
+                    <p className="mt-2 text-gray-600">
+                      Higher overall investment score based on deal quality, forecast,
+                      and neighborhood profile.
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                  {compareDeals.map((deal, index) => {
+                    const overallScore = getDealOverallScore(deal);
+                    const grade = getInvestmentGrade(overallScore);
+                    const appreciation = Number(deal.expected_appreciation ?? 0);
+                    const confidence = Number(deal.confidence_score ?? 50);
+
+                    return (
+                      <div
+                        key={deal.address}
+                        className="rounded-2xl border bg-white p-5 shadow-sm"
+                      >
+                        <p className="text-sm font-semibold text-gray-500">
+                          Property {index + 1}
+                        </p>
+
+                        <h3 className="mt-1 text-xl font-bold">{deal.address}</h3>
+
+                        <div className="mt-4 rounded-2xl border-2 border-black p-5 text-center">
+                          <p className="text-sm text-gray-500">Overall Score</p>
+                          <p className="text-5xl font-bold">{grade}</p>
+                          <p className="mt-1 text-2xl font-semibold">
+                            {overallScore}/100
+                          </p>
+                        </div>
+
+                        <div className="mt-5 grid gap-3">
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Listing Price</span>
+                            <span className="font-semibold">
+                              {money(deal.listing_price)}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Fair Value</span>
+                            <span className="font-semibold">
+                              {money(deal.fair_value)}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Cash Flow</span>
+                            <span className="font-semibold">
+                              {money(deal.estimated_monthly_cash_flow)}/mo
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Rent Yield</span>
+                            <span className="font-semibold">
+                              {deal.gross_rent_yield}%
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Appreciation</span>
+                            <span className="font-semibold">
+                              {appreciation > 0 ? "+" : ""}
+                              {appreciation.toFixed(1)}%
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Confidence</span>
+                            <span className="font-semibold">{confidence}%</span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Deal Score</span>
+                            <span className="font-semibold">
+                              {deal.deal_score}/100
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-500">Forecast</span>
+                            <span className="font-semibold">
+                              {deal.forecast_score ?? 50}/100
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Neighborhood</span>
+                            <span className="font-semibold">
+                              {deal.neighborhood_score ?? 50}/100
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-5 grid gap-3 md:grid-cols-2">
+                          <button
+                            className="rounded-lg bg-black p-3 font-semibold text-white hover:bg-gray-800"
+                            onClick={() => analyzeFullProperty(deal)}
+                          >
+                            Analyze
+                          </button>
+
+                          <button
+                            className="rounded-lg border p-3 font-semibold hover:bg-gray-50"
+                            onClick={() => toggleCompareDeal(deal)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -1405,12 +1621,21 @@ export default function Home() {
                               </p>
                             </div>
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-wrap gap-3">
                               <button
                                 className="rounded-lg bg-black px-4 py-2 font-semibold text-white"
                                 onClick={() => analyzeFullProperty(deal)}
                               >
                                 Analyze
+                              </button>
+
+                              <button
+                                className="rounded-lg border px-4 py-2 font-semibold"
+                                onClick={() => toggleCompareDeal(deal)}
+                              >
+                                {isDealSelectedForCompare(deal)
+                                  ? "Remove Compare"
+                                  : "Compare"}
                               </button>
 
                               <button
