@@ -899,9 +899,17 @@ export default function Home() {
               <li>✓ Priority Features</li>
             </ul>
 
-            <button className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black">
-              Upgrade Soon
-            </button>
+           <button
+              onClick={() =>
+                window.open(
+                  "https://buy.stripe.com/test_3cIcN5bigd6t9Vt5vhfIs00",
+                  "_blank"
+        )
+      }
+        className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black hover:bg-gray-100"
+>
+  Upgrade to Pro
+</button>
           </div>
         </div>
 
