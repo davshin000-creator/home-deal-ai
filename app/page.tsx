@@ -108,6 +108,7 @@ type AnalysisHistory = {
 const API_URL = "https://home-deal-api.onrender.com";
 const isPro = false;
 const PRO_PRICE = "$19/mo";
+const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_3cIcN5bigd6t9Vt5vhfIs00";
 const FREE_ANALYZE_LIMIT = 10;
 
 function money(value: number) {
@@ -252,6 +253,10 @@ export default function Home() {
 
   const [analyzeCount, setAnalyzeCount] = useState(0);
   const [findDealsCount, setFindDealsCount] = useState(0);
+
+  function handleUpgradeClick() {
+    window.open(STRIPE_CHECKOUT_URL, "_blank", "noopener,noreferrer");
+  }
 
   useEffect(() => {
     if (isSignedIn && user?.id) {
@@ -413,7 +418,7 @@ export default function Home() {
     setAlertMessage("");
 
     if (!isPro) {
-      setAlertMessage("Deal Alerts are available on Pro. Upgrade is coming soon.");
+      setAlertMessage("Deal Alerts are available on Pro. Upgrade to Pro to use this feature.");
       return;
     }
 
@@ -729,7 +734,7 @@ export default function Home() {
     setCompareMessage("");
 
     if (!isPro) {
-      setCompareMessage("Property Compare is available on Pro. Upgrade is coming soon.");
+      setCompareMessage("Property Compare is available on Pro. Upgrade to Pro to use this feature.");
       return;
     }
 
@@ -899,17 +904,12 @@ export default function Home() {
               <li>✓ Priority Features</li>
             </ul>
 
-           <button
-              onClick={() =>
-                window.open(
-                  "https://buy.stripe.com/test_3cIcN5bigd6t9Vt5vhfIs00",
-                  "_blank"
-        )
-      }
-        className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black hover:bg-gray-100"
->
-  Upgrade to Pro
-</button>
+            <button
+              onClick={handleUpgradeClick}
+              className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black hover:bg-gray-100"
+            >
+              Upgrade to Pro
+            </button>
           </div>
         </div>
 
@@ -926,7 +926,10 @@ export default function Home() {
               You have used all {FREE_ANALYZE_LIMIT} free property analyses this month.
               Upgrade to Pro to continue.
             </p>
-            <button className="mt-4 rounded-lg bg-white px-6 py-3 font-semibold text-black">
+            <button
+              onClick={handleUpgradeClick}
+              className="mt-4 rounded-lg bg-white px-6 py-3 font-semibold text-black hover:bg-gray-100"
+            >
               Upgrade to Pro
             </button>
           </div>
