@@ -1245,7 +1245,7 @@ export default function Home() {
               >
                 Upgrade to Pro
               </button>
-            )
+            )}
           </div>
         </div>
 
