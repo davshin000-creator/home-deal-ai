@@ -106,10 +106,56 @@ type AnalysisHistory = {
 };
 
 const API_URL = "https://home-deal-api.onrender.com";
-const isPro = false;
 const PRO_PRICE = "$19/mo";
-const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_3cIcN5bigd6t9Vt5vhfIs00";
+const CHECKOUT_URL = "https://buy.stripe.com/test_3cIcN5bigd6t9Vt5vhfIs00";
 const FREE_ANALYZE_LIMIT = 10;
+
+const SAMPLE_REPORT: AnalyzeResult = {
+  address: "157 Damsel, Irvine, CA 92620",
+  listing_price: 1490000,
+  fair_value: 1583000,
+  estimated_monthly_rent: 4740,
+  gross_rent_yield: 3.82,
+  status: "UNDERVALUED",
+  deal_score: 55,
+  summary:
+    "This sample property appears moderately undervalued compared with AI fair value, but the monthly cash flow is negative at the current financing assumptions. It may be more suitable for appreciation-focused buyers than cash-flow-first investors.",
+  estimated_monthly_cash_flow: -5552,
+  forecast_score: 62,
+  forecast_outlook: "Stable Appreciation Outlook",
+  forecast_reasons: [
+    "Located in a high-demand Orange County market",
+    "Estimated value is above the current listing price",
+    "Rental yield is positive but not strong enough to offset ownership costs",
+  ],
+  neighborhood_score: 78,
+  neighborhood_grade: "Strong Neighborhood Profile",
+  neighborhood_reasons: [
+    "Irvine has historically strong buyer demand",
+    "Family-oriented neighborhood profile",
+    "High local price level may limit cash-flow performance",
+  ],
+  expected_appreciation: 2.8,
+  confidence_score: 68,
+};
+
+const DEMO_PROPERTIES = [
+  {
+    label: "Irvine Sample",
+    address: "157 Damsel, Irvine, CA 92620",
+    price: "1490000",
+  },
+  {
+    label: "Austin Sample",
+    address: "301 West Ave, Austin, TX 78701",
+    price: "650000",
+  },
+  {
+    label: "Miami Sample",
+    address: "1750 N Bayshore Dr, Miami, FL 33132",
+    price: "520000",
+  },
+];
 
 function money(value: number) {
   return `$${Math.round(Number(value || 0)).toLocaleString()}`;
@@ -253,18 +299,18 @@ export default function Home() {
 
   const [analyzeCount, setAnalyzeCount] = useState(0);
   const [findDealsCount, setFindDealsCount] = useState(0);
-
-  function handleUpgradeClick() {
-    window.open(STRIPE_CHECKOUT_URL, "_blank", "noopener,noreferrer");
-  }
+  const [isPro, setIsPro] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     if (isSignedIn && user?.id) {
+      loadUserProfile();
       loadSavedDeals();
       loadAlerts();
       loadAnalysisHistory();
       loadUsage();
     } else {
+      setIsPro(false);
       setSavedDeals([]);
       setAlerts([]);
       setAnalysisHistory([]);
@@ -293,6 +339,54 @@ export default function Home() {
       setFindDealsCount(0);
     }
   }
+
+  async function loadUserProfile() {
+    if (!user?.id) return;
+
+    setProfileLoading(true);
+
+    const userEmail = user.primaryEmailAddress?.emailAddress || "";
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("is_pro")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      setIsPro(false);
+      setProfileLoading(false);
+      return;
+    }
+
+    if (data) {
+      setIsPro(Boolean(data.is_pro));
+      setProfileLoading(false);
+      return;
+    }
+
+    const { data: createdProfile, error: createError } = await supabase
+      .from("user_profiles")
+      .insert({
+        user_id: user.id,
+        email: userEmail,
+        is_pro: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select("is_pro")
+      .maybeSingle();
+
+    if (createError) {
+      setIsPro(false);
+      setProfileLoading(false);
+      return;
+    }
+
+    setIsPro(Boolean(createdProfile?.is_pro));
+    setProfileLoading(false);
+  }
+
 
   async function incrementAnalyzeUsage() {
     if (!user?.id) return;
@@ -418,7 +512,7 @@ export default function Home() {
     setAlertMessage("");
 
     if (!isPro) {
-      setAlertMessage("Deal Alerts are available on Pro. Upgrade to Pro to use this feature.");
+      setAlertMessage("Deal Alerts are available on Pro.");
       return;
     }
 
@@ -734,7 +828,7 @@ export default function Home() {
     setCompareMessage("");
 
     if (!isPro) {
-      setCompareMessage("Property Compare is available on Pro. Upgrade to Pro to use this feature.");
+      setCompareMessage("Property Compare is available on Pro.");
       return;
     }
 
@@ -775,6 +869,217 @@ export default function Home() {
     if (firstScore === secondScore) return null;
 
     return firstScore > secondScore ? compareDeals[0] : compareDeals[1];
+  }
+
+  function openCheckout() {
+    window.open(CHECKOUT_URL, "_blank");
+  }
+
+
+  function exportPdfReport() {
+    if (!analyzeResult) return;
+
+    const overallScore = getOverallScore(analyzeResult);
+    const grade = getInvestmentGrade(overallScore);
+    const generatedAt = new Date().toLocaleDateString();
+
+    const reportHtml = `
+      <html>
+        <head>
+          <title>Nestrova Property Report</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              color: #111827;
+              padding: 40px;
+              line-height: 1.5;
+            }
+            .header {
+              border-bottom: 2px solid #111827;
+              padding-bottom: 18px;
+              margin-bottom: 28px;
+            }
+            .brand {
+              font-size: 28px;
+              font-weight: 800;
+              letter-spacing: 0.04em;
+            }
+            .subtitle {
+              color: #6b7280;
+              margin-top: 4px;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 14px;
+              margin: 20px 0;
+            }
+            .card {
+              border: 1px solid #e5e7eb;
+              border-radius: 14px;
+              padding: 16px;
+              background: #ffffff;
+            }
+            .label {
+              font-size: 12px;
+              color: #6b7280;
+              text-transform: uppercase;
+              font-weight: 700;
+            }
+            .value {
+              font-size: 24px;
+              font-weight: 800;
+              margin-top: 6px;
+            }
+            .score {
+              font-size: 54px;
+              font-weight: 900;
+              margin: 8px 0 0;
+            }
+            .section {
+              margin-top: 26px;
+            }
+            .section h2 {
+              font-size: 20px;
+              margin-bottom: 10px;
+            }
+            ul {
+              padding-left: 20px;
+            }
+            .disclaimer {
+              margin-top: 32px;
+              padding-top: 16px;
+              border-top: 1px solid #e5e7eb;
+              color: #6b7280;
+              font-size: 12px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="brand">NESTROVA</div>
+            <div class="subtitle">AI Real Estate Investment Report · Generated ${generatedAt}</div>
+          </div>
+
+          <h1>${analyzeResult.address}</h1>
+          <p>${analyzeResult.summary || ""}</p>
+
+          <div class="card">
+            <div class="label">Overall Investment Score</div>
+            <div class="score">${grade}</div>
+            <div class="value">${overallScore}/100</div>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <div class="label">Listing Price</div>
+              <div class="value">${money(analyzeResult.listing_price)}</div>
+            </div>
+            <div class="card">
+              <div class="label">AI Fair Value</div>
+              <div class="value">${money(analyzeResult.fair_value)}</div>
+            </div>
+            <div class="card">
+              <div class="label">Estimated Monthly Rent</div>
+              <div class="value">${money(analyzeResult.estimated_monthly_rent)}</div>
+            </div>
+            <div class="card">
+              <div class="label">Monthly Cash Flow</div>
+              <div class="value">${money(analyzeResult.estimated_monthly_cash_flow)}</div>
+            </div>
+            <div class="card">
+              <div class="label">Rent Yield</div>
+              <div class="value">${analyzeResult.gross_rent_yield}%</div>
+            </div>
+            <div class="card">
+              <div class="label">Deal Status</div>
+              <div class="value">${analyzeResult.status}</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Score Breakdown</h2>
+            <div class="grid">
+              <div class="card">
+                <div class="label">Deal Score</div>
+                <div class="value">${analyzeResult.deal_score}/100</div>
+              </div>
+              <div class="card">
+                <div class="label">Forecast Score</div>
+                <div class="value">${analyzeResult.forecast_score}/100</div>
+              </div>
+              <div class="card">
+                <div class="label">Neighborhood Score</div>
+                <div class="value">${analyzeResult.neighborhood_score}/100</div>
+              </div>
+              <div class="card">
+                <div class="label">Confidence</div>
+                <div class="value">${analyzeResult.confidence_score}%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Appreciation Outlook</h2>
+            <p><strong>${analyzeResult.forecast_outlook}</strong></p>
+            <p>Expected 12-month appreciation: <strong>${Number(
+              analyzeResult.expected_appreciation || 0
+            ).toFixed(1)}%</strong></p>
+            <ul>
+              ${(analyzeResult.forecast_reasons || [])
+                .map((reason) => `<li>${reason}</li>`)
+                .join("")}
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>Neighborhood Profile</h2>
+            <p><strong>${analyzeResult.neighborhood_grade}</strong></p>
+            <ul>
+              ${(analyzeResult.neighborhood_reasons || [])
+                .map((reason) => `<li>${reason}</li>`)
+                .join("")}
+            </ul>
+          </div>
+
+          <div class="disclaimer">
+            This report is for informational purposes only and is not financial, legal, tax, or investment advice.
+          </div>
+        </body>
+      </html>
+    `;
+
+    const reportWindow = window.open("", "_blank");
+
+    if (!reportWindow) {
+      alert("Popup blocked. Please allow popups and try again.");
+      return;
+    }
+
+    reportWindow.document.open();
+    reportWindow.document.write(reportHtml);
+    reportWindow.document.close();
+    reportWindow.focus();
+
+    setTimeout(() => {
+      reportWindow.print();
+    }, 500);
+  }
+
+  function loadSampleReport() {
+    setAnalyzeError("");
+    setAnalyzeResult(SAMPLE_REPORT);
+    setAddress(SAMPLE_REPORT.address);
+    setListingPrice(String(SAMPLE_REPORT.listing_price));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function fillDemoProperty(demo: { label: string; address: string; price: string }) {
+    setAddress(demo.address);
+    setListingPrice(demo.price);
+    document
+      .getElementById("analyze-property")
+      ?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
@@ -850,6 +1155,25 @@ export default function Home() {
                 >
                   Find Deals
                 </button>
+
+                <button
+                  className="rounded-xl border px-6 py-4 font-semibold hover:bg-gray-50"
+                  onClick={loadSampleReport}
+                >
+                  View Sample Report
+                </button>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {DEMO_PROPERTIES.map((demo) => (
+                  <button
+                    key={demo.label}
+                    className="rounded-full border bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    onClick={() => fillDemoProperty(demo)}
+                  >
+                    Try {demo.label}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -880,16 +1204,22 @@ export default function Home() {
         <div className="mb-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border-2 border-black bg-white p-5 shadow">
             <p className="text-sm font-semibold text-gray-500">CURRENT PLAN</p>
-            <h2 className="mt-1 text-2xl font-bold">Free Plan</h2>
-            <p className="mt-2 text-gray-600">5 deals per search</p>
+            <h2 className="mt-1 text-2xl font-bold">
+              {profileLoading ? "Loading..." : isPro ? "Pro Plan" : "Free Plan"}
+            </h2>
+            <p className="mt-2 text-gray-600">
+              {isPro ? "50 analyses and 10 deal searches per month" : "5 deals per search"}
+            </p>
           </div>
 
           <div className="rounded-2xl border bg-white p-5 shadow">
             <p className="text-sm font-semibold text-gray-500">MONTHLY USAGE</p>
             <h2 className="mt-1 text-2xl font-bold">
-              {analyzeCount}/{FREE_ANALYZE_LIMIT}
+              {isPro ? `${analyzeCount}/50` : `${analyzeCount}/${FREE_ANALYZE_LIMIT}`}
             </h2>
-            <p className="mt-2 text-gray-600">Free analyses used this month</p>
+            <p className="mt-2 text-gray-600">
+              {isPro ? "Pro analyses used this month" : "Free analyses used this month"}
+            </p>
           </div>
 
           <div className="rounded-2xl border-2 border-black bg-black p-5 text-white shadow">
@@ -904,14 +1234,52 @@ export default function Home() {
               <li>✓ Priority Features</li>
             </ul>
 
-            <button
-              onClick={handleUpgradeClick}
-              className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black hover:bg-gray-100"
-            >
-              Upgrade to Pro
-            </button>
+            {isPro ? (
+              <div className="mt-4 rounded-lg bg-white px-4 py-2 text-center font-semibold text-black">
+                Pro Active
+              </div>
+            ) : (
+              <button
+                onClick={openCheckout}
+                className="mt-4 w-full rounded-lg bg-white px-4 py-2 font-semibold text-black hover:bg-gray-100"
+              >
+                Upgrade to Pro
+              </button>
+            )
           </div>
         </div>
+
+        <section className="mb-8 rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-500">HOW SCORING WORKS</p>
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">Transparent investment scoring</h2>
+            </div>
+            <p className="max-w-2xl text-sm text-gray-600">
+              Nestrova combines deal quality, appreciation outlook, and neighborhood strength into one simple overall score.
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-4">
+            <div className="rounded-2xl bg-gray-50 p-4">
+              <p className="font-bold">Deal Score</p>
+              <p className="mt-2 text-sm text-gray-600">Discount to fair value, rent yield, property age, and basic investment value.</p>
+            </div>
+            <div className="rounded-2xl bg-gray-50 p-4">
+              <p className="font-bold">Forecast Score</p>
+              <p className="mt-2 text-sm text-gray-600">Expected appreciation, rental demand, and market stability signals.</p>
+            </div>
+            <div className="rounded-2xl bg-gray-50 p-4">
+              <p className="font-bold">Neighborhood Score</p>
+              <p className="mt-2 text-sm text-gray-600">Location quality, buyer demand, and long-term neighborhood profile.</p>
+            </div>
+            <div className="rounded-2xl bg-gray-50 p-4">
+              <p className="font-bold">Overall Score</p>
+              <p className="mt-2 text-sm text-gray-600">Weighted score: 40% deal, 35% forecast, and 25% neighborhood.</p>
+            </div>
+          </div>
+        </section>
+
 
         {!isSignedIn && (
           <div className="mb-8 rounded-2xl bg-yellow-50 p-5 text-yellow-900">
@@ -927,7 +1295,7 @@ export default function Home() {
               Upgrade to Pro to continue.
             </p>
             <button
-              onClick={handleUpgradeClick}
+              onClick={openCheckout}
               className="mt-4 rounded-lg bg-white px-6 py-3 font-semibold text-black hover:bg-gray-100"
             >
               Upgrade to Pro
@@ -948,6 +1316,27 @@ export default function Home() {
                 <input className="rounded-lg border p-4" placeholder="Down Payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
                 <input className="rounded-lg border p-4" placeholder="Interest Rate %" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
                 <input className="rounded-lg border p-4" placeholder="Loan Term" value={loanTermYears} onChange={(e) => setLoanTermYears(e.target.value)} />
+              </div>
+
+              <div className="rounded-2xl bg-gray-50 p-4">
+                <p className="text-sm font-semibold text-gray-500">Quick demo</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {DEMO_PROPERTIES.map((demo) => (
+                    <button
+                      key={demo.label}
+                      className="rounded-full border bg-white px-3 py-2 text-sm font-semibold hover:bg-gray-50"
+                      onClick={() => fillDemoProperty(demo)}
+                    >
+                      {demo.label}
+                    </button>
+                  ))}
+                  <button
+                    className="rounded-full bg-black px-3 py-2 text-sm font-semibold text-white"
+                    onClick={loadSampleReport}
+                  >
+                    View Sample Report
+                  </button>
+                </div>
               </div>
 
               {analyzeError && (
@@ -983,7 +1372,18 @@ export default function Home() {
         {analyzeResult && (
           <div className="mt-8 grid gap-6">
             <div className="rounded-2xl border-2 border-black bg-white p-6 shadow">
-              <p className="text-sm text-gray-500">Overall Investment Score</p>
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Overall Investment Score</p>
+                </div>
+
+                <button
+                  onClick={exportPdfReport}
+                  className="rounded-lg bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800"
+                >
+                  Export PDF Report
+                </button>
+              </div>
 
               <h2 className="mt-2 text-6xl font-bold">
                 {getInvestmentGrade(getOverallScore(analyzeResult))}
@@ -1696,8 +2096,10 @@ export default function Home() {
           <p>This analysis is for informational purposes only and is not financial advice.</p>
 
           <div className="mt-3 flex gap-4">
+            <a href="/pricing" className="hover:text-gray-900">Pricing</a>
             <a href="/privacy" className="hover:text-gray-900">Privacy Policy</a>
             <a href="/terms" className="hover:text-gray-900">Terms of Service</a>
+            <a href="/refund" className="hover:text-gray-900">Refund Policy</a>
             <a href="mailto:support@nestrova.com" className="hover:text-gray-900">Contact</a>
           </div>
         </footer>
