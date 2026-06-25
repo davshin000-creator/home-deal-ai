@@ -1108,7 +1108,7 @@ export default function Home() {
     setNegotiationLoading(true);
 
     try {
-      const response = await fetch("/api/ask-ai/negotiation", {
+      const response = await fetch("/api/negotiation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: user.id, property: analyzeResult }),
@@ -2109,7 +2109,7 @@ export default function Home() {
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-gray-500">
-                  ❤️ WATCHLIST
+                  WATCHLIST
                 </p>
                 <h2 className="text-3xl font-bold">Saved Deals Dashboard</h2>
                 <p className="mt-2 text-gray-600">
