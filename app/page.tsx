@@ -8,6 +8,7 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import { supabase } from "@/lib/supabase";
+import ReportGenerator from "@/components/ReportGenerator";
 
 type AnalyzeResult = {
   address: string;
@@ -1606,6 +1607,13 @@ export default function Home() {
               <h3 className="text-xl font-bold">AI Summary</h3>
               <p className="mt-3 text-gray-700">{analyzeResult.summary}</p>
             </div>
+
+            <ReportGenerator
+              property={analyzeResult}
+              userId={user?.id || ""}
+              isSignedIn={Boolean(isSignedIn)}
+              isPro={isPro}
+            />
             <div className="rounded-2xl bg-white p-6 shadow">
               <p className="text-sm font-semibold text-gray-500">PRICE FORECAST TIMELINE</p>
               <h3 className="mt-1 text-2xl font-bold">Projected property value</h3>
