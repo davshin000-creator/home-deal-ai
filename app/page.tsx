@@ -302,11 +302,9 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  const [aiQuestion, setAiQuestion] = useState("");
-  const [aiAnswer, setAiAnswer] = useState("");
-  const [aiChatLoading, setAiChatLoading] = useState(false);
-  const [aiChatError, setAiChatError] = useState("");
-  const [aiChatCount, setAiChatCount] = useState(0);
+  const [negotiationStrategy, setNegotiationStrategy] = useState("");
+  const [negotiationLoading, setNegotiationLoading] = useState(false);
+  const [negotiationError, setNegotiationError] = useState("");
 
   useEffect(() => {
     if (isSignedIn && user?.id) {
@@ -641,9 +639,8 @@ export default function Home() {
   async function analyzeProperty(customAddress?: string, customPrice?: number) {
     setAnalyzeError("");
     setAnalyzeResult(null);
-    setAiQuestion("");
-    setAiAnswer("");
-    setAiChatError("");
+    setNegotiationStrategy("");
+    setNegotiationError("");
 
     if (!isSignedIn || !user?.id) {
       setAnalyzeError("Please sign in to analyze properties.");
@@ -1076,56 +1073,61 @@ export default function Home() {
   }
 
 
-  async function askNestrovaAI(presetQuestion?: string) {
-    const finalQuestion = (presetQuestion || aiQuestion).trim();
+  function getForecastRows(result: AnalyzeResult) {
+    const currentValue = Number(result.fair_value || result.listing_price || 0);
+    const annualAppreciation = Number(result.expected_appreciation || 0) / 100;
 
-    setAiChatError("");
-    setAiAnswer("");
+    const rows = [
+      { label: "Today", years: 0 },
+      { label: "6 Months", years: 0.5 },
+      { label: "1 Year", years: 1 },
+      { label: "3 Years", years: 3 },
+      { label: "5 Years", years: 5 },
+    ];
+
+    return rows.map((row) => ({
+      ...row,
+      value: Math.round(currentValue * Math.pow(1 + annualAppreciation, row.years)),
+    }));
+  }
+
+  async function generateNegotiationStrategy() {
+    setNegotiationError("");
+    setNegotiationStrategy("");
 
     if (!analyzeResult) {
-      setAiChatError("Please analyze a property first.");
+      setNegotiationError("Please analyze a property first.");
       return;
     }
 
     if (!isSignedIn || !user?.id) {
-      setAiChatError("Please sign in to ask Nestrova AI.");
+      setNegotiationError("Please sign in to generate an offer strategy.");
       return;
     }
 
-    if (!finalQuestion) {
-      setAiChatError("Please enter a question.");
-      return;
-    }
-
-    setAiChatLoading(true);
+    setNegotiationLoading(true);
 
     try {
-      const response = await fetch("/api/ask-ai", {
+      const response = await fetch("/api/ask-ai/negotiation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          question: finalQuestion,
-          property: analyzeResult,
-        }),
+        body: JSON.stringify({ user_id: user.id, property: analyzeResult }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setAiChatError(data.error || "Could not answer this question.");
-        setAiChatLoading(false);
+        setNegotiationError(data.error || "Could not generate strategy.");
+        setNegotiationLoading(false);
         return;
       }
 
-      setAiAnswer(data.answer || "");
-      setAiChatCount(Number(data.daily_count || aiChatCount + 1));
-      setAiQuestion(finalQuestion);
+      setNegotiationStrategy(data.strategy || "");
     } catch {
-      setAiChatError("AI connection failed.");
+      setNegotiationError("AI negotiation connection failed.");
     }
 
-    setAiChatLoading(false);
+    setNegotiationLoading(false);
   }
 
   function loadSampleReport() {
@@ -1171,6 +1173,12 @@ export default function Home() {
             </a>
             <a href="/portfolio" className="hover:text-black">
               Portfolio
+            </a>
+            <a href="/compare" className="hover:text-black">
+              Compare
+            </a>
+            <a href="/markets" className="hover:text-black">
+              Markets
             </a>
             <a href="/pricing" className="hover:text-black">
               Pricing
@@ -1598,70 +1606,70 @@ export default function Home() {
               <h3 className="text-xl font-bold">AI Summary</h3>
               <p className="mt-3 text-gray-700">{analyzeResult.summary}</p>
             </div>
-
-            <div className="rounded-2xl border-2 border-black bg-white p-6 shadow">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-gray-500">
-                    ASK NESTROVA AI
-                  </p>
-                  <h3 className="mt-1 text-2xl font-bold">
-                    Ask anything about this property
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Free users get 3 AI questions per day. Pro users get unlimited AI property chat.
-                  </p>
-                </div>
-
-                <div className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700">
-                  {isPro ? "Pro: Unlimited" : `Free: ${aiChatCount}/3 today`}
-                </div>
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2">
-                {[
-                  "Would you buy this property?",
-                  "What is the biggest risk?",
-                  "What price should I negotiate?",
-                  "Is this better for cash flow or appreciation?",
-                ].map((question) => (
-                  <button
-                    key={question}
-                    className="rounded-full border bg-white px-3 py-2 text-sm font-semibold hover:bg-gray-50"
-                    onClick={() => askNestrovaAI(question)}
-                    disabled={aiChatLoading}
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
+            <div className="rounded-2xl bg-white p-6 shadow">
+              <p className="text-sm font-semibold text-gray-500">PRICE FORECAST TIMELINE</p>
+              <h3 className="mt-1 text-2xl font-bold">Projected property value</h3>
+              <p className="mt-2 text-gray-600">
+                A simple projection using the current AI fair value and expected annual appreciation.
+              </p>
 
               <div className="mt-5 grid gap-3">
-                <textarea
-                  className="min-h-[110px] rounded-lg border p-4"
-                  placeholder="Ask Nestrova AI about this property..."
-                  value={aiQuestion}
-                  onChange={(e) => setAiQuestion(e.target.value)}
-                />
-
-                {aiChatError && (
-                  <div className="rounded-lg bg-red-50 p-4 text-red-700">
-                    {aiChatError}
+                {getForecastRows(analyzeResult).map((row) => (
+                  <div key={row.label} className="rounded-2xl border bg-gray-50 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold">{row.label}</p>
+                      <p className="text-xl font-bold">{money(row.value)}</p>
+                    </div>
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-3 rounded-full bg-black"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.max(
+                              8,
+                              (row.value /
+                                Math.max(
+                                  ...getForecastRows(analyzeResult).map((item) => item.value)
+                                )) *
+                                100
+                            )
+                          )}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                )}
-
-                <button
-                  className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
-                  onClick={() => askNestrovaAI()}
-                  disabled={aiChatLoading}
-                >
-                  {aiChatLoading ? "Thinking..." : "Ask AI"}
-                </button>
+                ))}
               </div>
+            </div>
 
-              {aiAnswer && (
+            <div className="rounded-2xl border-2 border-black bg-white p-6 shadow">
+              <p className="text-sm font-semibold text-gray-500">
+                AI NEGOTIATION ASSISTANT
+              </p>
+              <h3 className="mt-1 text-2xl font-bold">Generate an offer strategy</h3>
+              <p className="mt-2 text-gray-600">
+                Get a practical negotiation framework based on listing price, fair value,
+                cash flow, yield, and investment score.
+              </p>
+
+              {negotiationError && (
+                <div className="mt-4 rounded-lg bg-red-50 p-4 text-red-700">
+                  {negotiationError}
+                </div>
+              )}
+
+              <button
+                className="mt-5 rounded-lg bg-black px-6 py-3 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                onClick={generateNegotiationStrategy}
+                disabled={negotiationLoading}
+              >
+                {negotiationLoading ? "Generating..." : "Generate Offer Strategy"}
+              </button>
+
+              {negotiationStrategy && (
                 <div className="mt-5 whitespace-pre-wrap rounded-2xl bg-gray-50 p-5 text-gray-800">
-                  {aiAnswer}
+                  {negotiationStrategy}
                 </div>
               )}
             </div>
