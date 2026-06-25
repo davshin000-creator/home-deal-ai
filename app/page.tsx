@@ -302,6 +302,12 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
 
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiChatLoading, setAiChatLoading] = useState(false);
+  const [aiChatError, setAiChatError] = useState("");
+  const [aiChatCount, setAiChatCount] = useState(0);
+
   useEffect(() => {
     if (isSignedIn && user?.id) {
       loadUserProfile();
@@ -635,6 +641,9 @@ export default function Home() {
   async function analyzeProperty(customAddress?: string, customPrice?: number) {
     setAnalyzeError("");
     setAnalyzeResult(null);
+    setAiQuestion("");
+    setAiAnswer("");
+    setAiChatError("");
 
     if (!isSignedIn || !user?.id) {
       setAnalyzeError("Please sign in to analyze properties.");
@@ -1066,6 +1075,59 @@ export default function Home() {
     }, 500);
   }
 
+
+  async function askNestrovaAI(presetQuestion?: string) {
+    const finalQuestion = (presetQuestion || aiQuestion).trim();
+
+    setAiChatError("");
+    setAiAnswer("");
+
+    if (!analyzeResult) {
+      setAiChatError("Please analyze a property first.");
+      return;
+    }
+
+    if (!isSignedIn || !user?.id) {
+      setAiChatError("Please sign in to ask Nestrova AI.");
+      return;
+    }
+
+    if (!finalQuestion) {
+      setAiChatError("Please enter a question.");
+      return;
+    }
+
+    setAiChatLoading(true);
+
+    try {
+      const response = await fetch("/api/ask-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          question: finalQuestion,
+          property: analyzeResult,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setAiChatError(data.error || "Could not answer this question.");
+        setAiChatLoading(false);
+        return;
+      }
+
+      setAiAnswer(data.answer || "");
+      setAiChatCount(Number(data.daily_count || aiChatCount + 1));
+      setAiQuestion(finalQuestion);
+    } catch {
+      setAiChatError("AI connection failed.");
+    }
+
+    setAiChatLoading(false);
+  }
+
   function loadSampleReport() {
     setAnalyzeError("");
     setAnalyzeResult(SAMPLE_REPORT);
@@ -1085,25 +1147,56 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex justify-end gap-4">
-          {!isSignedIn && (
-            <>
-              <SignInButton mode="modal">
-                <button className="rounded-lg border px-4 py-2 font-semibold">
-                  Sign In
-                </button>
-              </SignInButton>
+        <header className="mb-6 flex flex-col gap-4 rounded-2xl border bg-white px-5 py-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <a href="/" className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-lg font-bold text-white">
+              ◢
+            </div>
+            <div>
+              <p className="text-xl font-bold tracking-tight text-gray-900">
+                NESTROVA
+              </p>
+              <p className="text-xs font-medium text-gray-500">
+                AI Real Estate Intelligence
+              </p>
+            </div>
+          </a>
 
-              <SignUpButton mode="modal">
-                <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </>
-          )}
+          <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold text-gray-600">
+            <a href="#analyze-property" className="hover:text-black">
+              Analyze
+            </a>
+            <a href="/deals" className="hover:text-black">
+              Deals
+            </a>
+            <a href="/portfolio" className="hover:text-black">
+              Portfolio
+            </a>
+            <a href="/pricing" className="hover:text-black">
+              Pricing
+            </a>
+          </nav>
 
-          {isSignedIn && <UserButton />}
-        </div>
+          <div className="flex items-center gap-3">
+            {!isSignedIn && (
+              <>
+                <SignInButton mode="modal">
+                  <button className="rounded-lg border px-4 py-2 font-semibold">
+                    Sign In
+                  </button>
+                </SignInButton>
+
+                <SignUpButton mode="modal">
+                  <button className="rounded-lg bg-black px-4 py-2 font-semibold text-white">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </>
+            )}
+
+            {isSignedIn && <UserButton />}
+          </div>
+        </header>
 
         <section className="mb-10 overflow-hidden rounded-3xl border bg-white p-8 shadow-sm md:p-10">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
@@ -1145,22 +1238,25 @@ export default function Home() {
                   Analyze Property
                 </button>
 
-                <button
-                  className="rounded-xl border px-6 py-4 font-semibold hover:bg-gray-50"
-                  onClick={() => {
-                    document
-                      .getElementById("find-deals")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
+                <a
+                  href="/deals"
+                  className="rounded-xl border px-6 py-4 text-center font-semibold hover:bg-gray-50"
                 >
                   Find Deals
-                </button>
+                </a>
+
+                <a
+                  href="/portfolio"
+                  className="rounded-xl border px-6 py-4 text-center font-semibold hover:bg-gray-50"
+                >
+                  View Portfolio
+                </a>
 
                 <button
                   className="rounded-xl border px-6 py-4 font-semibold hover:bg-gray-50"
                   onClick={loadSampleReport}
                 >
-                  View Sample Report
+                  Sample Report
                 </button>
               </div>
 
@@ -1501,6 +1597,73 @@ export default function Home() {
             <div className="rounded-2xl bg-white p-6 shadow">
               <h3 className="text-xl font-bold">AI Summary</h3>
               <p className="mt-3 text-gray-700">{analyzeResult.summary}</p>
+            </div>
+
+            <div className="rounded-2xl border-2 border-black bg-white p-6 shadow">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-500">
+                    ASK NESTROVA AI
+                  </p>
+                  <h3 className="mt-1 text-2xl font-bold">
+                    Ask anything about this property
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Free users get 3 AI questions per day. Pro users get unlimited AI property chat.
+                  </p>
+                </div>
+
+                <div className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700">
+                  {isPro ? "Pro: Unlimited" : `Free: ${aiChatCount}/3 today`}
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[
+                  "Would you buy this property?",
+                  "What is the biggest risk?",
+                  "What price should I negotiate?",
+                  "Is this better for cash flow or appreciation?",
+                ].map((question) => (
+                  <button
+                    key={question}
+                    className="rounded-full border bg-white px-3 py-2 text-sm font-semibold hover:bg-gray-50"
+                    onClick={() => askNestrovaAI(question)}
+                    disabled={aiChatLoading}
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                <textarea
+                  className="min-h-[110px] rounded-lg border p-4"
+                  placeholder="Ask Nestrova AI about this property..."
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                />
+
+                {aiChatError && (
+                  <div className="rounded-lg bg-red-50 p-4 text-red-700">
+                    {aiChatError}
+                  </div>
+                )}
+
+                <button
+                  className="rounded-lg bg-black p-4 font-semibold text-white hover:bg-gray-800 disabled:bg-gray-400"
+                  onClick={() => askNestrovaAI()}
+                  disabled={aiChatLoading}
+                >
+                  {aiChatLoading ? "Thinking..." : "Ask AI"}
+                </button>
+              </div>
+
+              {aiAnswer && (
+                <div className="mt-5 whitespace-pre-wrap rounded-2xl bg-gray-50 p-5 text-gray-800">
+                  {aiAnswer}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2095,7 +2258,9 @@ export default function Home() {
         <footer className="mt-10 border-t pt-6 text-sm text-gray-500">
           <p>This analysis is for informational purposes only and is not financial advice.</p>
 
-          <div className="mt-3 flex gap-4">
+          <div className="mt-3 flex flex-wrap gap-4">
+            <a href="/deals" className="hover:text-gray-900">Deals</a>
+            <a href="/portfolio" className="hover:text-gray-900">Portfolio</a>
             <a href="/pricing" className="hover:text-gray-900">Pricing</a>
             <a href="/privacy" className="hover:text-gray-900">Privacy Policy</a>
             <a href="/terms" className="hover:text-gray-900">Terms of Service</a>
