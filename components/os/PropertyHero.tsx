@@ -1,6 +1,6 @@
 "use client";
 
-import { sampleWorkspace } from "@/lib/os/sampleWorkspaceData";
+import { sampleWorkspace } from "../../lib/os/sampleWorkspaceData";
 
 function money(value: number) {
   return `$${Math.round(value).toLocaleString()}`;
