@@ -1,6 +1,6 @@
 "use client";
 
-import { sampleWorkspace } from "@/lib/os/sampleWorkspaceData";
+import { sampleWorkspace } from "../../lib/os/sampleWorkspaceData";
 
 export default function ActivityFeed() {
   return (
