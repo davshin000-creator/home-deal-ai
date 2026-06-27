@@ -2,7 +2,7 @@
 
 import NestrovaCard from "@/components/ui/NestrovaCard";
 import NestrovaMetric from "@/components/ui/NestrovaMetric";
-import { sampleWorkspace } from "@/lib/os/sampleWorkspaceData";
+import { sampleWorkspace } from "../../lib/os/sampleWorkspaceData";
 
 function money(value: number) {
   return `$${Math.round(value).toLocaleString()}`;
