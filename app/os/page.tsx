@@ -4,6 +4,7 @@ import AISidebar from "@/components/os/AISidebar";
 import PropertyHero from "@/components/os/PropertyHero";
 import WorkspaceMain from "@/components/os/WorkspaceMain";
 import ActivityFeed from "@/components/os/ActivityFeed";
+import DecisionCenter from "@/components/os/DecisionCenter";
 
 export default function NestrovaOSPage() {
   return (
