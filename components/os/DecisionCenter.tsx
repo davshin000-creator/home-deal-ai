@@ -1,0 +1,1 @@
+import OfferStudio from './OfferStudio';import NegotiationStudio from './NegotiationStudio';import TimelinePanel from './TimelinePanel';import SmartNotes from './SmartNotes';export default function DecisionCenter(){return <div className='grid gap-6 xl:grid-cols-2'><OfferStudio/><NegotiationStudio/><TimelinePanel/><SmartNotes/></div>}
