@@ -28,13 +28,13 @@ export async function GET(request: Request) {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("user_profiles")
       .select("is_pro")
       .eq("user_id", userId)
       .maybeSingle();
 
-    const plan = profile?.is_pro ? "pro" : "free";
+  const plan = !profileError && profile?.is_pro ? "pro" : "free";
     const limit = getFeatureLimit(plan, feature);
 
     const { count } = await supabase
