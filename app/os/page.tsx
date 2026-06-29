@@ -6,6 +6,8 @@ import ExecutiveWorkspace from "@/components/os/ExecutiveWorkspace";
 import DecisionCenter from "@/components/os/DecisionCenter";
 import WorkspaceMain from "@/components/os/WorkspaceMain";
 import ActivityFeed from "@/components/os/ActivityFeed";
+import IntelligencePanel from "@/components/os/IntelligencePanel";
+import CommandCenter from "@/components/command/CommandCenter";
 
 export default function NestrovaOSPage() {
   return (
@@ -20,6 +22,7 @@ export default function NestrovaOSPage() {
             <PropertyHero />
             <ExecutiveWorkspace />
             <DecisionCenter />
+            <IntelligencePanel />
             <WorkspaceMain />
             <ActivityFeed />
           </div>
