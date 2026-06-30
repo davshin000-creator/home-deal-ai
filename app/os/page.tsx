@@ -8,6 +8,8 @@ export default function NestrovaOSPage() {
   return (
     <main className="min-h-screen bg-[#FAFAFA] text-neutral-950">
 
+  <CommandCenter />
+
   <OSHeader />
 
   <div className="mx-auto grid max-w-[1600px] grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_360px]">
@@ -23,5 +25,3 @@ export default function NestrovaOSPage() {
   </div>
 
 </main>
-  );
-}
