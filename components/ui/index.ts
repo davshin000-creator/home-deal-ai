@@ -9,3 +9,6 @@ export { default as Avatar } from "./Avatar";
 export { default as Input } from "./Input";
 export { default as SearchInput } from "./SearchInput";
 export { default as Textarea } from "./Textarea";
+export { default as Dialog } from "./Dialog";
+export { default as Drawer } from "./Drawer";
+export { default as Toast } from "./Toast";
