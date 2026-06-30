@@ -21,10 +21,14 @@ function clamp(value: number, min = 0, max = 100) {
 
 export function calculateScores(input: ScoreInput): ScoreResult {
   const discountPercent =
-    input.fairValue > 0 ? ((input.fairValue - input.askingPrice) / input.fairValue) * 100 : 0;
+    input.fairValue > 0
+      ? ((input.fairValue - input.askingPrice) / input.fairValue) * 100
+      : 0;
 
   const grossYield =
-    input.askingPrice > 0 ? ((input.estimatedRent * 12) / input.askingPrice) * 100 : 0;
+    input.askingPrice > 0
+      ? ((input.estimatedRent * 12) / input.askingPrice) * 100
+      : 0;
 
   const age = input.yearBuilt ? new Date().getFullYear() - input.yearBuilt : 25;
   const days = input.daysOnMarket ?? 21;
