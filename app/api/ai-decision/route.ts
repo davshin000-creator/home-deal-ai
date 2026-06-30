@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runDecisionEngine } from "@/lib/ai/decisionEngine";
+import { runDecisionEngine } from "../../../lib/ai/decisionEngine";
 
 export async function POST(request: Request) {
   try {
