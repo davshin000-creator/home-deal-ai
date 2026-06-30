@@ -13,24 +13,21 @@ import RC45Workspace from "@/components/os/RC45Workspace";
 export default function NestrovaOSPage() {
   return (
     <main className="min-h-screen bg-[#FAFAFA] text-neutral-950">
-      <OSHeader />
 
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_360px]">
-        <OSSidebar />
+  <OSHeader />
 
-        <section className="min-w-0 p-4 md:p-6">
-          <div className="grid gap-6">
-            <PropertyHero />
-            <ExecutiveWorkspace />
-            <DecisionCenter />
-            <IntelligencePanel />
-            <WorkspaceMain />
-            <ActivityFeed />
-          </div>
-        </section>
+  <div className="mx-auto grid max-w-[1600px] grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_360px]">
 
-        <AISidebar />
-      </div>
-    </main>
+    <OSSidebar />
+
+    <section className="min-w-0 p-4 md:p-6">
+      <RC45Workspace />
+    </section>
+
+    <AISidebar />
+
+  </div>
+
+</main>
   );
 }
