@@ -1,12 +1,6 @@
 import OSHeader from "@/components/os/OSHeader";
 import OSSidebar from "@/components/os/OSSidebar";
 import AISidebar from "@/components/os/AISidebar";
-import PropertyHero from "@/components/os/PropertyHero";
-import ExecutiveWorkspace from "@/components/os/ExecutiveWorkspace";
-import DecisionCenter from "@/components/os/DecisionCenter";
-import WorkspaceMain from "@/components/os/WorkspaceMain";
-import ActivityFeed from "@/components/os/ActivityFeed";
-import IntelligencePanel from "@/components/os/IntelligencePanel";
 import CommandCenter from "@/components/command/CommandCenter";
 import RC45Workspace from "@/components/os/RC45Workspace";
 
