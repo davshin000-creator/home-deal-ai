@@ -6,3 +6,6 @@ export { default as Section } from "./Section";
 export { default as ProgressBar } from "./ProgressBar";
 export { default as Divider } from "./Divider";
 export { default as Avatar } from "./Avatar";
+export { default as Input } from "./Input";
+export { default as SearchInput } from "./SearchInput";
+export { default as Textarea } from "./Textarea";
