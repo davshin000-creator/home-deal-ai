@@ -8,6 +8,7 @@ import WorkspaceMain from "@/components/os/WorkspaceMain";
 import ActivityFeed from "@/components/os/ActivityFeed";
 import IntelligencePanel from "@/components/os/IntelligencePanel";
 import CommandCenter from "@/components/command/CommandCenter";
+import RC45Workspace from "@/components/os/RC45Workspace";
 
 export default function NestrovaOSPage() {
   return (
