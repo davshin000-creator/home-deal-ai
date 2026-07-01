@@ -1,17 +1,26 @@
 "use client";
 
-import type { DashboardData } from "./DashboardHero";
+type LooseDashboardData = Record<string, any>;
+
+function pickNumber(data: LooseDashboardData | undefined, keys: string[], fallback = 0) {
+  if (!data) return fallback;
+  for (const key of keys) {
+    const value = Number(data[key]);
+    if (Number.isFinite(value)) return value;
+  }
+  return fallback;
+}
 
 export default function DashboardWidgets({
   data,
 }: {
-  data?: DashboardData;
+  data?: LooseDashboardData;
 }) {
   const widgets = [
-    ["Analyses", data?.totalAnalyses ?? 0],
-    ["Watchlist", data?.watchlistCount ?? 0],
-    ["Saved Deals", data?.savedDeals ?? 0],
-    ["Portfolio Score", data?.portfolioScore ?? 0],
+    ["Analyses", pickNumber(data, ["totalAnalyses", "analyses", "analysisCount"])],
+    ["Watchlist", pickNumber(data, ["watchlistCount", "watchlist", "savedWatchlist"])],
+    ["Saved Deals", pickNumber(data, ["savedDeals", "deals", "savedDealsCount"])],
+    ["Portfolio Score", pickNumber(data, ["portfolioScore", "score", "healthScore"])],
   ];
 
   return (
