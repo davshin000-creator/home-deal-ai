@@ -63,10 +63,44 @@ export const PLAN_LIMITS: Record<PlanKey, Record<FeatureKey, number>> = {
   },
 };
 
-export function getFeatureLimit(
-  feature: FeatureKey,
-  plan: PlanKey = "free"
-): number {
+function isPlanKey(value: unknown): value is PlanKey {
+  return value === "free" || value === "pro" || value === "team" || value === "enterprise";
+}
+
+function isFeatureKey(value: unknown): value is FeatureKey {
+  return (
+    value === "analysis" ||
+    value === "ai_analysis" ||
+    value === "offer" ||
+    value === "report" ||
+    value === "portfolio" ||
+    value === "watchlist" ||
+    value === "compare" ||
+    value === "daily_brief" ||
+    value === "team" ||
+    value === "export_pdf"
+  );
+}
+
+/**
+ * Flexible feature limit helper.
+ *
+ * Supports BOTH older call styles:
+ * getFeatureLimit(feature, plan)
+ * getFeatureLimit(plan, feature)
+ */
+export function getFeatureLimit(first: FeatureKey | PlanKey, second?: FeatureKey | PlanKey): number {
+  let plan: PlanKey = "free";
+  let feature: FeatureKey = "analysis";
+
+  if (isPlanKey(first) && isFeatureKey(second)) {
+    plan = first;
+    feature = second;
+  } else if (isFeatureKey(first)) {
+    feature = first;
+    if (isPlanKey(second)) plan = second;
+  }
+
   return PLAN_LIMITS[plan]?.[feature] ?? PLAN_LIMITS.free[feature] ?? 0;
 }
 
@@ -79,7 +113,7 @@ export function canUseFeature({
   plan?: PlanKey;
   used?: number;
 }) {
-  const limit = getFeatureLimit(feature, plan);
+  const limit = getFeatureLimit(plan, feature);
 
   if (limit === -1) {
     return {
