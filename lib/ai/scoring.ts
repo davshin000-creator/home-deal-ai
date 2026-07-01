@@ -6,32 +6,17 @@ export type ScoreInput = {
   daysOnMarket?: number;
 };
 
-export type ScoreResult = {
-  investmentScore: number;
-  fairValueScore: number;
-  rentalScore: number;
-  riskScore: number;
-  negotiationScore: number;
-  marketTimingScore: number;
-};
-
-function clamp(value: number, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, Math.round(value)));
-}
-
-export function calculateScores(input: ScoreInput): ScoreResult {
+export function calculateScores(input: ScoreInput) {
   const discountPercent =
-    input.fairValue > 0
-      ? ((input.fairValue - input.askingPrice) / input.fairValue) * 100
-      : 0;
+    input.fairValue > 0 ? ((input.fairValue - input.askingPrice) / input.fairValue) * 100 : 0;
 
   const grossYield =
-    input.askingPrice > 0
-      ? ((input.estimatedRent * 12) / input.askingPrice) * 100
-      : 0;
+    input.askingPrice > 0 ? ((input.estimatedRent * 12) / input.askingPrice) * 100 : 0;
 
   const age = input.yearBuilt ? new Date().getFullYear() - input.yearBuilt : 25;
   const days = input.daysOnMarket ?? 21;
+
+  const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
   const fairValueScore = clamp(55 + discountPercent * 6);
   const rentalScore = clamp(45 + grossYield * 9);

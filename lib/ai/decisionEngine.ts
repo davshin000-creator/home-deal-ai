@@ -17,10 +17,19 @@ export function runDecisionEngine(input: DecisionInput) {
   const highRiskCount = risks.filter((risk) => risk.level === "High").length;
 
   let recommendation: "BUY" | "HOLD" | "PASS" = "HOLD";
-  if (scores.investmentScore >= 82 && highRiskCount === 0) recommendation = "BUY";
-  if (scores.investmentScore < 65 || highRiskCount >= 2) recommendation = "PASS";
 
-  const confidence = Math.max(60, Math.min(97, scores.investmentScore + 5 - highRiskCount * 6));
+  if (scores.investmentScore >= 82 && highRiskCount === 0) {
+    recommendation = "BUY";
+  }
+
+  if (scores.investmentScore < 65 || highRiskCount >= 2) {
+    recommendation = "PASS";
+  }
+
+  const confidence = Math.max(
+    60,
+    Math.min(97, scores.investmentScore + 5 - highRiskCount * 6)
+  );
 
   const reasons = [
     `Investment score is ${scores.investmentScore}/100.`,
