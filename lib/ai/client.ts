@@ -1,5 +1,17 @@
 "use client";
 
+export type DecisionRequest = {
+  address: string;
+  city?: string;
+  state?: string;
+  askingPrice: number;
+  fairValue: number;
+  estimatedRent: number;
+  yearBuilt?: number;
+  daysOnMarket?: number;
+  hoaMonthly?: number;
+};
+
 export type DecisionApiResult = {
   address: string;
   recommendation: "BUY" | "HOLD" | "PASS";
@@ -12,37 +24,37 @@ export type DecisionApiResult = {
     negotiationScore: number;
     marketTimingScore: number;
   };
-  risks: Array<{
-    label: string;
-    level: "Low" | "Medium" | "High";
-    reason: string;
-  }>;
-  offers: Array<{
-    name: "Aggressive" | "Balanced" | "Safe";
-    offer: number;
-    acceptanceProbability: number;
-    note: string;
-  }>;
+  risks: Array<{ label: string; level: "Low" | "Medium" | "High"; reason: string }>;
+  offers: Array<{ name: "Aggressive" | "Balanced" | "Safe"; offer: number; acceptanceProbability: number; note: string }>;
   summary: string;
   reasons: string[];
   nextAction: string;
 };
 
-export async function getDecision(): Promise<DecisionApiResult> {
+export const defaultDecisionInput: DecisionRequest = {
+  address: "123 Main St",
+  city: "Dallas",
+  state: "TX",
+  askingPrice: 817500,
+  fairValue: 885000,
+  estimatedRent: 4200,
+  yearBuilt: 2008,
+  daysOnMarket: 28,
+  hoaMonthly: 250,
+};
+
+export async function getDecision(input?: DecisionRequest): Promise<DecisionApiResult> {
   const response = await fetch("/api/ai-decision", {
-    method: "GET",
+    method: input ? "POST" : "GET",
+    headers: input ? { "Content-Type": "application/json" } : undefined,
+    body: input ? JSON.stringify(input) : undefined,
     cache: "no-store",
   });
 
-  if (!response.ok) {
-    throw new Error("Unable to load AI decision.");
-  }
+  if (!response.ok) throw new Error("Unable to load AI decision.");
 
   const data = await response.json();
-
-  if (!data.ok || !data.result) {
-    throw new Error("Invalid AI decision response.");
-  }
+  if (!data.ok || !data.result) throw new Error("Invalid AI decision response.");
 
   return data.result as DecisionApiResult;
 }
