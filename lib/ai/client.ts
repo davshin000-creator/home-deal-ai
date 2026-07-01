@@ -4,9 +4,9 @@ export type DecisionRequest = {
   address: string;
   city?: string;
   state?: string;
-  askingPrice: number;
-  fairValue: number;
-  estimatedRent: number;
+  askingPrice?: number;
+  fairValue?: number;
+  estimatedRent?: number;
   yearBuilt?: number;
   daysOnMarket?: number;
   hoaMonthly?: number;
@@ -52,9 +52,25 @@ export async function getDecision(input?: DecisionRequest): Promise<DecisionApiR
   });
 
   if (!response.ok) throw new Error("Unable to load AI decision.");
-
   const data = await response.json();
   if (!data.ok || !data.result) throw new Error("Invalid AI decision response.");
-
   return data.result as DecisionApiResult;
+}
+
+export async function getAnalyzeDecision(input: {
+  address: string;
+  city?: string;
+  state?: string;
+}): Promise<DecisionApiResult> {
+  const response = await fetch("/api/analyze-decision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error("Unable to analyze property.");
+  const data = await response.json();
+  if (!data.ok || !data.decision) throw new Error(data.error || "Invalid analyze decision response.");
+  return data.decision as DecisionApiResult;
 }

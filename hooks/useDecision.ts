@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { DecisionApiResult, DecisionRequest, defaultDecisionInput, getDecision } from "@/lib/ai/client";
+import {
+  DecisionApiResult,
+  DecisionRequest,
+  defaultDecisionInput,
+  getAnalyzeDecision,
+  getDecision,
+} from "@/lib/ai/client";
 
 export function useDecision() {
   const [input, setInput] = useState<DecisionRequest>(defaultDecisionInput);
@@ -18,7 +24,20 @@ export function useDecision() {
         setRunning(true);
         setLoading(!decision);
         setError(null);
-        const result = await getDecision(activeInput);
+
+        const hasManualNumbers =
+          !!activeInput.askingPrice &&
+          !!activeInput.fairValue &&
+          !!activeInput.estimatedRent;
+
+        const result = hasManualNumbers
+          ? await getDecision(activeInput)
+          : await getAnalyzeDecision({
+              address: activeInput.address,
+              city: activeInput.city,
+              state: activeInput.state,
+            });
+
         setInput(activeInput);
         setDecision(result);
       } catch (err) {
