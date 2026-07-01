@@ -1,20 +1,52 @@
 "use client";
 
-export type AnalyticsEvent = {
-  name: string;
+export type AnalyticsPayload = {
+  userId?: string;
+  eventName?: string;
   properties?: Record<string, unknown>;
 };
 
-export function trackEvent(name: string, properties?: Record<string, unknown>) {
+export type AnalyticsEvent =
+  | string
+  | AnalyticsPayload;
+
+/**
+ * Flexible analytics tracker.
+ *
+ * Supports both:
+ * trackEvent("event_name", { source: "x" })
+ *
+ * and:
+ * trackEvent({
+ *   userId,
+ *   eventName,
+ *   properties: { source: "x" }
+ * })
+ */
+export async function trackEvent(
+  event: AnalyticsEvent,
+  properties?: Record<string, unknown>
+) {
+  const payload =
+    typeof event === "string"
+      ? {
+          eventName: event,
+          properties: properties || {},
+        }
+      : {
+          userId: event.userId,
+          eventName: event.eventName || "unknown_event",
+          properties: event.properties || {},
+        };
+
   if (typeof window !== "undefined") {
-    console.log("[Nestrova Analytics]", name, properties || {});
+    console.log("[Nestrova Analytics]", payload);
   }
 
   return {
     ok: true,
     event: {
-      name,
-      properties: properties || {},
+      ...payload,
       timestamp: new Date().toISOString(),
     },
   };
