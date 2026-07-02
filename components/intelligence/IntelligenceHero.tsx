@@ -1,6 +1,6 @@
 "use client";
 
-export default function IntelligenceHero() {
+export default function IntelligenceHero({ data }: { data?: any }) {
   return (
     <section className="rounded-[28px] border border-black/10 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
