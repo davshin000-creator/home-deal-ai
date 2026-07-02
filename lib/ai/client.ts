@@ -31,6 +31,15 @@ export type DecisionApiResult = {
   nextAction: string;
 };
 
+export type ExplanationResult = {
+  executiveSummary: string;
+  whyThisDecision: string[];
+  riskSummary: string[];
+  negotiationAdvice: string[];
+  nextBestAction: string;
+  confidenceExplanation: string;
+};
+
 export const defaultDecisionInput: DecisionRequest = {
   address: "123 Main St",
   city: "Dallas",
@@ -73,4 +82,18 @@ export async function getAnalyzeDecision(input: {
   const data = await response.json();
   if (!data.ok || !data.decision) throw new Error(data.error || "Invalid analyze decision response.");
   return data.decision as DecisionApiResult;
+}
+
+export async function getExplanation(decision: DecisionApiResult): Promise<ExplanationResult> {
+  const response = await fetch("/api/ai-explain", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(decision),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error("Unable to generate explanation.");
+  const data = await response.json();
+  if (!data.ok || !data.explanation) throw new Error(data.error || "Invalid explanation response.");
+  return data.explanation as ExplanationResult;
 }

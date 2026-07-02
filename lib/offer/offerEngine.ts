@@ -42,7 +42,13 @@ export function calculateOffer(input: OfferInput = {}): OfferResult {
 
   const riskLevel = input.riskLevel || "Medium";
   const strategy: OfferResult["strategy"] =
-    riskLevel === "High" ? "Safe" : discount > 0.05 ? "Balanced" : "Safe";
+    riskLevel === "High"
+      ? "Safe"
+      : discount > 0.1
+      ? "Aggressive"
+      : discount > 0.05
+      ? "Balanced"
+      : "Safe";
 
   const recommendedOffer =
     strategy === "Aggressive"

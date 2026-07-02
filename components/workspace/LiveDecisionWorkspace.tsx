@@ -14,6 +14,7 @@ import {
 } from "@/components/ui";
 import { useDecision } from "@/hooks/useDecision";
 import DecisionInputForm from "@/components/workspace/DecisionInputForm";
+import AIExplanationPanel from "@/components/workspace/AIExplanationPanel";
 
 function money(value: number) {
   return `$${Math.round(value).toLocaleString()}`;
@@ -82,6 +83,7 @@ export default function LiveDecisionWorkspace() {
         </div>
       </Card>
 
+      <AIExplanationPanel decision={decision} />
       <Section eyebrow="Executive Workspace" title="Decision engine output" description="This section reads directly from /api/ai-decision." action={<Badge variant={badgeVariant(decision.recommendation)}>{decision.recommendation}</Badge>}>
         <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
           <Card className="p-8">

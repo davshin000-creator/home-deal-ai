@@ -1,6 +1,10 @@
 "use client";
 
-export default function NextBestAction() {
+export default function NextBestAction({
+  action,
+}: {
+  action?: any;
+}) {
   return (
     <section className="rounded-[28px] border border-black/10 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
