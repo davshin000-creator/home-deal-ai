@@ -2,6 +2,7 @@
 
 import { Badge, Button, Card, MetricCard, ProgressBar } from "@/components/ui";
 import BrainStream from "@/components/brain/BrainStream";
+import LiveBrainHUD from "@/components/brain/LiveBrainHUD";
 
 const metrics = [
   ["Brain Score", "92", "Unified judgment"],
@@ -21,19 +22,19 @@ export default function BrainConsoleLayout() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/35">
-              RC6-2
+              RC6-3
             </p>
             <h1 className="mt-3 text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
               Nestrova Brain Console
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-white/55">
-              Live AI reasoning terminal for valuation, risk, offer strategy,
-              memory, and executive decision-making.
+              Live AI reasoning terminal with neural activity, command-ready modules,
+              and executive decision intelligence.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {["Brain Online", "Stream Active", "Memory Ready"].map((item) => (
+            {["Brain Online", "HUD Active", "Agent Ready"].map((item) => (
               <div
                 key={item}
                 className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/60"
@@ -86,25 +87,13 @@ export default function BrainConsoleLayout() {
           <BrainStream />
 
           <div className="grid gap-6">
+            <LiveBrainHUD />
+
             <Card variant="premium" className="p-6">
               <Badge variant="pro">Live Metrics</Badge>
               <div className="mt-6 grid gap-4">
                 {metrics.map(([label, value, sub]) => (
                   <MetricCard key={label} label={label} value={value} sub={sub} />
-                ))}
-              </div>
-            </Card>
-
-            <Card variant="premium" className="p-6">
-              <Badge variant="pro">Console Modules</Badge>
-              <div className="mt-5 grid gap-3">
-                {["AI Chat", "Memory", "Portfolio", "Radar", "Forecast"].map((item) => (
-                  <div
-                    key={item}
-                    className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm font-semibold text-white/65"
-                  >
-                    {item}
-                  </div>
                 ))}
               </div>
             </Card>
