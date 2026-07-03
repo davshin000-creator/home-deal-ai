@@ -8,6 +8,7 @@ import AgentConversation from "@/components/brain/AgentConversation";
 import BrainMemoryGraph from "@/components/brain/BrainMemoryGraph";
 import ExecutiveTimeline from "@/components/brain/ExecutiveTimeline";
 import LiveReasoningGraph from "@/components/brain/LiveReasoningGraph";
+import ExecutiveCopilot from "@/components/brain/ExecutiveCopilot";
 
 const metrics = [
   ["Brain Score", "92", "Unified judgment"],
@@ -95,6 +96,7 @@ export default function BrainConsoleLayout() {
           <BrainMemoryGraph />
           <ExecutiveTimeline />
           <LiveReasoningGraph />
+          <ExecutiveCopilot />
 
           <div className="grid gap-6">
             <LiveBrainHud />
