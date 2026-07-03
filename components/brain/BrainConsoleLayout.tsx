@@ -1,15 +1,7 @@
 "use client";
 
 import { Badge, Button, Card, MetricCard, ProgressBar } from "@/components/ui";
-
-const stream = [
-  ["09:42", "Property data normalized", "Input engine"],
-  ["09:43", "Valuation spread calculated", "Decision engine"],
-  ["09:44", "Rental yield checked", "Income engine"],
-  ["09:45", "Risk guardrails evaluated", "Risk engine"],
-  ["09:46", "Offer strategy generated", "Offer engine"],
-  ["09:47", "Executive recommendation prepared", "Nestrova Brain"],
-];
+import BrainStream from "@/components/brain/BrainStream";
 
 const metrics = [
   ["Brain Score", "92", "Unified judgment"],
@@ -29,19 +21,19 @@ export default function BrainConsoleLayout() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/35">
-              RC6-1
+              RC6-2
             </p>
             <h1 className="mt-3 text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
               Nestrova Brain Console
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-white/55">
-              A premium AI investment terminal that unifies decision, risk,
-              offer, memory, and executive reasoning into one operating system.
+              Live AI reasoning terminal for valuation, risk, offer strategy,
+              memory, and executive decision-making.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {["Brain Online", "Memory Active", "Forecast Ready"].map((item) => (
+            {["Brain Online", "Stream Active", "Memory Ready"].map((item) => (
               <div
                 key={item}
                 className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/60"
@@ -61,7 +53,7 @@ export default function BrainConsoleLayout() {
             </h2>
             <p className="mt-4 text-sm leading-6 text-white/55">
               Nestrova Brain recommends negotiating before moving forward.
-              The deal has strong upside, but price discipline matters.
+              Strong upside exists, but price discipline matters.
             </p>
 
             <div className="mt-8 grid gap-5">
@@ -91,40 +83,7 @@ export default function BrainConsoleLayout() {
             </div>
           </Card>
 
-          <Card variant="premium" className="p-6 md:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <Badge variant="pro">Brain Stream</Badge>
-                <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-white">
-                  Live reasoning feed
-                </h2>
-              </div>
-
-              <div className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/45">
-                Real-time simulation
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-4">
-              {stream.map(([time, title, engine], index) => (
-                <div
-                  key={title}
-                  className="grid gap-4 rounded-[28px] border border-white/10 bg-white/[0.055] p-5 md:grid-cols-[72px_1fr_180px]"
-                >
-                  <p className="text-sm font-semibold text-white/35">{time}</p>
-                  <div>
-                    <p className="font-semibold text-white">{title}</p>
-                    <p className="mt-1 text-sm leading-6 text-white/45">
-                      Step {index + 1} completed by Nestrova Brain Console.
-                    </p>
-                  </div>
-                  <p className="text-sm font-semibold text-white/45 md:text-right">
-                    {engine}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <BrainStream />
 
           <div className="grid gap-6">
             <Card variant="premium" className="p-6">
