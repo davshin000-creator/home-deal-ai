@@ -5,6 +5,7 @@ import BrainStream from "@/components/brain/BrainStream";
 import MultiAgentNetwork from "@/components/brain/MultiAgentNetwork";
 import LiveBrainHud from "@/components/brain/LiveBrainHud";
 import AgentConversation from "@/components/brain/AgentConversation";
+import BrainMemoryGraph from "@/components/brain/BrainMemoryGraph";
 
 const metrics = [
   ["Brain Score", "92", "Unified judgment"],
@@ -89,6 +90,7 @@ export default function BrainConsoleLayout() {
           <BrainStream />
           <MultiAgentNetwork />
           <AgentConversation />
+          <BrainMemoryGraph />
 
           <div className="grid gap-6">
             <LiveBrainHud />
