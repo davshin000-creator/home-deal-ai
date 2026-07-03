@@ -2,7 +2,7 @@
 
 import { Badge, Button, Card, MetricCard, ProgressBar } from "@/components/ui";
 import BrainStream from "@/components/brain/BrainStream";
-import LiveBrainHUD from "@/components/brain/LiveBrainHUD";
+import LiveBrainHud from "@/components/brain/LiveBrainHud";
 
 const metrics = [
   ["Brain Score", "92", "Unified judgment"],
@@ -28,13 +28,13 @@ export default function BrainConsoleLayout() {
               Nestrova Brain Console
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-white/55">
-              Live AI reasoning terminal with neural activity, command-ready modules,
-              and executive decision intelligence.
+              Live AI investment terminal with reasoning stream, pulse HUD,
+              memory modules, and executive decision controls.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {["Brain Online", "HUD Active", "Agent Ready"].map((item) => (
+            {["Brain Online", "HUD Active", "Stream Active"].map((item) => (
               <div
                 key={item}
                 className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/60"
@@ -46,7 +46,7 @@ export default function BrainConsoleLayout() {
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[340px_1fr_360px]">
+        <div className="grid gap-6 xl:grid-cols-[340px_1fr_380px]">
           <Card variant="premium" className="p-6">
             <Badge variant="pro">Executive Status</Badge>
             <h2 className="mt-5 text-5xl font-semibold tracking-[-0.06em] text-white">
@@ -87,7 +87,7 @@ export default function BrainConsoleLayout() {
           <BrainStream />
 
           <div className="grid gap-6">
-            <LiveBrainHUD />
+            <LiveBrainHud />
 
             <Card variant="premium" className="p-6">
               <Badge variant="pro">Live Metrics</Badge>

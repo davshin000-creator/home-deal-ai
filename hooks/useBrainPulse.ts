@@ -2,50 +2,40 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-const states = [
-  {
-    label: "Thinking",
-    detail: "Synthesizing valuation, risk, and offer signals.",
-    intensity: 88,
-  },
-  {
-    label: "Analyzing",
-    detail: "Checking deal spread, rental strength, and timing.",
-    intensity: 92,
-  },
-  {
-    label: "Forecasting",
-    detail: "Estimating next best action and decision confidence.",
-    intensity: 84,
-  },
-  {
-    label: "Negotiating",
-    detail: "Preparing price discipline and offer guardrails.",
-    intensity: 96,
-  },
+const modes = [
+  "Listening",
+  "Scanning",
+  "Valuing",
+  "Forecasting",
+  "Risk-checking",
+  "Negotiating",
+  "Reasoning",
 ];
 
 export function useBrainPulse() {
   const [index, setIndex] = useState(0);
+  const [pulse, setPulse] = useState(72);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setIndex((current) => (current + 1) % states.length);
-    }, 2200);
+      setIndex((current) => (current + 1) % modes.length);
+      setPulse(68 + Math.floor(Math.random() * 24));
+    }, 1600);
 
     return () => window.clearInterval(interval);
   }, []);
 
-  const state = states[index];
+  const mode = modes[index];
 
-  const pulse = useMemo(() => {
-    return {
-      ...state,
-      progress: state.intensity,
-      cycle: index + 1,
-      total: states.length,
-    };
-  }, [state, index]);
+  const status = useMemo(() => {
+    if (pulse >= 86) return "High Activity";
+    if (pulse >= 76) return "Active";
+    return "Stable";
+  }, [pulse]);
 
-  return pulse;
+  return {
+    mode,
+    pulse,
+    status,
+  };
 }
