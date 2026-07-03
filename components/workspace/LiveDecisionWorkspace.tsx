@@ -16,6 +16,7 @@ import { useDecision } from "@/hooks/useDecision";
 import DecisionInputForm from "@/components/workspace/DecisionInputForm";
 import AIExplanationPanel from "@/components/workspace/AIExplanationPanel";
 import BrainMemoryPanel from "@/components/workspace/BrainMemoryPanel";
+import ExecutiveCommandCenter from "@/components/command/ExecutiveCommandCenter";
 
 function money(value: number) {
   return `$${Math.round(value).toLocaleString()}`;
@@ -157,15 +158,24 @@ export default function LiveDecisionWorkspace() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">
                     Brain Score
                   </p>
+
                   <p className="text-6xl font-semibold tracking-[-0.06em] text-white">
                     {decision.scores.investmentScore}
                   </p>
+
                   <ProgressBar value={decision.confidence} label="Confidence" />
+
+                  <div className="pt-4">
+                    <ExecutiveCommandCenter onRefresh={refresh} />
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Button variant="premium">{decision.nextAction}</Button>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Button variant="premium">
+                  {decision.nextAction}
+                </Button>
+
                 <Button
                   variant="ghost"
                   className="border border-white/10 bg-white/[0.05] text-white hover:bg-white/10 hover:text-white"
