@@ -2,6 +2,7 @@
 
 import { Badge, Button, Card, MetricCard, ProgressBar } from "@/components/ui";
 import BrainStream from "@/components/brain/BrainStream";
+import MultiAgentNetwork from "@/components/brain/MultiAgentNetwork";
 import LiveBrainHud from "@/components/brain/LiveBrainHud";
 
 const metrics = [
@@ -85,6 +86,7 @@ export default function BrainConsoleLayout() {
           </Card>
 
           <BrainStream />
+          <MultiAgentNetwork />
 
           <div className="grid gap-6">
             <LiveBrainHud />
