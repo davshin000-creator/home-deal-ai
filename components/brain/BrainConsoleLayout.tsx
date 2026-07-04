@@ -3,7 +3,6 @@
 import { Badge, Button, Card, MetricCard, ProgressBar } from "@/components/ui";
 import BrainStream from "@/components/brain/BrainStream";
 import MultiAgentNetwork from "@/components/brain/MultiAgentNetwork";
-import LiveBrainHud from "@/components/brain/LiveBrainHud";
 import AgentConversation from "@/components/brain/AgentConversation";
 import BrainMemoryGraph from "@/components/brain/BrainMemoryGraph";
 import ExecutiveTimeline from "@/components/brain/ExecutiveTimeline";
@@ -101,7 +100,6 @@ export default function BrainConsoleLayout() {
           <UnifiedBrainPanel />
 
           <div className="grid gap-6">
-            <LiveBrainHud />
 
             <Card variant="premium" className="p-6">
               <Badge variant="pro">Live Metrics</Badge>
