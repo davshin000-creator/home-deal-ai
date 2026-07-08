@@ -46,7 +46,7 @@ export default function LoginPage() {
           onClick={login}
           className="mt-4 w-full rounded-full bg-white px-6 py-4 text-sm font-semibold text-black"
         >
-          Send Magic Link
+          Send Login Link
         </button>
 
         {message && <p className="mt-4 text-sm text-white/60">{message}</p>}
