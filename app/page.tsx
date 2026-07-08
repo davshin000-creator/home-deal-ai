@@ -16,20 +16,29 @@ const modules = [
 
 const demoSteps = [
   "Property data normalized",
-  "Fair value spread detected",
+  "Market value spread detected",
   "Rental yield checked",
   "Risk guardrails evaluated",
-  "Offer strategy generated",
+  "Negotiation leverage calculated",
   "Executive verdict prepared",
+];
+
+const trustSignals = [
+  "AI valuation",
+  "Offer strategy",
+  "Risk review",
+  "Investor memo",
 ];
 
 export default function HomePage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -left-40 -top-40 h-[680px] w-[680px] rounded-full bg-white/[0.08] blur-3xl" />
-        <div className="absolute right-[-220px] top-20 h-[760px] w-[760px] rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="absolute bottom-[-260px] left-1/4 h-[720px] w-[720px] rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.16]" />
+        <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-white/[0.075] blur-3xl" />
+        <div className="absolute right-[-260px] top-10 h-[820px] w-[820px] rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute bottom-[-320px] left-[20%] h-[780px] w-[780px] rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.12),transparent_38%)]" />
       </div>
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/70 backdrop-blur-2xl">
@@ -40,7 +49,7 @@ export default function HomePage() {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-[-0.03em]">Nestrova</p>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Brain OS</p>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">AI Investment Brain</p>
             </div>
           </Link>
 
@@ -56,82 +65,104 @@ export default function HomePage() {
             <Link href="/login" className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white md:inline-flex">
               Login
             </Link>
-            <Link href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-[0_22px_70px_rgba(255,255,255,0.18)] transition hover:bg-neutral-200">
+            <Link href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-[0_22px_70px_rgba(255,255,255,0.18)] transition hover:-translate-y-0.5 hover:bg-neutral-200">
               Upgrade Pro
             </Link>
           </div>
         </div>
       </header>
 
-      <section className="relative mx-auto grid max-w-[1480px] gap-12 px-5 py-20 md:px-8 md:py-28 xl:grid-cols-[1fr_520px] xl:items-center">
+      <section className="relative mx-auto grid max-w-[1480px] gap-14 px-5 py-20 md:px-8 md:py-28 xl:grid-cols-[1fr_540px] xl:items-center">
         <div>
-          <div className="inline-flex rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.85)]" />
             AI Real Estate Investment OS
           </div>
 
-          <h1 className="mt-8 max-w-5xl text-6xl font-semibold leading-[0.9] tracking-[-0.075em] md:text-8xl">
-            The AI Operating System for Real Estate Investors.
+          <h1 className="mt-8 max-w-6xl text-6xl font-semibold leading-[0.88] tracking-[-0.08em] md:text-8xl">
+            Know if a property is worth buying before anyone else does.
           </h1>
 
-          <p className="mt-8 max-w-3xl text-xl leading-9 text-white/55">
-            Analyze, compare, negotiate, and decide with an executive AI brain built for modern property investors.
+          <p className="mt-8 max-w-3xl text-xl leading-9 text-white/58">
+            Nestrova turns valuation, risk, rent, negotiation leverage, and forecast signals into one executive AI decision.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link href="/analyze" className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.2)] transition hover:bg-neutral-200">
-              Analyze a Property
+            <Link href="/analyze" className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.2)] transition hover:-translate-y-0.5 hover:bg-neutral-200">
+              Start Free Analysis
             </Link>
-            <Link href="/brain-console" className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white">
-              Watch Live Demo
+            <Link href="/brain-console" className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white">
+              Watch Live Brain
             </Link>
           </div>
 
-          <div className="mt-12 grid max-w-3xl gap-4 md:grid-cols-3">
-            {["AI Brain", "Offer Strategy", "Investment Memo"].map((item) => (
-              <div key={item} className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <p className="mt-5 text-sm text-white/35">No credit card required. Upgrade when the Brain becomes essential.</p>
+
+          <div className="mt-12 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {trustSignals.map((item) => (
+              <div key={item} className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition hover:-translate-y-0.5 hover:bg-white/[0.07]">
                 <p className="text-sm font-semibold text-white">{item}</p>
-                <p className="mt-2 text-sm leading-6 text-white/40">Built for faster, clearer investment decisions.</p>
+                <p className="mt-2 text-sm leading-6 text-white/40">Built for faster investment decisions.</p>
               </div>
             ))}
           </div>
         </div>
 
         <div className="relative">
-          <div className="absolute -inset-6 rounded-[52px] bg-white/[0.04] blur-2xl" />
-          <div className="relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.07] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
-            <div className="flex items-start justify-between">
+          <div className="absolute -inset-6 rounded-[56px] bg-white/[0.04] blur-2xl" />
+          <div className="relative overflow-hidden rounded-[44px] border border-white/10 bg-white/[0.07] p-6 shadow-[0_46px_160px_rgba(0,0,0,0.62)] backdrop-blur-2xl">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+
+            <div className="relative flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Live Brain</p>
-                <h2 className="mt-3 text-5xl font-semibold tracking-[-0.06em]">BUY</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Live AI Decision</p>
+                <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">BUY</h2>
               </div>
               <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
                 Online
               </div>
             </div>
 
-            <p className="mt-5 text-sm leading-6 text-white/55">
+            <p className="relative mt-5 text-sm leading-6 text-white/58">
               157 Damsel appears undervalued with strong negotiation leverage and controlled risk.
             </p>
 
-            <div className="mt-7 grid grid-cols-2 gap-3">
+            <div className="relative mt-7 grid grid-cols-2 gap-3">
               {brainStats.map(([label, value]) => (
-                <div key={label} className="rounded-[26px] border border-white/10 bg-black/20 p-4">
+                <div key={label} className="rounded-[26px] border border-white/10 bg-black/24 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">{label}</p>
                   <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-7 rounded-[30px] border border-white/10 bg-black/25 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">Brain Stream</p>
-              <div className="mt-4 grid gap-3">
+            <div className="relative mt-7 rounded-[30px] border border-white/10 bg-black/25 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">Brain Stream</p>
+                <p className="text-xs font-semibold text-emerald-300">Synchronized</p>
+              </div>
+
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="h-full w-[86%] rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.75)]" />
+              </div>
+
+              <div className="mt-5 grid gap-3">
                 {demoSteps.map((step) => (
-                  <div key={step} className="flex items-center gap-3 text-sm text-white/55">
+                  <div key={step} className="flex items-center gap-3 text-sm text-white/58">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.85)]" />
                     {step}
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="relative mt-5 rounded-[28px] border border-white/10 bg-white/[0.055] p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">Recommended next action</p>
+              <p className="mt-2 text-2xl font-semibold tracking-[-0.04em]">Start with a disciplined offer.</p>
+              <p className="mt-2 text-sm leading-6 text-white/45">
+                Use the suggested offer range, verify risk items, then negotiate before commitment.
+              </p>
             </div>
           </div>
         </div>
@@ -208,6 +239,17 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
+        <div className="mx-auto flex max-w-[1480px] flex-col gap-4 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
+          <p>© 2026 Nestrova. AI investment intelligence for real estate investors.</p>
+          <div className="flex gap-5">
+            <Link href="/privacy" className="hover:text-white">Privacy</Link>
+            <Link href="/terms" className="hover:text-white">Terms</Link>
+            <Link href="/pricing" className="hover:text-white">Pricing</Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

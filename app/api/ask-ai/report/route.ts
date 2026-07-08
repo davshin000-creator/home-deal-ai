@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -323,15 +324,27 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const property = body.property;
-    const userId = String(body.user_id || "");
-    const investorType = String(body.investor_type || "Beginner");
-    const isPro = Boolean(body.is_pro);
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Missing user_id." }, { status: 400 });
+      return NextResponse.json({ error: "Please sign in to generate reports." }, { status: 401 });
     }
+
+    const body = await request.json();
+    const property = body.property;
+    const investorType = String(body.investor_type || "Beginner");
+
+    const profileClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: profile } = await profileClient
+      .from("profiles")
+      .select("is_pro,plan,subscription_status")
+      .eq("clerk_user_id", userId)
+      .maybeSingle();
+
+    const isPro =
+      Boolean(profile?.is_pro) ||
+      profile?.plan === "pro" ||
+      profile?.subscription_status === "active";
 
     if (!property?.address) {
       return NextResponse.json(

@@ -8,11 +8,7 @@ export default function PayPalCheckoutButton() {
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
   if (!clientId) {
-    return (
-      <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-        Missing NEXT_PUBLIC_PAYPAL_CLIENT_ID.
-      </div>
-    );
+    return <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">Missing NEXT_PUBLIC_PAYPAL_CLIENT_ID.</div>;
   }
 
   return (
@@ -22,6 +18,10 @@ export default function PayPalCheckoutButton() {
         createOrder={async () => {
           const response = await fetch("/api/paypal/create-order", { method: "POST" });
           const data = await response.json();
+          if (response.status === 401) {
+            router.push("/login");
+            throw new Error("Please sign in before upgrading.");
+          }
           if (!data.ok || !data.id) throw new Error(data.error || "Unable to create PayPal order.");
           return data.id;
         }}
@@ -31,15 +31,9 @@ export default function PayPalCheckoutButton() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderID: data.orderID }),
           });
-
           const result = await response.json();
-
-          if (result.ok) {
-            window.localStorage.setItem("nestrova_pro", "true");
-            router.push("/checkout/success");
-          } else {
-            router.push("/checkout/cancel");
-          }
+          if (result.ok) router.push("/checkout/success");
+          else router.push("/checkout/cancel");
         }}
         onCancel={() => router.push("/checkout/cancel")}
       />
