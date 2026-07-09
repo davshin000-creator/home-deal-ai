@@ -51,13 +51,14 @@ export async function getCurrentUserProfile() {
     const { data: inserted, error } = await admin
       .from("profiles")
       .insert({
-        auth_user_id: user.id,
-        email: user.email,
-        is_pro: false,
-        plan: "free",
-        subscription_status: "free",
-        updated_at: new Date().toISOString(),
-      })
+  id: user.id,
+  auth_user_id: user.id,
+  email: user.email,
+  is_pro: false,
+  plan: "free",
+  subscription_status: "free",
+  updated_at: new Date().toISOString(),
+})
       .select("*")
       .single();
 
