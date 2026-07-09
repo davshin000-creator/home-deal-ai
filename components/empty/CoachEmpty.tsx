@@ -4,8 +4,7 @@ export default function CoachEmpty() {
   return (
     <section className="rounded-[28px] border border-dashed border-black/15 bg-white p-8 text-center shadow-sm">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-xl">
-        ◇
-      </div>
+        ??      </div>
       <h2 className="mt-4 text-2xl font-semibold tracking-[-0.02em] text-neutral-950">
         No coach yet
       </h2>
@@ -15,3 +14,4 @@ export default function CoachEmpty() {
     </section>
   );
 }
+

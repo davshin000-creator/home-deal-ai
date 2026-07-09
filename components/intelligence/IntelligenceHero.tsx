@@ -15,3 +15,4 @@ export default function IntelligenceHero({ data }: { data?: any }) {
     </section>
   );
 }
+

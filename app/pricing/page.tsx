@@ -44,7 +44,7 @@ export default function PricingPage() {
       <section className="relative mx-auto grid max-w-[1480px] gap-10">
         <header className="flex items-center justify-between gap-4">
           <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
           <a href="/login" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white">
             Login
@@ -88,7 +88,7 @@ export default function PricingPage() {
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Explore the system.</h2>
             <p className="mt-4 text-sm leading-6 text-white/45">Get a feel for the workflow before upgrading.</p>
             <div className="mt-8 grid gap-3 text-sm text-white/55">
-              {freeFeatures.map((feature) => <p key={feature}>✓ {feature}</p>)}
+              {freeFeatures.map((feature) => <p key={feature}>??{feature}</p>)}
             </div>
             <a href="/analyze" className="mt-8 inline-flex w-full justify-center rounded-full border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white">
               Start Free Analysis
@@ -107,7 +107,7 @@ export default function PricingPage() {
               </span>
             </div>
             <div className="relative mt-8 grid gap-3 text-sm text-white/65 md:grid-cols-2">
-              {proFeatures.map((feature) => <p key={feature}>✓ {feature}</p>)}
+              {proFeatures.map((feature) => <p key={feature}>??{feature}</p>)}
             </div>
             <div className="relative mt-8 grid gap-4 md:grid-cols-3">
               {[["Brain", "Live decision engine"], ["Compare", "Rank multiple deals"], ["Memo", "Investor-ready reports"]].map(([title, body]) => (
@@ -168,3 +168,4 @@ export default function PricingPage() {
     </main>
   );
 }
+

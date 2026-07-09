@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 
 type AdminStats = {
   users: number;
@@ -101,7 +101,7 @@ export default function AdminDashboardPro() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">← Back to Nestrova</a>
+          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">??Back to Nestrova</a>
           <UserButton />
         </div>
 
@@ -200,3 +200,4 @@ export default function AdminDashboardPro() {
     </main>
   );
 }
+

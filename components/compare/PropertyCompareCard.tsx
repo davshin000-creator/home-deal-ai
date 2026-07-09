@@ -46,3 +46,4 @@ export default function PropertyCompareCard({ property }: { property: ComparePro
     </Card>
   );
 }
+

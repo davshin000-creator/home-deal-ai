@@ -12,7 +12,7 @@ export default function EmptyPreviewPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto grid max-w-6xl gap-8">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ← Back to Nestrova
+          ??Back to Nestrova
         </a>
         <section className="rounded-3xl bg-white p-8 shadow">
           <h1 className="text-5xl font-bold">Empty States Preview</h1>
@@ -30,3 +30,4 @@ export default function EmptyPreviewPage() {
     </main>
   );
 }
+

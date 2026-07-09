@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
+import { useUser, SignInButton, UserButton } from "@/components/auth/ClerkCompat";
 
 export default function FeedbackPage() {
   const { isSignedIn, user } = useUser();
@@ -49,7 +49,7 @@ export default function FeedbackPage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
           {isSignedIn ? (
             <UserButton />
@@ -112,3 +112,4 @@ export default function FeedbackPage() {
     </main>
   );
 }
+

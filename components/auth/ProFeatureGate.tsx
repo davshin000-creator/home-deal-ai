@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@/components/auth/ClerkCompat";
 
 type ProStatus = { ok:boolean; signed_in?:boolean; is_pro?:boolean; plan?:string; subscription_status?:string };
 
@@ -60,7 +60,7 @@ export default function ProFeatureGate({
         </div>
         <section className="relative mx-auto grid max-w-[1480px] gap-8">
           <header className="flex items-center justify-between gap-4">
-            <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">← Back to Nestrova</a>
+            <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">??Back to Nestrova</a>
             <a href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">Upgrade Pro</a>
           </header>
           <div className="grid gap-8 xl:grid-cols-[1fr_460px] xl:items-center">
@@ -84,10 +84,10 @@ export default function ProFeatureGate({
               <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">PRO</h2>
               <p className="mt-5 text-sm leading-6 text-white/55">Your account is currently on the Free plan.</p>
               <div className="mt-7 rounded-[30px] border border-white/10 bg-black/25 p-5">
-                <p className="text-sm text-white/58">✓ Advanced AI workspaces</p>
-                <p className="mt-3 text-sm text-white/58">✓ Investor-ready workflows</p>
-                <p className="mt-3 text-sm text-white/58">✓ Pro reports and exports</p>
-                <p className="mt-3 text-sm text-white/58">✓ Higher monthly usage limits</p>
+                <p className="text-sm text-white/58">??Advanced AI workspaces</p>
+                <p className="mt-3 text-sm text-white/58">??Investor-ready workflows</p>
+                <p className="mt-3 text-sm text-white/58">??Pro reports and exports</p>
+                <p className="mt-3 text-sm text-white/58">??Higher monthly usage limits</p>
               </div>
             </aside>
           </div>
@@ -98,3 +98,4 @@ export default function ProFeatureGate({
 
   return <>{children}</>;
 }
+

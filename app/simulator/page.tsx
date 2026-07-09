@@ -5,7 +5,7 @@ export default function SimulatorPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ← Back to Nestrova
+          ??Back to Nestrova
         </a>
 
         <section className="mt-8 rounded-3xl border bg-white p-8 shadow-sm">
@@ -28,3 +28,4 @@ export default function SimulatorPage() {
     </main>
   );
 }
+

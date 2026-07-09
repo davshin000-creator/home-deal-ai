@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardWidgets from "@/components/dashboard/DashboardWidgets";
 import UniversalSearch from "@/components/search/UniversalSearch";
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
           <UserButton />
         </div>
@@ -120,3 +120,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

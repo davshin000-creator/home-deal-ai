@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 
 type AnalysisResult = {
@@ -246,7 +246,7 @@ export default function AnalyzePage() {
       <div className="relative mx-auto max-w-[1500px] px-5 py-6 md:px-8">
         <header className="mb-8 flex items-center justify-between gap-4">
           <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
 
           <div className="flex items-center gap-3">
@@ -330,10 +330,10 @@ export default function AnalyzePage() {
                 <div className={`h-full rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.75)] ${loading ? "w-[58%]" : result ? "w-[92%]" : "w-[40%]"}`} />
               </div>
               <div className="mt-5 grid gap-3 text-sm text-white/58">
-                <p>✓ Clerk user verified</p>
-                <p>✓ Supabase Pro status checked</p>
-                <p>✓ Server proxy calls analysis API</p>
-                <p>✓ Usage limit enforced by plan</p>
+                <p>??Clerk user verified</p>
+                <p>??Supabase Pro status checked</p>
+                <p>??Server proxy calls analysis API</p>
+                <p>??Usage limit enforced by plan</p>
               </div>
             </div>
           </aside>
@@ -384,7 +384,7 @@ export default function AnalyzePage() {
                 <div className="mt-5 grid gap-3 text-sm text-white/55">
                   <p>Forecast Score: {result.forecast_score || 0}/100</p>
                   <p>Expected Appreciation: {result.expected_appreciation || 0}%</p>
-                  {(result.forecast_reasons || []).map((reason) => <p key={reason}>✓ {reason}</p>)}
+                  {(result.forecast_reasons || []).map((reason) => <p key={reason}>??{reason}</p>)}
                 </div>
               </div>
 
@@ -393,7 +393,7 @@ export default function AnalyzePage() {
                 <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{result.neighborhood_grade || "Neighborhood Profile"}</h3>
                 <div className="mt-5 grid gap-3 text-sm text-white/55">
                   <p>Neighborhood Score: {result.neighborhood_score || 0}/100</p>
-                  {(result.neighborhood_reasons || []).map((reason) => <p key={reason}>✓ {reason}</p>)}
+                  {(result.neighborhood_reasons || []).map((reason) => <p key={reason}>??{reason}</p>)}
                 </div>
               </div>
 
@@ -415,7 +415,7 @@ export default function AnalyzePage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Why this score?</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {(result.reasons || []).map((reason) => (
-                  <div key={reason} className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm text-white/60">✓ {reason}</div>
+                  <div key={reason} className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm text-white/60">??{reason}</div>
                 ))}
               </div>
             </div>
@@ -425,3 +425,4 @@ export default function AnalyzePage() {
     </main>
   );
 }
+

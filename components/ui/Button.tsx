@@ -24,3 +24,4 @@ export default function Button({ children, variant = "primary", size = "md", loa
     </button>
   );
 }
+

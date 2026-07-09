@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 
 export default function WatchlistPage() {
   const { isSignedIn, user } = useUser();
@@ -67,7 +67,7 @@ export default function WatchlistPage() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
 
           {isSignedIn ? (
@@ -149,3 +149,4 @@ export default function WatchlistPage() {
     </main>
   );
 }
+

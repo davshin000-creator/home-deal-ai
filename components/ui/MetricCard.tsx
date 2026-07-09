@@ -15,3 +15,4 @@ export default function MetricCard({ label, value, delta, sub }: { label: string
     </Card>
   );
 }
+

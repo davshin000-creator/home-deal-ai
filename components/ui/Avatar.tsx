@@ -14,3 +14,4 @@ export default function Avatar({ name = "User" }: { name?: string }) {
     </div>
   );
 }
+

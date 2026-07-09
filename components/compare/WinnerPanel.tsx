@@ -13,7 +13,7 @@ export default function WinnerPanel({ winner }: { winner: CompareResult["winner"
         <p className="mt-4 max-w-3xl text-lg leading-8 text-white/62">Nestrova selected this property as the best overall deal with {winner.confidence}% confidence.</p>
         <div className="mt-7 grid gap-3">
           {winner.reasons.map((reason) => (
-            <div key={reason} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm text-white/65">✓ {reason}</div>
+            <div key={reason} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm text-white/65">??{reason}</div>
           ))}
         </div>
         <div className="mt-7 flex flex-wrap gap-3">
@@ -24,3 +24,4 @@ export default function WinnerPanel({ winner }: { winner: CompareResult["winner"
     </Card>
   );
 }
+

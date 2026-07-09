@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 
 type Deal = {
@@ -238,7 +238,7 @@ export default function DealsPage() {
             href="/"
             className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
           >
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
 
           <div className="flex items-center gap-3">
@@ -547,3 +547,4 @@ export default function DealsPage() {
     </main>
   );
 }
+

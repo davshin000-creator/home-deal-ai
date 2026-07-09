@@ -76,3 +76,4 @@ export default function AIExplanationPanel({ decision }: { decision: DecisionApi
     </Card>
   );
 }
+

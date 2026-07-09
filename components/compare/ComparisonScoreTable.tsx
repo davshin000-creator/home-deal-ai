@@ -38,3 +38,4 @@ export default function ComparisonScoreTable({ properties }: { properties: Compa
     </Card>
   );
 }
+

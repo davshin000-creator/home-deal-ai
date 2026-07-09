@@ -37,3 +37,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unexpected offer server error." }, { status: 500 });
   }
 }
+

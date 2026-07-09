@@ -27,3 +27,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unexpected documents server error." }, { status: 500 });
   }
 }
+

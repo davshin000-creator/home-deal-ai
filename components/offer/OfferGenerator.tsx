@@ -15,3 +15,4 @@ export default function OfferGenerator() {
     </section>
   );
 }
+

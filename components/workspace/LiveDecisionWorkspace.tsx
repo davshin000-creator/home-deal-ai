@@ -319,7 +319,7 @@ export default function LiveDecisionWorkspace() {
             <div className="grid gap-6 xl:grid-cols-3">
               {decision.reasons.map((reason) => (
                 <div key={reason} className="rounded-[28px] bg-neutral-50 p-5">
-                  <p className="text-sm leading-6 text-neutral-700">✓ {reason}</p>
+                  <p className="text-sm leading-6 text-neutral-700">??{reason}</p>
                 </div>
               ))}
             </div>
@@ -329,3 +329,4 @@ export default function LiveDecisionWorkspace() {
     </div>
   );
 }
+

@@ -14,3 +14,4 @@ const variants: Record<CardVariant, string> = {
 export default function Card({ children, variant = "default", className = "" }: { children: React.ReactNode; variant?: CardVariant; className?: string }) {
   return <section className={["rounded-[32px] p-6 transition duration-300 ease-out", variants[variant], className].join(" ")}>{children}</section>;
 }
+

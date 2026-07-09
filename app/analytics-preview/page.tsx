@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/components/auth/ClerkCompat";
 import { trackEvent } from "@/lib/analytics";
 
 export default function AnalyticsPreviewPage() {
@@ -39,7 +39,7 @@ export default function AnalyticsPreviewPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-5xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ← Back to Nestrova
+          ??Back to Nestrova
         </a>
 
         <section className="mt-8 rounded-3xl bg-white p-8 shadow">
@@ -88,3 +88,4 @@ export default function AnalyticsPreviewPage() {
     </main>
   );
 }
+

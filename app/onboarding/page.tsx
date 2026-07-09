@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import WelcomeCard from "@/components/onboarding/WelcomeCard";
 import AnalyzeStep from "@/components/onboarding/AnalyzeStep";
@@ -97,7 +97,7 @@ export default function OnboardingPage() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
 
           <div className="flex items-center gap-4">
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
               onClick={skipOnboarding}
               className="text-sm font-semibold text-gray-600 hover:text-black"
             >
-              Skip →
+              Skip ??
             </button>
             <UserButton />
           </div>
@@ -153,3 +153,4 @@ export default function OnboardingPage() {
     </main>
   );
 }
+

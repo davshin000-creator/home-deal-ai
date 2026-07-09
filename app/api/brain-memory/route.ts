@@ -7,3 +7,4 @@ export async function GET() {
     message: "Brain Memory v1 uses local browser storage. Supabase-backed memory comes next.",
   });
 }
+

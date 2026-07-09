@@ -38,3 +38,4 @@ export default function ComparisonRadarChart({ properties }: { properties: Compa
     </Card>
   );
 }
+

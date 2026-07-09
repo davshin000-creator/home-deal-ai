@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 
 type CoachPlan = {
   plan_id?: string;
@@ -78,7 +78,7 @@ export default function CoachPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ← Back to Nestrova
+            ??Back to Nestrova
           </a>
 
           {isSignedIn ? (
@@ -244,3 +244,4 @@ export default function CoachPage() {
     </main>
   );
 }
+

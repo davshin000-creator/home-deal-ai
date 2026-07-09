@@ -21,3 +21,4 @@ export default function ExecutiveComparisonSummary({ result }: { result: Compare
     </Card>
   );
 }
+
