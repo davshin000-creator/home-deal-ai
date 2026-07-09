@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import BrainConsoleLayout from "@/components/brain/BrainConsoleLayout";
@@ -26,7 +26,7 @@ function BrainPreview() {
       <section className="relative mx-auto grid max-w-[1480px] gap-8">
         <header className="flex items-center justify-between gap-4">
           <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">
-            ??Back to Nestrova
+            Back to Nestrova
           </a>
           <a href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
             Upgrade Pro
@@ -170,4 +170,5 @@ export default function BrainConsolePage() {
 
   return <BrainConsoleLayout />;
 }
+
 

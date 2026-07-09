@@ -7,7 +7,16 @@ import NestrovaAnalytics from "@/components/analytics/NestrovaAnalytics";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-export const metadata: Metadata = { title: "Nestrova", description: "AI real estate investment intelligence" };
+export const metadata: Metadata = {
+  title: "Nestrova",
+  description: "AI real estate investment intelligence",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Nestrova",
+  },
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

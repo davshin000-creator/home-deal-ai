@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -163,7 +163,7 @@ export default function PortfolioPage() {
             href="/"
             className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
           >
-            ??Back to Nestrova
+            Back to Nestrova
           </a>
 
           {isSignedIn ? (
@@ -252,10 +252,10 @@ export default function PortfolioPage() {
                 <div className="h-full w-[78%] rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.75)]" />
               </div>
               <div className="mt-5 grid gap-3 text-sm text-white/58">
-                <p>??Saved deal tracking</p>
-                <p>??Portfolio score monitoring</p>
-                <p>??Yield and cash flow review</p>
-                <p>??Best opportunity detection</p>
+                <p>Saved deal tracking</p>
+                <p>Portfolio score monitoring</p>
+                <p>Yield and cash flow review</p>
+                <p>Best opportunity detection</p>
               </div>
             </div>
           </aside>
@@ -320,7 +320,7 @@ export default function PortfolioPage() {
                     </p>
                     <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{stats.bestDeal.address}</h2>
                     <p className="mt-3 text-sm leading-6 text-white/60">
-                      Score {stats.bestDeal.deal_score}/100 · Grade {getInvestmentGrade(Number(stats.bestDeal.deal_score || 0))} · Yield {stats.bestDeal.gross_rent_yield}% · Cash Flow {money(stats.bestDeal.estimated_monthly_cash_flow)}/mo
+                      Score {stats.bestDeal.deal_score}/100 쨌 Grade {getInvestmentGrade(Number(stats.bestDeal.deal_score || 0))} 쨌 Yield {stats.bestDeal.gross_rent_yield}% 쨌 Cash Flow {money(stats.bestDeal.estimated_monthly_cash_flow)}/mo
                     </p>
                   </section>
                 )}
@@ -409,4 +409,5 @@ export default function PortfolioPage() {
     </main>
   );
 }
+
 

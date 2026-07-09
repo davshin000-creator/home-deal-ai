@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const brainStats = [
   ["Brain Score", "94"],
@@ -174,10 +174,10 @@ export default function HomePage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Without Nestrova</p>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Manual research slows every decision.</h2>
             <div className="mt-7 grid gap-3 text-white/45">
-              <p>??Hours of valuation research</p>
-              <p>??Emotional offer decisions</p>
-              <p>??Scattered rental and risk data</p>
-              <p>??No clear investment memo</p>
+              <p>Hours of valuation research</p>
+              <p>Emotional offer decisions</p>
+              <p>Scattered rental and risk data</p>
+              <p>No clear investment memo</p>
             </div>
           </div>
 
@@ -185,10 +185,10 @@ export default function HomePage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-300/70">With Nestrova</p>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">One AI brain for the full deal flow.</h2>
             <div className="mt-7 grid gap-3 text-white/65">
-              <p>??AI valuation and fair value signal</p>
-              <p>??Offer strategy and negotiation leverage</p>
-              <p>??Risk review and executive summary</p>
-              <p>??Compare, memo, and Brain Console</p>
+              <p>AI valuation and fair value signal</p>
+              <p>Offer strategy and negotiation leverage</p>
+              <p>Risk review and executive summary</p>
+              <p>Compare, memo, and Brain Console</p>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function HomePage() {
 
       <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
         <div className="mx-auto flex max-w-[1480px] flex-col gap-4 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <p>© 2026 Nestrova. AI investment intelligence for real estate investors.</p>
+          <p>짤 2026 Nestrova. AI investment intelligence for real estate investors.</p>
           <div className="flex gap-5">
             <Link href="/privacy" className="hover:text-white">Privacy</Link>
             <Link href="/terms" className="hover:text-white">Terms</Link>
@@ -253,4 +253,5 @@ export default function HomePage() {
     </main>
   );
 }
+
 

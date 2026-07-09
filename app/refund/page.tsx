@@ -1,8 +1,8 @@
-export default function RefundPage() {
+﻿export default function RefundPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-4xl rounded-3xl border bg-white p-8 shadow-sm">
-        <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">??Back to Nestrova</a>
+        <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">Back to Nestrova</a>
         <h1 className="mt-6 text-4xl font-bold">Refund Policy</h1>
         <p className="mt-2 text-sm text-gray-500">Last updated: June 21, 2026</p>
 
@@ -36,4 +36,5 @@ export default function RefundPage() {
     </main>
   );
 }
+
 

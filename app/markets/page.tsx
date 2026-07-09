@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 
@@ -25,7 +25,7 @@ export default function MarketsPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ??Back to Nestrova
+          Back to Nestrova
         </a>
 
         <section className="my-8 rounded-3xl border bg-white p-8 shadow-sm">
@@ -85,4 +85,5 @@ export default function MarketsPage() {
     </main>
   );
 }
+
 

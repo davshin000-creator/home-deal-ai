@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -246,7 +246,7 @@ export default function AnalyzePage() {
       <div className="relative mx-auto max-w-[1500px] px-5 py-6 md:px-8">
         <header className="mb-8 flex items-center justify-between gap-4">
           <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white">
-            ??Back to Nestrova
+            Back to Nestrova
           </a>
 
           <div className="flex items-center gap-3">
@@ -330,10 +330,10 @@ export default function AnalyzePage() {
                 <div className={`h-full rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.75)] ${loading ? "w-[58%]" : result ? "w-[92%]" : "w-[40%]"}`} />
               </div>
               <div className="mt-5 grid gap-3 text-sm text-white/58">
-                <p>??Clerk user verified</p>
-                <p>??Supabase Pro status checked</p>
-                <p>??Server proxy calls analysis API</p>
-                <p>??Usage limit enforced by plan</p>
+                <p>Clerk user verified</p>
+                <p>Supabase Pro status checked</p>
+                <p>Server proxy calls analysis API</p>
+                <p>Usage limit enforced by plan</p>
               </div>
             </div>
           </aside>
@@ -425,4 +425,5 @@ export default function AnalyzePage() {
     </main>
   );
 }
+
 

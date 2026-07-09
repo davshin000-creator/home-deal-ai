@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import AILoadingOverlay from "@/components/loading/AILoadingOverlay";
@@ -25,7 +25,7 @@ export default function LoadingPreviewPage() {
 
       <div className="mx-auto max-w-5xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ??Back to Nestrova
+          Back to Nestrova
         </a>
 
         <section className="mt-8 rounded-3xl bg-white p-8 shadow">
@@ -62,4 +62,5 @@ export default function LoadingPreviewPage() {
     </main>
   );
 }
+
 

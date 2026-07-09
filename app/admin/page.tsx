@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -101,7 +101,7 @@ export default function AdminDashboardPro() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">??Back to Nestrova</a>
+          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">Back to Nestrova</a>
           <UserButton />
         </div>
 
@@ -175,7 +175,7 @@ export default function AdminDashboardPro() {
                   {stats.recentReports.map((item) => (
                     <div key={item.id} className="rounded-2xl border p-4">
                       <p className="font-semibold">{item.property_address}</p>
-                      <p className="mt-1 text-sm text-gray-600">{item.is_full_report ? "Full Report" : "Preview"} · {item.investor_type}</p>
+                      <p className="mt-1 text-sm text-gray-600">{item.is_full_report ? "Full Report" : "Preview"} 쨌 {item.investor_type}</p>
                     </div>
                   ))}
                 </div>
@@ -188,7 +188,7 @@ export default function AdminDashboardPro() {
                   {stats.recentCoachPlans.map((item) => (
                     <div key={item.id} className="rounded-2xl border p-4">
                       <p className="font-semibold">${Number(item.budget || 0).toLocaleString()} budget</p>
-                      <p className="mt-1 text-sm text-gray-600">{item.risk_level} risk · {item.time_horizon}</p>
+                      <p className="mt-1 text-sm text-gray-600">{item.risk_level} risk 쨌 {item.time_horizon}</p>
                     </div>
                   ))}
                 </div>
@@ -200,4 +200,5 @@ export default function AdminDashboardPro() {
     </main>
   );
 }
+
 

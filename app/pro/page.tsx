@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const FEATURES = [
   "Unlimited AI property analysis",
@@ -16,7 +16,7 @@ export default function ProPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ??Back to Nestrova
+          Back to Nestrova
         </a>
 
         <section className="mt-8 rounded-3xl border-2 border-black bg-white p-8 text-center shadow-sm">
@@ -61,23 +61,23 @@ export default function ProPage() {
             <div className="rounded-3xl border p-6">
               <h3 className="text-2xl font-bold">Free</h3>
               <ul className="mt-4 grid gap-2 text-gray-700">
-                <li>??5 analyses</li>
-                <li>??1 AI report</li>
-                <li>??1 AI coach plan</li>
-                <li>??Simulator access</li>
-                <li>??Full offer documents</li>
+                <li>5 analyses</li>
+                <li>1 AI report</li>
+                <li>1 AI coach plan</li>
+                <li>Simulator access</li>
+                <li>Full offer documents</li>
               </ul>
             </div>
 
             <div className="rounded-3xl border-2 border-black p-6">
               <h3 className="text-2xl font-bold">Pro</h3>
               <ul className="mt-4 grid gap-2 text-gray-700">
-                <li>??Unlimited analysis</li>
-                <li>??Unlimited AI reports</li>
-                <li>??Offer Generator</li>
-                <li>??Negotiation Engine</li>
-                <li>??Document export</li>
-                <li>??Weekly Intelligence</li>
+                <li>Unlimited analysis</li>
+                <li>Unlimited AI reports</li>
+                <li>Offer Generator</li>
+                <li>Negotiation Engine</li>
+                <li>Document export</li>
+                <li>Weekly Intelligence</li>
               </ul>
             </div>
           </div>
@@ -86,4 +86,5 @@ export default function ProPage() {
     </main>
   );
 }
+
 

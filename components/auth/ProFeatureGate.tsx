@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useEffect, useState } from "react";
 import { SignInButton, useUser } from "@/components/auth/ClerkCompat";
@@ -60,7 +60,7 @@ export default function ProFeatureGate({
         </div>
         <section className="relative mx-auto grid max-w-[1480px] gap-8">
           <header className="flex items-center justify-between gap-4">
-            <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">??Back to Nestrova</a>
+            <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">Back to Nestrova</a>
             <a href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">Upgrade Pro</a>
           </header>
           <div className="grid gap-8 xl:grid-cols-[1fr_460px] xl:items-center">
@@ -98,4 +98,5 @@ export default function ProFeatureGate({
 
   return <>{children}</>;
 }
+
 

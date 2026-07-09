@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -40,7 +40,7 @@ function IntelligenceContent() {
     <main className="min-h-screen bg-[#050505] p-8 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
-          <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">??Back to Nestrova</a>
+          <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">Back to Nestrova</a>
           <UserButton />
         </div>
         {loading && <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-8">Building your Intelligence Feed...</div>}
@@ -73,4 +73,5 @@ export default function IntelligencePage() {
     </ProFeatureGate>
   );
 }
+
 

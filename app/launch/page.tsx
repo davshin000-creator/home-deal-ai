@@ -1,9 +1,9 @@
-export default function LaunchPage() {
+﻿export default function LaunchPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-5xl">
         <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          ??Back to Nestrova
+          Back to Nestrova
         </a>
 
         <section className="mt-8 rounded-3xl border bg-white p-8 shadow-sm md:p-10">
@@ -20,13 +20,13 @@ export default function LaunchPage() {
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <a href="/deals" className="rounded-2xl border bg-white p-5 font-semibold shadow-sm hover:bg-gray-50">
-              Find Deals ??
+              Find Deals
             </a>
             <a href="/portfolio" className="rounded-2xl border bg-white p-5 font-semibold shadow-sm hover:bg-gray-50">
-              View Portfolio ??
+              View Portfolio
             </a>
             <a href="/feedback" className="rounded-2xl border-2 border-black bg-black p-5 font-semibold text-white shadow-sm hover:bg-gray-800">
-              Give Feedback ??
+              Give Feedback
             </a>
           </div>
         </section>
@@ -50,4 +50,5 @@ export default function LaunchPage() {
     </main>
   );
 }
+
 

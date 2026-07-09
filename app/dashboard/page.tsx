@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-            ??Back to Nestrova
+            Back to Nestrova
           </a>
           <UserButton />
         </div>
@@ -120,4 +120,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
 
