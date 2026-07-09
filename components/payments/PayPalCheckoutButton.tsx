@@ -32,6 +32,7 @@ function PayPalCheckoutInner() {
   return (
     <div className="grid gap-3">
       <PayPalButtons
+        fundingSource="paypal"
         forceReRender={["USD", "capture"]}
         style={{
           layout: "vertical",
@@ -124,11 +125,12 @@ export default function PayPalCheckoutButton() {
   return (
     <PayPalScriptProvider
       options={{
-        clientId,
-        currency: "USD",
-        intent: "capture",
-        components: "buttons",
-      }}
+  clientId,
+  currency: "USD",
+  intent: "capture",
+  components: "buttons",
+  disableFunding: "card,credit,paylater",
+}}
     >
       <PayPalCheckoutInner />
     </PayPalScriptProvider>
