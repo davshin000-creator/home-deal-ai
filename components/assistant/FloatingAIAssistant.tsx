@@ -27,9 +27,11 @@ export default function FloatingAIAssistant() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: prompt,
-          page_path: window.location.pathname,
-        }),
+  user_id: "current-user",
+  message: prompt,
+  question: prompt,
+  page_path: window.location.pathname,
+}),
       });
 
       const data = await response.json();
