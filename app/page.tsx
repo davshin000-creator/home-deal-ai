@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const brainStats = [
   ["Brain Score", "94"],
@@ -30,7 +31,10 @@ const trustSignals = [
   "Investor memo",
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
   return (
     <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0">
@@ -62,9 +66,15 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white md:inline-flex">
-              Login
-            </Link>
+            {user ? (
+  <Link href="/dashboard" className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white md:inline-flex">
+    Dashboard
+  </Link>
+) : (
+  <Link href="/login" className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white md:inline-flex">
+    Login
+  </Link>
+)}
             <Link href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-[0_22px_70px_rgba(255,255,255,0.18)] transition hover:-translate-y-0.5 hover:bg-neutral-200">
               Upgrade Pro
             </Link>
