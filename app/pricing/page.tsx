@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import PayPalCheckoutButton from "@/components/payments/PayPalCheckoutButton";
+import PayPalSubscriptionButton from "@/components/payments/PayPalSubscriptionButton";
 import { useUser, UserButton } from "@/components/auth/ClerkCompat";
 
 const proFeatures = [
@@ -145,14 +145,19 @@ export default function PricingPage() {
 
           <aside className="rounded-[42px] border border-white/10 bg-white/[0.075] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Checkout</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em]">Pay securely with PayPal.</h2>
-            <p className="mt-3 text-sm leading-6 text-white/50">Your Pro access starts after payment confirmation.</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em]">
+  Start your 5-day free trial.
+</h2>
+
+<p className="mt-3 text-sm leading-6 text-white/50">
+  Subscribe with PayPal today. Your first 5 days are free, then Nestrova Pro renews automatically at $19/month until canceled.
+</p>
             <div className="mt-6 rounded-[30px] border border-white/10 bg-black/25 p-4">
-              <PayPalCheckoutButton />
+              <PayPalSubscriptionButton />
             </div>
             <p className="mt-5 text-xs leading-5 text-white/35">
-              Secure checkout is handled by PayPal. Subscription access is managed by Nestrova after payment confirmation.
-            </p>
+  Secure subscription checkout is handled by PayPal. Cancel anytime. Unless canceled before the trial ends, your subscription automatically renews at $19/month.
+</p>
           </aside>
         </div>
 
