@@ -225,6 +225,90 @@ export default async function HomePage() {
 
       <section className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8">
         <div className="overflow-hidden rounded-[48px] border border-white/10 bg-white/[0.06] p-8 md:p-12">
+              <section className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
+            Free Property Tools & Guides
+          </p>
+
+          <h2 className="mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.06em] md:text-6xl">
+            Make a better property decision before you buy.
+          </h2>
+
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/50">
+            Explore free real estate tools and practical guides designed to help
+            buyers and investors evaluate property value, pricing, and offer strategy.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <Link
+            href="/property-deal-analyzer"
+            className="group rounded-[34px] border border-white/10 bg-white/[0.05] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.075] hover:shadow-[0_30px_90px_rgba(0,0,0,0.35)]"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/70">
+              Free Tool
+            </p>
+
+            <h3 className="mt-5 text-3xl font-semibold tracking-[-0.05em]">
+              Property Deal Analyzer
+            </h3>
+
+            <p className="mt-4 text-sm leading-7 text-white/48">
+              Analyze property value, rental potential, risk, and deal quality
+              before making an investment decision.
+            </p>
+
+            <p className="mt-8 text-sm font-semibold text-white transition group-hover:translate-x-1">
+              Analyze a Property →
+            </p>
+          </Link>
+
+          <Link
+            href="/is-this-house-overpriced"
+            className="group rounded-[34px] border border-white/10 bg-white/[0.05] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.075] hover:shadow-[0_30px_90px_rgba(0,0,0,0.35)]"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/70">
+              Buyer Guide
+            </p>
+
+            <h3 className="mt-5 text-3xl font-semibold tracking-[-0.05em]">
+              Is This House Overpriced?
+            </h3>
+
+            <p className="mt-4 text-sm leading-7 text-white/48">
+              Learn how to compare asking price, comparable sales, rental yield,
+              and market signals before buying a home.
+            </p>
+
+            <p className="mt-8 text-sm font-semibold text-white transition group-hover:translate-x-1">
+              Check Property Pricing →
+            </p>
+          </Link>
+
+          <Link
+            href="/how-much-should-i-offer-on-a-house"
+            className="group rounded-[34px] border border-white/10 bg-white/[0.05] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.075] hover:shadow-[0_30px_90px_rgba(0,0,0,0.35)]"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
+              Offer Strategy
+            </p>
+
+            <h3 className="mt-5 text-3xl font-semibold tracking-[-0.05em]">
+              How Much Should I Offer on a House?
+            </h3>
+
+            <p className="mt-4 text-sm leading-7 text-white/48">
+              Understand fair value, negotiation leverage, market conditions,
+              and how to build a disciplined property offer.
+            </p>
+
+            <p className="mt-8 text-sm font-semibold text-white transition group-hover:translate-x-1">
+              Build an Offer Strategy →
+            </p>
+          </Link>
+        </div>
+      </section>
           <div className="grid gap-10 xl:grid-cols-[1fr_420px] xl:items-end">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Launch Offer</p>
@@ -252,7 +336,7 @@ export default async function HomePage() {
 
       <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
         <div className="mx-auto flex max-w-[1480px] flex-col gap-4 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <p>짤 2026 Nestrova. AI investment intelligence for real estate investors.</p>
+          <p>© 2026 Nestrova. AI investment intelligence for real estate investors.</p>
           <div className="flex gap-5">
             <Link href="/privacy" className="hover:text-white">Privacy</Link>
             <Link href="/terms" className="hover:text-white">Terms</Link>
