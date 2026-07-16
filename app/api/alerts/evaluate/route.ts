@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 
 function isAuthorized(request: NextRequest) {
   const expectedSecret =
+    process.env.CRON_SECRET ??
     process.env.ALERT_ENGINE_SECRET;
 
   if (!expectedSecret) {
@@ -19,11 +20,16 @@ function isAuthorized(request: NextRequest) {
   return authorization === `Bearer ${expectedSecret}`;
 }
 
-export async function POST(request: NextRequest) {
+async function executeAlertEngine(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 },
+      {
+        ok: false,
+        error: "Unauthorized",
+      },
+      {
+        status: 401,
+      },
     );
   }
 
@@ -32,6 +38,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
+      executed_at: new Date().toISOString(),
       result,
     });
   } catch (error) {
@@ -45,15 +52,17 @@ export async function POST(request: NextRequest) {
             ? error.message
             : "Alert Engine failed.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }
 
-export async function GET() {
-  return NextResponse.json({
-    service: "Nestrova Alert Engine",
-    status: "READY",
-    method: "POST",
-  });
+export async function GET(request: NextRequest) {
+  return executeAlertEngine(request);
+}
+
+export async function POST(request: NextRequest) {
+  return executeAlertEngine(request);
 }
