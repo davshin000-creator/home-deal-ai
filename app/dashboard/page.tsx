@@ -9,6 +9,7 @@ import {
   useUser,
 } from "@/components/auth/ClerkCompat";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 type DashboardActivity = {
   title: string;
@@ -409,15 +410,17 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <Link
-                  href="/trading/briefing"
-                  className="hidden rounded-full border border-white/10 bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
-                >
-                  Daily Briefing
-                </Link>
+  <Link
+    href="/trading/briefing"
+    className="hidden rounded-full border border-white/10 bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+  >
+    Daily Briefing
+  </Link>
 
-                <UserButton />
-              </div>
+  <NotificationBell />
+
+  <UserButton />
+</div>
             </div>
 
             <div className="flex gap-2 overflow-x-auto border-t border-white/[0.06] px-5 py-3 lg:hidden">
