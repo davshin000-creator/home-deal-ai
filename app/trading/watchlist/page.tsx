@@ -11,6 +11,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const API_BASE_URL =
+  process.env.NESTROVA_TRADING_API_URL ??
+  "https://api.nestrovaai.com";
+
 type WatchlistItem = {
   id: string;
   symbol: string;
@@ -23,20 +27,135 @@ type WatchlistItem = {
   updated_at: string;
 };
 
+type Opportunity = {
+  symbol?: string;
+  opportunity_score?: number;
+  regime?: string;
+  risk?: string;
+  research_style?: string;
+};
+
+type TradingState = {
+  generated_at?: string;
+  opportunities?: {
+    top_opportunities?: Opportunity[];
+  };
+  market?: {
+    regime?: string;
+    confidence?: number;
+    risk?: string;
+  };
+  system?: {
+    public_mode?: string;
+    execution_exposed?: boolean;
+  };
+};
+
 type SearchParams = Promise<{
   success?: string;
   error?: string;
 }>;
 
+async function getTradingState(): Promise<TradingState | null> {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/core/state`,
+      {
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as TradingState;
+
+    if (
+      data.system?.public_mode !== "READ_ONLY" ||
+      data.system?.execution_exposed !== false
+    ) {
+      return null;
+    }
+
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 function cleanLabel(value?: string | null) {
   if (!value) {
-    return "None";
+    return "Unavailable";
   }
 
   return value
     .replaceAll("_", " ")
     .toLowerCase()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function normalizeSymbol(value?: string | null) {
+  return String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/^KRW-/, "")
+    .replace(/^USDT-/, "")
+    .replace(/^USD-/, "");
+}
+
+function formatDate(value?: string | null) {
+  if (!value) {
+    return "Update unavailable";
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(parsed);
+}
+
+function riskClasses(value?: string | null) {
+  switch (value?.toUpperCase()) {
+    case "LOW":
+      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
+    case "MEDIUM":
+      return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+    case "HIGH":
+      return "border-orange-400/20 bg-orange-400/10 text-orange-200";
+    case "CRITICAL":
+      return "border-red-400/20 bg-red-400/10 text-red-200";
+    default:
+      return "border-white/10 bg-white/[0.06] text-white/50";
+  }
+}
+
+function opportunityClasses(score?: number | null) {
+  const value = score ?? 0;
+
+  if (value >= 80) {
+    return "text-emerald-300";
+  }
+
+  if (value >= 65) {
+    return "text-cyan-300";
+  }
+
+  if (value >= 50) {
+    return "text-amber-200";
+  }
+
+  return "text-white/45";
 }
 
 function messageForSuccess(value?: string) {
@@ -85,29 +204,60 @@ export default async function TradingWatchlistPage({
     redirect("/login?next=/trading/watchlist");
   }
 
-  const { data, error } = await supabase
-    .from("trading_watchlist")
-    .select(
-      `
-        id,
-        symbol,
-        asset_type,
-        display_name,
-        alert_enabled,
-        opportunity_threshold,
-        risk_threshold,
-        created_at,
-        updated_at
-      `,
-    )
-    .eq("user_id", authData.user.id)
-    .order("created_at", {
-      ascending: false,
-    });
+  const [{ data, error }, tradingState] = await Promise.all([
+    supabase
+      .from("trading_watchlist")
+      .select(
+        `
+          id,
+          symbol,
+          asset_type,
+          display_name,
+          alert_enabled,
+          opportunity_threshold,
+          risk_threshold,
+          created_at,
+          updated_at
+        `,
+      )
+      .eq("user_id", authData.user.id)
+      .order("created_at", {
+        ascending: false,
+      }),
+    getTradingState(),
+  ]);
 
   const watchlist = (data ?? []) as WatchlistItem[];
 
+  const opportunities =
+    tradingState?.opportunities?.top_opportunities ?? [];
+
+  const opportunityMap = new Map(
+    opportunities.map((item) => [
+      normalizeSymbol(item.symbol),
+      item,
+    ]),
+  );
+
+  const matchedCount = watchlist.filter((item) =>
+    opportunityMap.has(normalizeSymbol(item.symbol)),
+  ).length;
+
+  const triggeredCount = watchlist.filter((item) => {
+    const intelligence = opportunityMap.get(
+      normalizeSymbol(item.symbol),
+    );
+
+    return (
+      item.alert_enabled &&
+      intelligence?.opportunity_score !== undefined &&
+      intelligence.opportunity_score >=
+        item.opportunity_threshold
+    );
+  }).length;
+
   const successMessage = messageForSuccess(params.success);
+
   const errorMessage =
     messageForError(params.error) ??
     (error ? "Your Watchlist could not be loaded." : null);
@@ -154,10 +304,7 @@ export default async function TradingWatchlistPage({
             >
               Briefing
             </Link>
-            <Link
-              href="/trading/watchlist"
-              className="text-white"
-            >
+            <Link href="/trading/watchlist" className="text-white">
               Watchlist
             </Link>
           </nav>
@@ -172,19 +319,32 @@ export default async function TradingWatchlistPage({
       </header>
 
       <section className="relative mx-auto max-w-[1480px] px-5 pb-10 pt-16 md:px-8 md:pt-24">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.27em] text-cyan-300/70">
-          Personal Intelligence
-        </p>
+        <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.27em] text-cyan-300/70">
+              Personal Intelligence
+            </p>
 
-        <h1 className="mt-5 max-w-5xl text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
-          Track the markets that matter to you.
-        </h1>
+            <h1 className="mt-5 max-w-5xl text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
+              Track the markets that matter to you.
+            </h1>
 
-        <p className="mt-6 max-w-3xl text-lg leading-8 text-white/50">
-          Build a private Watchlist for crypto, stocks, ETFs, and
-          indexes. Your saved assets and alert settings are visible
-          only to your account.
-        </p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/50">
+              Save crypto, stocks, ETFs, and indexes, then compare your
+              preferences against current public Opportunity, Regime, and Risk
+              intelligence.
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.05] px-5 py-4 text-sm text-white/45">
+            <p className="font-semibold text-white/70">
+              Intelligence update
+            </p>
+            <p className="mt-1">
+              {formatDate(tradingState?.generated_at)}
+            </p>
+          </div>
+        </div>
 
         {successMessage ? (
           <div className="mt-8 rounded-[26px] border border-emerald-400/20 bg-emerald-400/10 p-5 text-sm text-emerald-200">
@@ -197,6 +357,56 @@ export default async function TradingWatchlistPage({
             {errorMessage}
           </div>
         ) : null}
+      </section>
+
+      <section className="relative mx-auto grid max-w-[1480px] gap-5 px-5 py-8 sm:grid-cols-2 md:px-8 xl:grid-cols-4">
+        <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+            Saved Assets
+          </p>
+          <p className="mt-3 text-3xl font-semibold">
+            {watchlist.length}
+          </p>
+          <p className="mt-3 text-sm text-white/42">
+            Markets saved privately to your account.
+          </p>
+        </article>
+
+        <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+            Intelligence Matches
+          </p>
+          <p className="mt-3 text-3xl font-semibold">
+            {matchedCount}
+          </p>
+          <p className="mt-3 text-sm text-white/42">
+            Saved assets currently found in the public scanner.
+          </p>
+        </article>
+
+        <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+            Alert Conditions
+          </p>
+          <p className="mt-3 text-3xl font-semibold">
+            {triggeredCount}
+          </p>
+          <p className="mt-3 text-sm text-white/42">
+            Saved assets currently meeting your Opportunity threshold.
+          </p>
+        </article>
+
+        <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+            Global Market
+          </p>
+          <p className="mt-3 text-3xl font-semibold">
+            {cleanLabel(tradingState?.market?.regime)}
+          </p>
+          <p className="mt-3 text-sm text-white/42">
+            Current public market context for unmatched assets.
+          </p>
+        </article>
       </section>
 
       <section className="relative mx-auto grid max-w-[1480px] gap-6 px-5 py-8 md:px-8 xl:grid-cols-[420px_1fr]">
@@ -297,125 +507,228 @@ export default async function TradingWatchlistPage({
 
           <div className="mt-7 grid gap-5">
             {watchlist.length > 0 ? (
-              watchlist.map((item) => (
-                <article
-                  key={item.id}
-                  className="rounded-[36px] border border-white/10 bg-white/[0.05] p-6"
-                >
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h3 className="text-3xl font-semibold tracking-[-0.05em]">
-                          {item.symbol}
-                        </h3>
+              watchlist.map((item) => {
+                const intelligence = opportunityMap.get(
+                  normalizeSymbol(item.symbol),
+                );
 
-                        <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold uppercase tracking-[0.13em] text-white/50">
-                          {item.asset_type}
-                        </span>
+                const opportunityScore =
+                  intelligence?.opportunity_score;
 
-                        {item.alert_enabled ? (
-                          <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-                            Alerts On
+                const opportunityTriggered =
+                  item.alert_enabled &&
+                  opportunityScore !== undefined &&
+                  opportunityScore >=
+                    item.opportunity_threshold;
+
+                const riskTriggered =
+                  item.alert_enabled &&
+                  item.risk_threshold &&
+                  intelligence?.risk === item.risk_threshold;
+
+                return (
+                  <article
+                    key={item.id}
+                    className={`rounded-[36px] border bg-white/[0.05] p-6 ${
+                      opportunityTriggered || riskTriggered
+                        ? "border-cyan-400/30 shadow-[0_0_70px_rgba(34,211,238,0.08)]"
+                        : "border-white/10"
+                    }`}
+                  >
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="text-3xl font-semibold tracking-[-0.05em]">
+                            {item.symbol}
+                          </h3>
+
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold uppercase tracking-[0.13em] text-white/50">
+                            {item.asset_type}
                           </span>
-                        ) : null}
+
+                          {item.alert_enabled ? (
+                            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+                              Alerts On
+                            </span>
+                          ) : null}
+
+                          {opportunityTriggered ||
+                          riskTriggered ? (
+                            <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
+                              Condition Met
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <p className="mt-3 text-sm text-white/42">
+                          {item.display_name ||
+                            `${item.symbol} Intelligence`}
+                        </p>
                       </div>
 
-                      <p className="mt-3 text-sm text-white/42">
-                        {item.display_name ||
-                          `${item.symbol} Intelligence`}
-                      </p>
+                      <form action={deleteWatchlistItem}>
+                        <input
+                          type="hidden"
+                          name="id"
+                          value={item.id}
+                        />
+
+                        <button
+                          type="submit"
+                          className="rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-xs font-semibold text-red-200 transition hover:bg-red-400/15"
+                        >
+                          Remove
+                        </button>
+                      </form>
                     </div>
 
-                    <form action={deleteWatchlistItem}>
+                    <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                          Opportunity
+                        </p>
+
+                        <p
+                          className={`mt-2 text-2xl font-semibold ${opportunityClasses(
+                            opportunityScore,
+                          )}`}
+                        >
+                          {opportunityScore ?? "—"}
+                          {opportunityScore !== undefined ? (
+                            <span className="text-xs text-white/28">
+                              {" "}
+                              / 100
+                            </span>
+                          ) : null}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                          Regime
+                        </p>
+
+                        <p className="mt-2 text-lg font-semibold">
+                          {cleanLabel(
+                            intelligence?.regime ??
+                              tradingState?.market?.regime,
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                          Risk
+                        </p>
+
+                        <span
+                          className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskClasses(
+                            intelligence?.risk ??
+                              tradingState?.market?.risk,
+                          )}`}
+                        >
+                          {cleanLabel(
+                            intelligence?.risk ??
+                              tradingState?.market?.risk,
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                          Research Style
+                        </p>
+
+                        <p className="mt-2 text-sm font-semibold text-white/55">
+                          {intelligence?.research_style ??
+                            "No direct scanner match"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {!intelligence ? (
+                      <div className="mt-5 rounded-2xl border border-amber-400/15 bg-amber-400/[0.06] p-4 text-xs leading-6 text-amber-100/60">
+                        This asset is saved, but it is not currently included
+                        in the public Opportunity Scanner. Global market context
+                        is shown instead.
+                      </div>
+                    ) : null}
+
+                    <form
+                      action={updateWatchlistSettings}
+                      className="mt-7 grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-5 md:grid-cols-[1fr_1fr_auto]"
+                    >
                       <input
                         type="hidden"
                         name="id"
                         value={item.id}
                       />
 
-                      <button
-                        type="submit"
-                        className="rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-xs font-semibold text-red-200 transition hover:bg-red-400/15"
-                      >
-                        Remove
-                      </button>
-                    </form>
-                  </div>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
+                          Opportunity threshold
+                        </span>
 
-                  <form
-                    action={updateWatchlistSettings}
-                    className="mt-7 grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-5 md:grid-cols-[1fr_1fr_auto]"
-                  >
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={item.id}
-                    />
-
-                    <label className="grid gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
-                        Opportunity threshold
-                      </span>
-
-                      <input
-                        name="opportunity_threshold"
-                        type="number"
-                        min={0}
-                        max={100}
-                        defaultValue={
-                          item.opportunity_threshold
-                        }
-                        className="rounded-2xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/40"
-                      />
-                    </label>
-
-                    <label className="grid gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
-                        Risk alert
-                      </span>
-
-                      <select
-                        name="risk_threshold"
-                        defaultValue={
-                          item.risk_threshold ?? ""
-                        }
-                        className="rounded-2xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/40"
-                      >
-                        <option value="">No risk alert</option>
-                        <option value="LOW">Low</option>
-                        <option value="MEDIUM">
-                          Medium
-                        </option>
-                        <option value="HIGH">High</option>
-                        <option value="CRITICAL">
-                          Critical
-                        </option>
-                      </select>
-                    </label>
-
-                    <div className="flex flex-col justify-end gap-3">
-                      <label className="flex items-center gap-3 text-sm text-white/55">
                         <input
-                          type="checkbox"
-                          name="alert_enabled"
-                          defaultChecked={
-                            item.alert_enabled
+                          name="opportunity_threshold"
+                          type="number"
+                          min={0}
+                          max={100}
+                          defaultValue={
+                            item.opportunity_threshold
                           }
-                          className="h-4 w-4"
+                          className="rounded-2xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/40"
                         />
-                        Alerts enabled
                       </label>
 
-                      <button
-                        type="submit"
-                        className="rounded-full border border-white/10 bg-white/[0.07] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </form>
-                </article>
-              ))
+                      <label className="grid gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
+                          Risk alert
+                        </span>
+
+                        <select
+                          name="risk_threshold"
+                          defaultValue={
+                            item.risk_threshold ?? ""
+                          }
+                          className="rounded-2xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/40"
+                        >
+                          <option value="">No risk alert</option>
+                          <option value="LOW">Low</option>
+                          <option value="MEDIUM">
+                            Medium
+                          </option>
+                          <option value="HIGH">High</option>
+                          <option value="CRITICAL">
+                            Critical
+                          </option>
+                        </select>
+                      </label>
+
+                      <div className="flex flex-col justify-end gap-3">
+                        <label className="flex items-center gap-3 text-sm text-white/55">
+                          <input
+                            type="checkbox"
+                            name="alert_enabled"
+                            defaultChecked={
+                              item.alert_enabled
+                            }
+                            className="h-4 w-4"
+                          />
+                          Alerts enabled
+                        </label>
+
+                        <button
+                          type="submit"
+                          className="rounded-full border border-white/10 bg-white/[0.07] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </article>
+                );
+              })
             ) : (
               <div className="rounded-[36px] border border-white/10 bg-white/[0.05] p-8">
                 <p className="text-lg font-semibold">
@@ -434,18 +747,17 @@ export default async function TradingWatchlistPage({
       <section className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8">
         <div className="rounded-[42px] border border-white/10 bg-white/[0.055] p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
-            Privacy
+            Alert Preview
           </p>
 
           <h2 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.055em]">
-            Your Watchlist belongs only to your account.
+            Conditions are now evaluated. Notifications come next.
           </h2>
 
           <p className="mt-5 max-w-4xl text-sm leading-7 text-white/45">
-            Row Level Security prevents another user from reading,
-            editing, or deleting your saved assets. Alert settings
-            currently store your preferences only; notifications will
-            be connected in the next phase.
+            Nestrova now compares each saved asset against your Opportunity and
+            Risk settings. This page only highlights matches; email and push
+            delivery will be connected in the next phase.
           </p>
         </div>
       </section>
