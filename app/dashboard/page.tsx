@@ -10,6 +10,7 @@ import {
 } from "@/components/auth/ClerkCompat";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import DashboardNotifications from "@/components/notifications/DashboardNotifications";
 
 type DashboardActivity = {
   title: string;
@@ -767,6 +768,9 @@ export default function DashboardPage() {
                     </article>
                   </aside>
                 </section>
+                <section className="mt-12">
+  <DashboardNotifications />
+</section>
               </>
             )}
           </div>

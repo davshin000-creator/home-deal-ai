@@ -169,6 +169,108 @@ export default function NotificationBell() {
       }
     }, []);
 
+      const markNotificationRead = useCallback(
+    async (id: string) => {
+      const target = notifications.find(
+        (notification) => notification.id === id,
+      );
+
+      if (!target || target.is_read) {
+        return;
+      }
+
+      setNotifications((current) =>
+        current.map((notification) =>
+          notification.id === id
+            ? {
+                ...notification,
+                is_read: true,
+              }
+            : notification,
+        ),
+      );
+
+      setUnreadCount((current) =>
+        Math.max(0, current - 1),
+      );
+
+      try {
+        const response = await fetch(
+          "/api/notifications/read",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Notification update failed.",
+          );
+        }
+      } catch (error) {
+        console.error(
+          "notification_mark_read_error",
+          error,
+        );
+
+        await loadNotifications();
+      }
+    },
+    [loadNotifications, notifications],
+  );
+
+  const markAllNotificationsRead =
+    useCallback(async () => {
+      if (unreadCount === 0) {
+        return;
+      }
+
+      setNotifications((current) =>
+        current.map((notification) => ({
+          ...notification,
+          is_read: true,
+        })),
+      );
+
+      setUnreadCount(0);
+
+      try {
+        const response = await fetch(
+          "/api/notifications/read",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              mark_all: true,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Notification update failed.",
+          );
+        }
+      } catch (error) {
+        console.error(
+          "notification_mark_all_read_error",
+          error,
+        );
+
+        await loadNotifications();
+      }
+    }, [loadNotifications, unreadCount]);
+
   useEffect(() => {
     void loadNotifications();
 
@@ -310,9 +412,23 @@ export default function NotificationBell() {
                 </h2>
               </div>
 
-              <div className="rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-xs font-semibold text-white/50">
-                {unreadCount} unread
-              </div>
+              <div className="flex items-center gap-2">
+  {unreadCount > 0 ? (
+    <button
+      type="button"
+      onClick={() =>
+        void markAllNotificationsRead()
+      }
+      className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-semibold text-cyan-200 transition hover:bg-cyan-400/15"
+    >
+      Mark all read
+    </button>
+  ) : null}
+
+  <div className="rounded-full border border-white/10 bg-white/[0.055] px-3 py-1.5 text-xs font-semibold text-white/50">
+    {unreadCount} unread
+  </div>
+</div>
             </div>
           </div>
 
@@ -335,9 +451,13 @@ export default function NotificationBell() {
                     <Link
                       key={notification.id}
                       href="/notifications"
-                      onClick={() =>
-                        setOpen(false)
-                      }
+                      onClick={() => {
+                        void markNotificationRead(
+                          notification.id,
+                      );
+
+                      setOpen(false);
+                    }}
                       className={`group rounded-[22px] border p-4 transition ${
                         notification.is_read
                           ? "border-white/[0.07] bg-white/[0.025] opacity-65 hover:opacity-100"
