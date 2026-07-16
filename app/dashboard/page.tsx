@@ -96,6 +96,7 @@ const sidebarItems = [
   { label: "Trading", href: "/trading", marker: "T" },
   { label: "Watchlist", href: "/trading/watchlist", marker: "W" },
   { label: "Pricing", href: "/pricing", marker: "P" },
+  { label: "Notifications", href: "/notifications", marker: "N" },
 ];
 
 function accentClasses(accent: ProductCard["accent"]) {
@@ -496,6 +497,12 @@ export default function DashboardPage() {
                           className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3.5 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
                         >
                           Open Daily Briefing
+                        </Link>
+                        <Link
+                          href="/notifications"
+                          className="hidden rounded-full border border-white/10 bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+                        >
+                          Notifications
                         </Link>
                       </div>
                     </div>
