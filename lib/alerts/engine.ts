@@ -1,4 +1,5 @@
-﻿import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { updateAlertEngineHealth } from "./health-monitor";
 
 import {
   evaluateWatchlistItem,
@@ -249,6 +250,12 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
       }
     }
 
+    await updateAlertEngineHealth({
+  supabase,
+  latestRunId: runId,
+  latestRunStatus: "SUCCESS",
+});
+
     return {
       runId,
       evaluatedWatchlists:
@@ -313,6 +320,12 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
         );
       }
     }
+
+await updateAlertEngineHealth({
+  supabase,
+  latestRunId: runId,
+  latestRunStatus: "FAILED",
+});
 
     throw error;
   }

@@ -24,6 +24,20 @@ type AlertRun = {
   created_at: string;
 };
 
+type SystemIncident = {
+  id: string;
+  incident_type: string;
+  status: "OPEN" | "RESOLVED";
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  title: string;
+  message: string;
+  failure_count: number;
+  first_detected_at: string;
+  last_detected_at: string;
+  resolved_at: string | null;
+  created_at: string;
+};
+
 function parseAdminEmails() {
   return new Set(
     String(
@@ -165,7 +179,39 @@ export default async function AlertOperationsPage() {
 
   const runs = (data ?? []) as AlertRun[];
 
-  const latest = runs[0] ?? null;
+const {
+  data: incidentData,
+  error: incidentError,
+} = await adminClient
+  .from("alert_system_incidents")
+  .select(
+    `
+      id,
+      incident_type,
+      status,
+      severity,
+      title,
+      message,
+      failure_count,
+      first_detected_at,
+      last_detected_at,
+      resolved_at,
+      created_at
+    `,
+  )
+  .order("created_at", {
+    ascending: false,
+  })
+  .limit(20);
+
+const incidents =
+  (incidentData ?? []) as SystemIncident[];
+
+const openIncidents = incidents.filter(
+  (incident) => incident.status === "OPEN",
+);
+
+const latest = runs[0] ?? null;
 
   const successCount = runs.filter(
     (run) => run.status === "SUCCESS",
@@ -254,7 +300,77 @@ export default async function AlertOperationsPage() {
             Operations data could not be loaded: {error.message}
           </div>
         ) : null}
+
+{incidentError ? (
+  <div className="mt-4 rounded-[28px] border border-red-400/20 bg-red-400/10 p-6 text-red-200">
+    Health Incident data could not be loaded:{" "}
+    {incidentError.message}
+  </div>
+) : null}
+
       </section>
+
+{openIncidents.length > 0 ? (
+  <section className="relative mx-auto max-w-[1480px] px-5 py-5 md:px-8">
+    <div className="overflow-hidden rounded-[38px] border border-red-400/25 bg-red-400/[0.08] p-7 shadow-[0_0_90px_rgba(248,113,113,0.08)]">
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full border border-red-400/25 bg-red-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-red-200">
+              System Incident
+            </span>
+
+            <span className="h-2 w-2 animate-pulse rounded-full bg-red-300 shadow-[0_0_16px_rgba(252,165,165,0.9)]" />
+
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-red-100/45">
+              {openIncidents[0].severity}
+            </span>
+          </div>
+
+          <h2 className="mt-5 text-3xl font-semibold tracking-[-0.055em] text-red-50 md:text-4xl">
+            {openIncidents[0].title}
+          </h2>
+
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-red-100/65">
+            {openIncidents[0].message}
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3 text-xs text-red-100/40">
+            <span>
+              First detected:{" "}
+              {formatDate(
+                openIncidents[0].first_detected_at,
+              )}
+            </span>
+
+            <span aria-hidden="true">•</span>
+
+            <span>
+              Last detected:{" "}
+              {formatDate(
+                openIncidents[0].last_detected_at,
+              )}
+            </span>
+          </div>
+        </div>
+
+        <div className="shrink-0 rounded-[26px] border border-red-300/15 bg-black/20 p-5 xl:min-w-[220px]">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-red-100/40">
+            Consecutive Failures
+          </p>
+
+          <p className="mt-2 text-4xl font-semibold text-red-100">
+            {openIncidents[0].failure_count}
+          </p>
+
+          <p className="mt-3 text-xs leading-5 text-red-100/40">
+            Review execution history and VPS service logs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+) : null}
 
       <section className="relative mx-auto grid max-w-[1480px] gap-5 px-5 py-8 sm:grid-cols-2 md:px-8 xl:grid-cols-4">
         <Metric
