@@ -319,6 +319,12 @@ export default async function TradingPage() {
             >
               Verified
             </Link>
+            <Link
+              href="/trading/council"
+              className="transition hover:text-white"
+            >
+              Council
+            </Link>
             <Link href="/" className="transition hover:text-white">
               Platform
             </Link>
