@@ -36,49 +36,89 @@ export default function WinnerPanel({
   winner: CompareResult["winner"];
   result: CompareResult;
 }) {
-
   const router = useRouter();
 
-const [creatingReport, setCreatingReport] =
-  useState(false);
+  const [creatingReport, setCreatingReport] =
+    useState(false);
 
-async function handleGenerateMemo() {
-  try {
-    setCreatingReport(true);
+  const [savingWinner, setSavingWinner] =
+    useState(false);
 
-    const response = await fetch(
-      "/api/reports/comparison",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          result,
-        }),
-      },
-    );
+  const [winnerSaved, setWinnerSaved] =
+    useState(false);
 
-    const data = await response.json();
+  async function handleGenerateMemo() {
+    try {
+      setCreatingReport(true);
 
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-          "Could not generate comparison memo.",
+      const response = await fetch(
+        "/api/reports/comparison",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            result,
+          }),
+        }
       );
-    }
 
-    router.push(`/report/${data.report_id}`);
-  } catch (error) {
-    alert(
-      error instanceof Error
-        ? error.message
-        : "Unexpected error."
-    );
-  } finally {
-    setCreatingReport(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Could not generate comparison memo."
+        );
+      }
+
+      router.push(`/report/${data.report_id}`);
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Unexpected error."
+      );
+    } finally {
+      setCreatingReport(false);
+    }
   }
-}
+
+  async function handleSaveWinner() {
+    try {
+      setSavingWinner(true);
+
+      const response = await fetch(
+        "/api/saved-properties",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(winner.property),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Could not save winner."
+        );
+      }
+
+      setWinnerSaved(true);
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Unexpected error."
+      );
+    } finally {
+      setSavingWinner(false);
+    }
+  }
 
   return (
     <Card
@@ -126,21 +166,27 @@ async function handleGenerateMemo() {
         </div>
 
         <div className="mt-7 flex flex-wrap gap-3">
-         <Button
-          variant="premium"
-          onClick={handleGenerateMemo}
-          disabled={creatingReport}
-        >
-          {creatingReport
-            ? "Generating..."
-            : "Generate Comparison Memo"}
-        </Button>
+          <Button
+            variant="premium"
+            onClick={handleGenerateMemo}
+            disabled={creatingReport}
+          >
+            {creatingReport
+              ? "Generating..."
+              : "Generate Comparison Memo"}
+          </Button>
 
           <Button
             variant="ghost"
+            onClick={handleSaveWinner}
+            disabled={savingWinner || winnerSaved}
             className="border border-white/10 bg-white/[0.05] text-white hover:bg-white/10 hover:text-white"
           >
-            Save Winner
+            {savingWinner
+              ? "Saving..."
+              : winnerSaved
+                ? "Winner Saved ✓"
+                : "Save Winner"}
           </Button>
         </div>
       </div>

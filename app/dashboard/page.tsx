@@ -752,6 +752,20 @@ export default function DashboardPage() {
                         </Link>
 
                         <Link
+                          href="/saved"
+                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
+                        >
+                          Saved Deals →
+                        </Link>
+
+                        <Link
+                          href="/reports"
+                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
+                        >
+                          My AI Reports →
+                        </Link>
+
+                        <Link
                           href="/trading/watchlist"
                           className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
                         >

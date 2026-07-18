@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
@@ -221,41 +222,57 @@ export default function AnalyzePage() {
   }
 }
 
-  async function saveToPortfolio() {
-    setMessage("");
-    if (!result) return;
-    if (!isSignedIn || !user?.id) return setMessage("Please sign in to save this property.");
+ async function saveToPortfolio() {
+  setMessage("");
 
-    setSaving(true);
+  if (!result) return;
 
-    const { data: existingDeal } = await supabase
-      .from("saved_deals")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("address", result.address)
-      .maybeSingle();
+  if (!isSignedIn) {
+    setMessage("Please sign in to save this property.");
+    return;
+  }
 
-    if (existingDeal) {
-      setSaving(false);
-      return setMessage("This property is already in your portfolio.");
-    }
+  setSaving(true);
 
-    const { error } = await supabase.from("saved_deals").insert({
-      user_id: user.id,
-      address: result.address,
-      listing_price: result.listing_price,
-      fair_value: result.fair_value,
-      estimated_monthly_rent: result.estimated_monthly_rent,
-      discount_percent: result.discount_percent,
-      gross_rent_yield: result.gross_rent_yield,
-      deal_score: result.deal_score,
-      status: result.status,
-      estimated_monthly_cash_flow: result.estimated_monthly_cash_flow,
+  try {
+    const response = await fetch("/api/saved-properties", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address: result.address,
+        city: null,
+        state: null,
+
+        price: result.listing_price,
+        fairValue: result.fair_value,
+        estimatedRent: result.estimated_monthly_rent,
+
+        brainScore: overallScore,
+        recommendation: result.status,
+
+        summary: result.summary,
+        strengths: result.reasons ?? [],
+        risks: [],
+      }),
     });
 
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.error || "Could not save this property.");
+      return;
+    }
+
+    setMessage("Property saved successfully.");
+  } catch (error) {
+    console.error(error);
+    setMessage("Could not connect to the server.");
+  } finally {
     setSaving(false);
-    setMessage(error ? "Could not save this property." : "Property saved to your portfolio.");
   }
+}
 
   async function generateReport() {
     setMessage("");
@@ -299,6 +316,24 @@ export default function AnalyzePage() {
 
   const grade = getGrade(overallScore);
 
+  const resultAction =
+  result?.home_report?.recommendation_label ||
+  (result?.status === "UNDERVALUED"
+    ? "Consider Buying"
+    : result?.status === "OVERPRICED"
+      ? "Negotiate First"
+      : result?.status || "Review Carefully");
+
+const heroTitle = result
+  ? result.address
+  : "Analyze Your Next Property.";
+
+const heroDescription = result
+  ? `${resultAction} · ${overallScore}/100 investment score · AI fair value ${money(
+      result.fair_value,
+    )}.`
+  : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0">
@@ -340,12 +375,58 @@ export default function AnalyzePage() {
             </div>
 
             <h1 className="mt-6 max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
-              Analyze one property with server-verified access.
-            </h1>
+  {heroTitle}
+</h1>
 
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">
-              Your Pro status is verified on the server before Nestrova calls the investment analysis engine.
-            </p>
+<p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">
+  {heroDescription}
+</p>
+
+{result ? (
+  <div className="mt-6 flex flex-wrap items-center gap-3">
+    <div
+      className={`rounded-full border px-4 py-2 text-sm font-semibold ${getVerdictStyle(
+        result.status,
+      )}`}
+    >
+      {resultAction}
+    </div>
+
+    <div className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/70">
+      Grade {grade}
+    </div>
+
+    <div className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/70">
+      {overallScore}/100
+    </div>
+  </div>
+) : null}
+
+{result ? (
+  <div className="mt-8 flex flex-wrap gap-3">
+    <button
+      onClick={generateReport}
+      disabled={reportLoading}
+      className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
+    >
+      {reportLoading ? "Generating Report..." : "Generate AI Report"}
+    </button>
+
+    <button
+      onClick={saveToPortfolio}
+      disabled={saving}
+      className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+    >
+      {saving ? "Saving..." : "Save Property"}
+    </button>
+    <Link
+  href="/saved"
+  className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-6 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+>
+  View Saved Deals
+</Link>
+  </div>
+) : null}
 
             <div className="mt-8 grid gap-3 md:grid-cols-6">
               <div className="md:col-span-3">
