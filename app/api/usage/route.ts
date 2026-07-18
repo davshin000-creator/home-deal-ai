@@ -29,9 +29,9 @@ export async function GET(request: Request) {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const { data: profile, error: profileError } = await supabase
-      .from("user_profiles")
+      .from("profiles")
       .select("is_pro")
-      .eq("user_id", userId)
+      .eq("auth_user_id", userId)
       .maybeSingle();
 
   const plan = !profileError && profile?.is_pro ? "pro" : "free";

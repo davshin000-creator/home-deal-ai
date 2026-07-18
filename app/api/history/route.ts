@@ -1,4 +1,35 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdminClient, getCurrentUserProfile } from "@/lib/supabase/server";
-export async function GET(){const {user}=await getCurrentUserProfile();if(!user)return NextResponse.json({items:[],stats:null});const db=createSupabaseAdminClient();const {data,error}=await db.from("deal_history").select("*").eq("user_id",user.id).order("created_at",{ascending:false});if(error)return NextResponse.json({error:error.message},{status:500});const items=data||[];const avg=items.length?Math.round(items.reduce((s:any,x:any)=>s+Number(x.deal_score||0),0)/items.length):0;const best=items.length?items.reduce((a:any,b:any)=>Number(b.deal_score||0)>Number(a.deal_score||0)?b:a):null;return NextResponse.json({items,stats:{count:items.length,avg_score:avg,best_deal:best}})}
-export async function DELETE(r:Request){const {user}=await getCurrentUserProfile();if(!user)return NextResponse.json({error:"Please sign in."},{status:401});const id=new URL(r.url).searchParams.get("id");if(!id)return NextResponse.json({error:"History id required."},{status:400});const db=createSupabaseAdminClient();const {error}=await db.from("deal_history").delete().eq("id",id).eq("user_id",user.id);return error?NextResponse.json({error:error.message},{status:500}):NextResponse.json({ok:true})}
+import { auth } from "@clerk/nextjs/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+export async function GET() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("analysis_history")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json(data ?? []);
+}
