@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
+import PropertyMap from "@/components/PropertyMap";
 
 type AnalysisResult = {
   address: string;
@@ -83,6 +85,8 @@ export default function AnalyzePage() {
   const [saving, setSaving] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [usageRemaining, setUsageRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -94,67 +98,113 @@ export default function AnalyzePage() {
   }, []);
 
   useEffect(() => {
-    async function loadProStatus() {
-      const response = await fetch("/api/me/pro-status", { cache: "no-store" });
-      const data = await response.json();
-      setIsPro(Boolean(data?.is_pro));
-    }
-
-    loadProStatus();
-  }, [user?.id]);
-
-  async function analyzeProperty() {
-    setMessage("");
-    setResult(null);
-
-    if (!isSignedIn) {
-      setMessage("Please sign in to analyze properties.");
-      return;
-    }
-
-    if (!address.trim()) return setMessage("Property address is required.");
-    if (!listingPrice || Number(listingPrice) <= 0) {
-      return setMessage("Listing price must be greater than 0.");
-    }
-
-    setLoading(true);
-
+  async function loadAccountStatus() {
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: address.trim(),
-          listing_price: Number(listingPrice),
-          down_payment_percent: Number(downPaymentPercent || 25),
-          interest_rate: Number(interestRate || 6.5),
-          loan_term_years: Number(loanTermYears || 30),
-        }),
+      const proResponse = await fetch("/api/me/pro-status", {
+        cache: "no-store",
       });
 
-      const data = await response.json().catch(() => ({}));
+      const proData = await proResponse.json();
+      setIsPro(Boolean(proData?.is_pro));
 
-      if (!response.ok) {
-        if (response.status === 429) {
-          setMessage(data.detail || "Monthly analysis limit reached. Upgrade to Pro to continue.");
-        } else if (response.status === 401) {
-          setMessage(data.detail || "Please sign in to analyze properties.");
-        } else {
-          setMessage(data.detail || "Could not analyze this property.");
-        }
-
-        setLoading(false);
+      if (!isSignedIn) {
+        setUsageRemaining(null);
         return;
       }
 
-      setResult(data);
-      setIsPro(Boolean(data.server_verified_pro));
-    } catch {
-      setMessage("Server connection failed.");
+      const usageResponse = await fetch("/api/usage?feature=analysis", {
+        cache: "no-store",
+      });
+
+      const usageData = await usageResponse.json();
+
+      if (usageResponse.ok) {
+        setUsageRemaining(
+          typeof usageData.remaining === "number"
+            ? usageData.remaining
+            : null,
+        );
+      }
+    } catch (error) {
+      console.error("account_status_load_failed", error);
+    }
+  }
+
+  loadAccountStatus();
+}, [isSignedIn, user?.id]);
+    
+
+
+  async function analyzeProperty() {
+  setMessage("");
+  setResult(null);
+
+  if (!isSignedIn) {
+    setMessage("Please sign in to analyze properties.");
+    return;
+  }
+
+  if (!address.trim()) {
+    setMessage("Property address is required.");
+    return;
+  }
+
+  if (!listingPrice || Number(listingPrice) <= 0) {
+    setMessage("Listing price must be greater than 0.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address: address.trim(),
+        listing_price: Number(listingPrice),
+        down_payment_percent: Number(downPaymentPercent || 25),
+        interest_rate: Number(interestRate || 6.5),
+        loan_term_years: Number(loanTermYears || 30),
+      }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        setMessage(
+          data.detail ||
+            "Monthly analysis limit reached. Upgrade to Pro to continue.",
+        );
+        setShowUpgradeModal(true);
+      } else if (response.status === 401) {
+        setMessage(
+          data.detail || "Please sign in to analyze properties.",
+        );
+      } else {
+        setMessage(
+          data.detail || "Could not analyze this property.",
+        );
+      }
+
+      return;
     }
 
+    setResult(data);
+    setIsPro(Boolean(data.server_verified_pro));
+
+    if (typeof data?.usage?.remaining === "number") {
+      setUsageRemaining(data.usage.remaining);
+    }
+  } catch {
+    setMessage("Server connection failed.");
+  } finally {
     setLoading(false);
   }
+}
 
   async function saveToPortfolio() {
     setMessage("");
@@ -283,7 +333,12 @@ export default function AnalyzePage() {
             </p>
 
             <div className="mt-8 grid gap-3 md:grid-cols-6">
-              <input className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25 md:col-span-3" placeholder="Property address" value={address} onChange={(e) => setAddress(e.target.value)} />
+              <div className="md:col-span-3">
+                <AddressAutocomplete
+                  value={address}
+                  onChange={setAddress}
+                />
+              </div>
               <input className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Listing price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
               <button onClick={analyzeProperty} disabled={loading} className="h-14 rounded-2xl bg-white px-5 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.16)] transition hover:-translate-y-0.5 hover:bg-neutral-200 disabled:cursor-not-allowed disabled:bg-white/30 md:col-span-2">
                 {loading ? "Analyzing..." : "Run Analysis"}
@@ -317,7 +372,7 @@ export default function AnalyzePage() {
               </div>
               <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">Remaining</p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{result?.usage?.remaining ?? "--"}</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{usageRemaining ?? "--"}</p>
               </div>
             </div>
 
@@ -342,7 +397,8 @@ export default function AnalyzePage() {
         {loading && <section className="mt-8 grid gap-4">{[1,2,3].map((item) => <div key={item} className="animate-pulse rounded-[34px] border border-white/10 bg-white/[0.055] p-6"><div className="h-5 w-48 rounded-full bg-white/10" /><div className="mt-5 h-8 w-2/3 rounded-full bg-white/10" /><div className="mt-6 grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((metric) => <div key={metric} className="h-16 rounded-2xl bg-white/10" />)}</div></div>)}</section>}
 
         {result && (
-          <section className="mt-8 grid gap-6">
+           <>
+            <section className="mt-8 grid gap-6">
             <div className="rounded-[44px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-8">
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -384,7 +440,7 @@ export default function AnalyzePage() {
                 <div className="mt-5 grid gap-3 text-sm text-white/55">
                   <p>Forecast Score: {result.forecast_score || 0}/100</p>
                   <p>Expected Appreciation: {result.expected_appreciation || 0}%</p>
-                  {(result.forecast_reasons || []).map((reason) => <p key={reason}>??{reason}</p>)}
+                  {(result.forecast_reasons || []).map((reason) => <p key={reason}>{reason}</p>)}
                 </div>
               </div>
 
@@ -393,7 +449,7 @@ export default function AnalyzePage() {
                 <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{result.neighborhood_grade || "Neighborhood Profile"}</h3>
                 <div className="mt-5 grid gap-3 text-sm text-white/55">
                   <p>Neighborhood Score: {result.neighborhood_score || 0}/100</p>
-                  {(result.neighborhood_reasons || []).map((reason) => <p key={reason}>??{reason}</p>)}
+                  {(result.neighborhood_reasons || []).map((reason) => <p key={reason}>{reason}</p>)}
                 </div>
               </div>
 
@@ -415,13 +471,70 @@ export default function AnalyzePage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Why this score?</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {(result.reasons || []).map((reason) => (
-                  <div key={reason} className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm text-white/60">??{reason}</div>
+                  <div key={reason} className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm text-white/60">{reason}</div>
                 ))}
               </div>
             </div>
           </section>
+
+          <section className="mt-8">
+            <h3 className="mb-4 text-lg font-semibold text-white">
+              Property Location
+            </h3>
+
+            <PropertyMap address={address} />
+          </section>
+
+          </>
         )}
       </div>
+      {showUpgradeModal && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-5 backdrop-blur-md">
+    <div className="relative w-full max-w-lg overflow-hidden rounded-[36px] border border-white/10 bg-[#111]/95 p-8 shadow-[0_40px_160px_rgba(0,0,0,0.75)]">
+      <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
+
+      <div className="relative">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/70">
+          Free Plan Limit
+        </p>
+
+        <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-white">
+          Monthly analysis limit reached.
+        </h2>
+
+        <p className="mt-4 text-sm leading-7 text-white/50">
+          The Free plan includes 3 property analyses per month. Upgrade to
+          Nestrova Pro for up to 100 monthly analyses and advanced investment
+          tools.
+        </p>
+
+        <div className="mt-7 grid gap-3 rounded-[26px] border border-white/10 bg-black/25 p-5 text-sm text-white/60">
+          <p>100 property analyses per month</p>
+          <p>AI investment reports</p>
+          <p>Advanced comparison and portfolio tools</p>
+          <p>Nestrova Brain access</p>
+        </div>
+
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/pricing"
+            className="flex-1 rounded-full bg-white px-6 py-4 text-center text-sm font-semibold text-black transition hover:bg-neutral-200"
+          >
+            Upgrade to Pro
+          </a>
+
+          <button
+            type="button"
+            onClick={() => setShowUpgradeModal(false)}
+            className="flex-1 rounded-full border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+          >
+            Not Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </main>
   );
 }
