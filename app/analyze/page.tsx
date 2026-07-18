@@ -28,6 +28,19 @@ type AnalysisResult = {
   expected_appreciation?: number;
   confidence_score?: number;
   overall_score?: number;
+  home_report?: {
+    recommended_action?: string;
+    recommendation_label?: string;
+    investment_thesis?: string;
+    key_strengths?: string[];
+    key_risks?: string[];
+  };
+  negotiation?: {
+  suggested_offer?: number;
+  maximum_offer?: number;
+  estimated_savings?: number;
+  strategy?: string;
+  };
   down_payment?: number;
   loan_amount?: number;
   monthly_mortgage?: number;
@@ -87,6 +100,7 @@ export default function AnalyzePage() {
   const [message, setMessage] = useState("");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [usageRemaining, setUsageRemaining] = useState<number | null>(null);
+  const [analysisGoal, setAnalysisGoal] = useState("investment");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -168,6 +182,7 @@ export default function AnalyzePage() {
         down_payment_percent: Number(downPaymentPercent || 25),
         interest_rate: Number(interestRate || 6.5),
         loan_term_years: Number(loanTermYears || 30),
+        analysis_goal: analysisGoal,
       }),
     });
 
@@ -345,6 +360,23 @@ export default function AnalyzePage() {
               </button>
             </div>
 
+<div className="mt-6">
+  <label className="mb-2 block text-sm font-semibold text-white/70">
+    What is your goal?
+  </label>
+
+  <select
+    value={analysisGoal}
+    onChange={(e) => setAnalysisGoal(e.target.value)}
+    className="h-12 w-full rounded-2xl border border-white/10 bg-black/25 px-4 text-white outline-none"
+  >
+    <option value="investment">Investment Property</option>
+    <option value="primary_home">Primary Residence</option>
+    <option value="comparison">Compare Homes</option>
+    <option value="research">Just Researching</option>
+  </select>
+</div>
+
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <input className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Down payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
               <input className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Interest rate" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
@@ -399,6 +431,137 @@ export default function AnalyzePage() {
         {result && (
            <>
             <section className="mt-8 grid gap-6">
+              {(() => {
+  const action =
+    result.home_report?.recommended_action ||
+    (result.status === "UNDERVALUED"
+      ? "CONSIDER_BUYING"
+      : result.status === "OVERPRICED"
+        ? "NEGOTIATE"
+        : "REVIEW");
+
+  const label =
+    result.home_report?.recommendation_label ||
+    (action === "BUY"
+      ? "Strong Buy"
+      : action === "CONSIDER_BUYING"
+        ? "Consider Buying"
+        : action === "NEGOTIATE"
+          ? "Only at a Better Price"
+          : action === "PASS"
+            ? "Consider Other Homes"
+            : "Review Carefully");
+
+  const thesis =
+    result.home_report?.investment_thesis ||
+    result.summary ||
+    "Review the price, monthly ownership costs, and property condition before making a decision.";
+
+  const strengths =
+    result.home_report?.key_strengths?.length
+      ? result.home_report.key_strengths
+      : result.reasons?.slice(0, 3) || [];
+
+  const risks =
+    result.home_report?.key_risks?.length
+      ? result.home_report.key_risks
+      : [
+          "Confirm the property condition with a professional inspection.",
+          "Review taxes, insurance, HOA fees, and closing costs.",
+        ];
+
+  const recommendationStyle =
+    action === "BUY"
+      ? "border-emerald-400/25 bg-emerald-400/[0.09] text-emerald-200"
+      : action === "CONSIDER_BUYING"
+        ? "border-cyan-400/25 bg-cyan-400/[0.09] text-cyan-200"
+        : action === "NEGOTIATE"
+          ? "border-amber-400/25 bg-amber-400/[0.09] text-amber-200"
+          : action === "PASS"
+            ? "border-red-400/25 bg-red-400/[0.09] text-red-200"
+            : "border-white/15 bg-white/[0.07] text-white";
+
+  return (
+    <div className="rounded-[44px] border border-white/10 bg-gradient-to-br from-white/[0.09] to-white/[0.035] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-8">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-3xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
+            Nestrova Recommendation
+          </p>
+
+          <div
+            className={`mt-4 inline-flex rounded-full border px-4 py-2 text-sm font-semibold ${recommendationStyle}`}
+          >
+            {label}
+          </div>
+
+          <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
+            Should you buy this home?
+          </h2>
+
+          <p className="mt-4 max-w-3xl text-base leading-7 text-white/60">
+            {thesis}
+          </p>
+        </div>
+
+        <div className="rounded-[30px] border border-white/10 bg-black/25 px-6 py-5 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+            Home Value Score
+          </p>
+          <p className="mt-2 text-5xl font-semibold tracking-[-0.06em]">
+            {overallScore}
+          </p>
+          <p className="mt-1 text-sm text-white/40">out of 100</p>
+        </div>
+      </div>
+
+      <div className="mt-7 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-[28px] border border-emerald-400/15 bg-emerald-400/[0.055] p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
+            Why it may be a good fit
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            {strengths.length > 0 ? (
+              strengths.map((strength) => (
+                <div
+                  key={strength}
+                  className="flex gap-3 text-sm leading-6 text-white/65"
+                >
+                  <span className="text-emerald-300">✓</span>
+                  <span>{strength}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-white/50">
+                Review the detailed scores below for this home&apos;s strongest
+                features.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-amber-400/15 bg-amber-400/[0.055] p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+            Things to check
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            {risks.map((risk) => (
+              <div
+                key={risk}
+                className="flex gap-3 text-sm leading-6 text-white/65"
+              >
+                <span className="text-amber-300">!</span>
+                <span>{risk}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+})()}
             <div className="rounded-[44px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-8">
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -432,6 +595,39 @@ export default function AnalyzePage() {
                 {!isPro && <a href="/pricing" className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-center text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/15">Upgrade for More Analyses</a>}
               </div>
             </div>
+
+            <div className="rounded-[38px] border border-cyan-400/20 bg-cyan-400/[0.05] p-6 backdrop-blur-2xl">
+  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
+    AI Negotiation
+  </p>
+
+  <div className="mt-5 grid gap-4 md:grid-cols-3">
+    <div>
+      <p className="text-xs text-white/40">Suggested Offer</p>
+      <p className="mt-2 text-2xl font-semibold">
+        {money(result.negotiation?.suggested_offer)}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-xs text-white/40">Maximum Offer</p>
+      <p className="mt-2 text-2xl font-semibold">
+        {money(result.negotiation?.maximum_offer)}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-xs text-white/40">Potential Savings</p>
+      <p className="mt-2 text-2xl font-semibold text-emerald-300">
+        {money(result.negotiation?.estimated_savings)}
+      </p>
+    </div>
+  </div>
+
+  <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/65">
+    {result.negotiation?.strategy}
+  </div>
+</div>
 
             <div className="grid gap-6 xl:grid-cols-3">
               <div className="rounded-[38px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl">
