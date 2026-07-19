@@ -127,9 +127,17 @@ export default function AnalyzePage() {
         return;
       }
 
-      const usageResponse = await fetch("/api/usage?feature=analysis", {
-        cache: "no-store",
-      });
+      if (!user?.id) {
+  setUsageRemaining(null);
+  return;
+}
+
+const usageResponse = await fetch(
+  `/api/usage?feature=analysis&user_id=${encodeURIComponent(user.id)}`,
+  {
+    cache: "no-store",
+  }
+);
 
       const usageData = await usageResponse.json();
 
