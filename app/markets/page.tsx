@@ -1,89 +1,76 @@
-﻿"use client";
+import Link from "next/link";
+import { cities } from "@/data/cities";
 
-import { useMemo } from "react";
-
-const MARKETS = [
-  { city: "Irvine", state: "CA", score: 86, yield: 3.8, appreciation: 4.2, risk: "Low" },
-  { city: "Austin", state: "TX", score: 82, yield: 5.1, appreciation: 3.8, risk: "Medium" },
-  { city: "Dallas", state: "TX", score: 80, yield: 5.6, appreciation: 3.1, risk: "Medium" },
-  { city: "Phoenix", state: "AZ", score: 76, yield: 4.9, appreciation: 3.4, risk: "Medium" },
-  { city: "Miami", state: "FL", score: 74, yield: 4.3, appreciation: 4.8, risk: "High" },
-  { city: "Anaheim", state: "CA", score: 78, yield: 4.1, appreciation: 3.9, risk: "Medium" },
-];
-
-function grade(score: number) {
-  if (score >= 85) return "Strong";
-  if (score >= 75) return "Good";
-  if (score >= 65) return "Watch";
-  return "Risky";
+function currency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 export default function MarketsPage() {
-  const sorted = useMemo(() => [...MARKETS].sort((a, b) => b.score - a.score), []);
+  const sorted = [...cities].sort(
+    (a, b) => b.investmentScore - a.investmentScore
+  );
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-6xl">
-        <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
-          Back to Nestrova
-        </a>
+    <main className="mx-auto max-w-7xl px-6 py-16">
+      <h1 className="text-5xl font-bold">
+        U.S. Real Estate Markets
+      </h1>
 
-        <section className="my-8 rounded-3xl border bg-white p-8 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Market Heat Map
-          </p>
-          <h1 className="mt-2 text-5xl font-bold tracking-tight">
-            Top Investment Markets
-          </h1>
-          <p className="mt-4 max-w-3xl text-lg text-gray-600">
-            A simple market scoring dashboard to help users decide where to search next.
-            These starter scores can later be connected to live data.
-          </p>
-        </section>
+      <p className="mt-4 max-w-3xl text-gray-600">
+        Compare estimated home prices, rents, rental yields,
+        and AI investment scores across major U.S. cities.
+      </p>
 
-        <div className="grid gap-5 md:grid-cols-3">
-          {sorted.map((market) => (
-            <div key={`${market.city}-${market.state}`} className="rounded-2xl border bg-white p-6 shadow">
-              <div className="flex items-start justify-between">
+      <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {sorted.map((city) => {
+          const yieldPct =
+            ((city.averageRent * 12) / city.medianPrice) * 100;
+
+          return (
+            <Link
+              key={city.slug}
+              href={`/market/${city.slug}`}
+              className="rounded-2xl border p-6 transition hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">
+                  {city.city}
+                </h2>
+
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold">
+                  {city.investmentScore}/100
+                </span>
+              </div>
+
+              <p className="mt-2 text-gray-500">
+                {city.state}
+              </p>
+
+              <div className="mt-6 space-y-2 text-sm">
                 <div>
-                  <p className="text-sm font-semibold text-gray-500">{market.state}</p>
-                  <h2 className="text-2xl font-bold">{market.city}</h2>
+                  Median Price: {currency(city.medianPrice)}
                 </div>
-                <div className="rounded-2xl bg-black px-4 py-3 text-center text-white">
-                  <p className="text-xs text-gray-300">Score</p>
-                  <p className="text-2xl font-bold">{market.score}</p>
+
+                <div>
+                  Rent: {currency(city.averageRent)}
+                </div>
+
+                <div>
+                  Gross Yield: {yieldPct.toFixed(2)}%
                 </div>
               </div>
 
-              <p className="mt-4 text-lg font-bold">{grade(market.score)} Market</p>
-
-              <div className="mt-5 grid gap-3 text-sm">
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">Avg Yield</span>
-                  <span className="font-semibold">{market.yield}%</span>
-                </div>
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">Expected Appreciation</span>
-                  <span className="font-semibold">+{market.appreciation}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Risk Level</span>
-                  <span className="font-semibold">{market.risk}</span>
-                </div>
+              <div className="mt-8 text-blue-600 font-semibold">
+                View Market →
               </div>
-
-              <a
-                href={`/deals?city=${encodeURIComponent(market.city)}&state=${market.state}`}
-                className="mt-5 block rounded-lg bg-black px-5 py-3 text-center font-semibold text-white hover:bg-gray-800"
-              >
-                Find Deals
-              </a>
-            </div>
-          ))}
-        </div>
+            </Link>
+          );
+        })}
       </div>
     </main>
   );
 }
-
-

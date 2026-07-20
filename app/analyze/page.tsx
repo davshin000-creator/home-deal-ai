@@ -6,6 +6,7 @@ import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat
 import { supabase } from "@/lib/supabase";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import PropertyMap from "@/components/PropertyMap";
+import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 
 type AnalysisResult = {
   address: string;
@@ -684,6 +685,116 @@ const heroDescription = result
                 {!isPro && <a href="/pricing" className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-center text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/15">Upgrade for More Analyses</a>}
               </div>
             </div>
+
+              {result.home_report && (
+  <div className="mt-8 rounded-[40px] border border-violet-400/20 bg-gradient-to-br from-violet-500/10 via-indigo-500/5 to-cyan-500/10 p-8 backdrop-blur-2xl">
+    <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
+      <div className="flex-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300">
+          🧠 Nestrova Executive Brief
+        </p>
+
+        <h3 className="mt-3 text-3xl font-semibold">
+          {result.home_report.recommendation_label ??
+            result.home_report.recommended_action ??
+            "AI Recommendation"}
+        </h3>
+
+        <p className="mt-5 max-w-3xl leading-8 text-white/70">
+          {result.home_report.investment_thesis ??
+            result.summary ??
+            "Nestrova analyzed this property using valuation, rental demand, financing assumptions and local market conditions."}
+        </p>
+      </div>
+
+      <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-center lg:w-56">
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+          AI Confidence
+        </p>
+
+        <p className="mt-3 text-6xl font-bold">
+          {result.confidence_score ?? 90}%
+        </p>
+
+        <p className="mt-2 text-sm text-cyan-200">
+          {(result.confidence_score ?? 90) >= 85
+            ? "High Confidence"
+            : "Moderate Confidence"}
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">
+          Top Strengths
+        </p>
+
+        <div className="mt-4 space-y-3">
+          {(result.home_report.key_strengths ?? []).map((item) => (
+            <div key={item} className="flex gap-3 text-sm text-white/80">
+              <span className="text-emerald-300">✓</span>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-300">
+          Primary Risks
+        </p>
+
+        <div className="mt-4 space-y-3">
+          {(result.home_report.key_risks ?? []).map((item) => (
+            <div key={item} className="flex gap-3 text-sm text-white/80">
+              <span className="text-amber-300">!</span>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+<FloatingAIAssistant
+  propertyContext={{
+    address: result.address,
+    listing_price: result.listing_price,
+    fair_value: result.fair_value,
+    fair_value_low: result.fair_value_low,
+    fair_value_high: result.fair_value_high,
+    discount_percent: result.discount_percent,
+    estimated_monthly_rent: result.estimated_monthly_rent,
+    gross_rent_yield: result.gross_rent_yield,
+    estimated_monthly_cash_flow:
+      result.estimated_monthly_cash_flow,
+    deal_score: result.deal_score,
+    overall_score: result.overall_score,
+    confidence_score: result.confidence_score,
+    status: result.status,
+    summary: result.summary,
+    reasons: result.reasons,
+    forecast_score: result.forecast_score,
+    forecast_outlook: result.forecast_outlook,
+    forecast_reasons: result.forecast_reasons,
+    expected_appreciation: result.expected_appreciation,
+    neighborhood_score: result.neighborhood_score,
+    neighborhood_grade: result.neighborhood_grade,
+    neighborhood_reasons: result.neighborhood_reasons,
+    negotiation: result.negotiation,
+    financing: {
+      down_payment: result.down_payment,
+      loan_amount: result.loan_amount,
+      monthly_mortgage: result.monthly_mortgage,
+      monthly_property_tax: result.monthly_property_tax,
+      monthly_insurance: result.monthly_insurance,
+      monthly_maintenance: result.monthly_maintenance,
+    },
+    home_report: result.home_report,
+  }}
+/>
 
             <div className="rounded-[38px] border border-cyan-400/20 bg-cyan-400/[0.05] p-6 backdrop-blur-2xl">
   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">

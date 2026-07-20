@@ -1,10 +1,18 @@
 ﻿import type { MetadataRoute } from "next";
+import { cities } from "@/data/cities";
 
 const SITE_URL = "https://nestrovaai.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
+  const cityPages = cities.map((city) => ({
+  url: `${SITE_URL}/city/${city.slug}`,
+  lastModified: now,
+  changeFrequency: "weekly" as const,
+  priority: 0.8,
+}));
+  
   return [
     {
       url: SITE_URL,
@@ -78,11 +86,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    {
+        {
       url: `${SITE_URL}/refund`,
       lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
+
+    ...cityPages,
   ];
 }
