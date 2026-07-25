@@ -1,16 +1,60 @@
 ﻿import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+
+import {
+  createSupabaseAdminClient,
+} from "@/lib/supabase/server";
+
 import {
   getPayPalAccessToken,
   PAYPAL_API_BASE,
 } from "@/lib/payments/paypal";
 
-const PAYPAL_WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID;
-const PAYPAL_PLAN_ID = process.env.NEXT_PUBLIC_PAYPAL_PLAN_ID;
+import {
+  getSubscriptionEntitlements,
+  type SubscriptionType,
+} from "@/lib/subscriptions/entitlements";
+
+const PAYPAL_WEBHOOK_ID =
+  process.env.PAYPAL_WEBHOOK_ID;
+
+type PaidSubscriptionType = Exclude<
+  SubscriptionType,
+  "free"
+>;
+
+type PlanConfiguration = {
+  subscriptionType: PaidSubscriptionType;
+  planId: string | undefined;
+  displayName: string;
+};
+
+const PLAN_CONFIGURATIONS: PlanConfiguration[] = [
+  {
+    subscriptionType: "real_estate",
+    planId:
+      process.env
+        .NEXT_PUBLIC_PAYPAL_REAL_ESTATE_PLAN_ID,
+    displayName: "Real Estate Pro",
+  },
+  {
+    subscriptionType: "trading",
+    planId:
+      process.env.NEXT_PUBLIC_PAYPAL_TRADING_PLAN_ID,
+    displayName: "Trading Pro",
+  },
+  {
+    subscriptionType: "all_access",
+    planId:
+      process.env
+        .NEXT_PUBLIC_PAYPAL_ALL_ACCESS_PLAN_ID,
+    displayName: "Nestrova AI Pro",
+  },
+];
 
 type PayPalWebhookEvent = {
   id?: string;
   event_type?: string;
+  create_time?: string;
   resource?: {
     id?: string;
     billing_agreement_id?: string;
@@ -24,24 +68,113 @@ type PayPalSubscription = {
   plan_id?: string;
   status?: string;
   start_time?: string;
+  create_time?: string;
+  update_time?: string;
+  custom_id?: string;
+
   billing_info?: {
     next_billing_time?: string;
+    last_payment?: {
+      time?: string;
+      amount?: {
+        currency_code?: string;
+        value?: string;
+      };
+    };
+    failed_payments_count?: number;
   };
+
   subscriber?: {
     payer_id?: string;
     email_address?: string;
+    name?: {
+      given_name?: string;
+      surname?: string;
+    };
   };
 };
 
-function getSubscriptionId(event: PayPalWebhookEvent) {
-  const eventType = String(event.event_type || "");
+type WebhookVerificationResponse = {
+  verification_status?: string;
+};
 
-  if (eventType.startsWith("BILLING.SUBSCRIPTION.")) {
-    return String(event.resource?.id || "").trim();
+function getMissingEnvironmentVariables(): string[] {
+  const missing: string[] = [];
+
+  if (!PAYPAL_WEBHOOK_ID) {
+    missing.push("PAYPAL_WEBHOOK_ID");
+  }
+
+  if (
+    !process.env
+      .NEXT_PUBLIC_PAYPAL_REAL_ESTATE_PLAN_ID
+  ) {
+    missing.push(
+      "NEXT_PUBLIC_PAYPAL_REAL_ESTATE_PLAN_ID",
+    );
+  }
+
+  if (
+    !process.env.NEXT_PUBLIC_PAYPAL_TRADING_PLAN_ID
+  ) {
+    missing.push(
+      "NEXT_PUBLIC_PAYPAL_TRADING_PLAN_ID",
+    );
+  }
+
+  if (
+    !process.env
+      .NEXT_PUBLIC_PAYPAL_ALL_ACCESS_PLAN_ID
+  ) {
+    missing.push(
+      "NEXT_PUBLIC_PAYPAL_ALL_ACCESS_PLAN_ID",
+    );
+  }
+
+  return missing;
+}
+
+function findPlanConfiguration(
+  paypalPlanId: unknown,
+): PlanConfiguration | null {
+  if (typeof paypalPlanId !== "string") {
+    return null;
+  }
+
+  const normalizedPlanId = paypalPlanId.trim();
+
+  if (!normalizedPlanId) {
+    return null;
+  }
+
+  return (
+    PLAN_CONFIGURATIONS.find(
+      (configuration) =>
+        Boolean(configuration.planId) &&
+        configuration.planId === normalizedPlanId,
+    ) ?? null
+  );
+}
+
+function getSubscriptionId(
+  event: PayPalWebhookEvent,
+): string {
+  const eventType = String(
+    event.event_type ?? "",
+  ).trim();
+
+  if (
+    eventType.startsWith(
+      "BILLING.SUBSCRIPTION.",
+    )
+  ) {
+    return String(event.resource?.id ?? "").trim();
   }
 
   if (eventType.startsWith("PAYMENT.SALE.")) {
-    return String(event.resource?.billing_agreement_id || "").trim();
+    return String(
+      event.resource?.billing_agreement_id ?? "",
+    ).trim();
   }
 
   return "";
@@ -49,19 +182,32 @@ function getSubscriptionId(event: PayPalWebhookEvent) {
 
 async function verifyWebhookSignature(
   request: Request,
-  webhookEvent: PayPalWebhookEvent
-) {
+  webhookEvent: PayPalWebhookEvent,
+): Promise<boolean> {
   if (!PAYPAL_WEBHOOK_ID) {
     throw new Error("Missing PAYPAL_WEBHOOK_ID.");
   }
 
-  const transmissionId = request.headers.get("paypal-transmission-id");
-  const transmissionTime = request.headers.get("paypal-transmission-time");
-  const transmissionSignature = request.headers.get(
-    "paypal-transmission-sig"
+  const transmissionId = request.headers.get(
+    "paypal-transmission-id",
   );
-  const certUrl = request.headers.get("paypal-cert-url");
-  const authAlgorithm = request.headers.get("paypal-auth-algo");
+
+  const transmissionTime = request.headers.get(
+    "paypal-transmission-time",
+  );
+
+  const transmissionSignature =
+    request.headers.get(
+      "paypal-transmission-sig",
+    );
+
+  const certUrl = request.headers.get(
+    "paypal-cert-url",
+  );
+
+  const authAlgorithm = request.headers.get(
+    "paypal-auth-algo",
+  );
 
   if (
     !transmissionId ||
@@ -73,7 +219,8 @@ async function verifyWebhookSignature(
     return false;
   }
 
-  const accessToken = await getPayPalAccessToken();
+  const accessToken =
+    await getPayPalAccessToken();
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/notifications/verify-webhook-signature`,
@@ -93,25 +240,33 @@ async function verifyWebhookSignature(
         webhook_event: webhookEvent,
       }),
       cache: "no-store",
-    }
+    },
   );
 
-  const result = await response.json();
+  const result =
+    (await response.json()) as WebhookVerificationResponse;
 
   if (!response.ok) {
-    console.error("paypal_webhook_verification_api_error", result);
+    console.error(
+      "paypal_webhook_verification_api_error",
+      result,
+    );
+
     return false;
   }
 
   return result.verification_status === "SUCCESS";
 }
 
-async function getPayPalSubscription(subscriptionId: string) {
-  const accessToken = await getPayPalAccessToken();
+async function getPayPalSubscription(
+  subscriptionId: string,
+): Promise<PayPalSubscription> {
+  const accessToken =
+    await getPayPalAccessToken();
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/billing/subscriptions/${encodeURIComponent(
-      subscriptionId
+      subscriptionId,
     )}`,
     {
       method: "GET",
@@ -120,14 +275,21 @@ async function getPayPalSubscription(subscriptionId: string) {
         "Content-Type": "application/json",
       },
       cache: "no-store",
-    }
+    },
   );
 
-  const data = (await response.json()) as PayPalSubscription;
+  const data =
+    (await response.json()) as PayPalSubscription;
 
   if (!response.ok) {
-    console.error("paypal_webhook_subscription_lookup_error", data);
-    throw new Error("Unable to retrieve PayPal subscription.");
+    console.error(
+      "paypal_webhook_subscription_lookup_error",
+      data,
+    );
+
+    throw new Error(
+      "Unable to retrieve PayPal subscription.",
+    );
   }
 
   return data;
@@ -135,17 +297,26 @@ async function getPayPalSubscription(subscriptionId: string) {
 
 export async function POST(request: Request) {
   try {
-    if (!PAYPAL_WEBHOOK_ID) {
-      return NextResponse.json(
-        { ok: false, error: "Missing PAYPAL_WEBHOOK_ID." },
-        { status: 500 }
-      );
-    }
+    const missingEnvironmentVariables =
+      getMissingEnvironmentVariables();
 
-    if (!PAYPAL_PLAN_ID) {
+    if (missingEnvironmentVariables.length > 0) {
+      console.error(
+        "paypal_webhook_missing_environment_variables",
+        missingEnvironmentVariables,
+      );
+
       return NextResponse.json(
-        { ok: false, error: "Missing PayPal Plan ID." },
-        { status: 500 }
+        {
+          ok: false,
+          error:
+            "PayPal webhook configuration is incomplete.",
+          missing:
+            missingEnvironmentVariables,
+        },
+        {
+          status: 500,
+        },
       );
     }
 
@@ -154,216 +325,430 @@ export async function POST(request: Request) {
     let event: PayPalWebhookEvent;
 
     try {
-      event = JSON.parse(rawBody);
+      event = JSON.parse(
+        rawBody,
+      ) as PayPalWebhookEvent;
     } catch {
       return NextResponse.json(
-        { ok: false, error: "Invalid webhook JSON." },
-        { status: 400 }
+        {
+          ok: false,
+          error: "Invalid webhook JSON.",
+        },
+        {
+          status: 400,
+        },
       );
     }
 
-    const verified = await verifyWebhookSignature(request, event);
+    const verified =
+      await verifyWebhookSignature(
+        request,
+        event,
+      );
 
     if (!verified) {
-      console.error("paypal_webhook_signature_invalid", {
-        event_id: event.id,
-        event_type: event.event_type,
-      });
+      console.error(
+        "paypal_webhook_signature_invalid",
+        {
+          event_id: event.id,
+          event_type: event.event_type,
+        },
+      );
 
       return NextResponse.json(
-        { ok: false, error: "Invalid PayPal webhook signature." },
-        { status: 400 }
+        {
+          ok: false,
+          error:
+            "Invalid PayPal webhook signature.",
+        },
+        {
+          status: 400,
+        },
       );
     }
 
-    const eventType = String(event.event_type || "");
-    const subscriptionId = getSubscriptionId(event);
+    const eventType = String(
+      event.event_type ?? "",
+    ).trim();
+
+    const subscriptionId =
+      getSubscriptionId(event);
 
     if (!subscriptionId) {
       return NextResponse.json({
         ok: true,
         ignored: true,
-        reason: "No subscription ID found.",
+        reason:
+          "No subscription ID was found in the event.",
         event_type: eventType,
       });
     }
 
-    const subscription = await getPayPalSubscription(subscriptionId);
+    const subscription =
+      await getPayPalSubscription(
+        subscriptionId,
+      );
 
-    if (subscription.plan_id !== PAYPAL_PLAN_ID) {
+    if (
+      !subscription.id ||
+      subscription.id !== subscriptionId
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "PayPal subscription verification mismatch.",
+        },
+        {
+          status: 403,
+        },
+      );
+    }
+
+    const planConfiguration =
+      findPlanConfiguration(
+        subscription.plan_id,
+      );
+
+    if (!planConfiguration) {
+      console.warn(
+        "paypal_webhook_unknown_plan",
+        {
+          event_id: event.id,
+          event_type: eventType,
+          subscription_id: subscriptionId,
+          paypal_plan_id: subscription.plan_id,
+        },
+      );
+
       return NextResponse.json({
         ok: true,
         ignored: true,
-        reason: "Subscription belongs to another plan.",
+        reason:
+          "The subscription belongs to an unknown PayPal plan.",
       });
     }
 
-    const admin = createSupabaseAdminClient();
+    const admin =
+      createSupabaseAdminClient();
 
-    const { data: profile, error: profileLookupError } = await admin
+    const {
+      data: profile,
+      error: profileLookupError,
+    } = await admin
       .from("profiles")
       .select(
-        "auth_user_id, trial_ends_at, paypal_subscription_id"
+        `
+          auth_user_id,
+          trial_ends_at,
+          paypal_subscription_id,
+          subscription_type,
+          subscription_status
+        `,
       )
-      .eq("paypal_subscription_id", subscriptionId)
+      .eq(
+        "paypal_subscription_id",
+        subscriptionId,
+      )
       .maybeSingle();
 
     if (profileLookupError) {
       console.error(
         "paypal_webhook_profile_lookup_error",
-        profileLookupError
+        profileLookupError,
       );
 
       return NextResponse.json(
-        { ok: false, error: "Could not locate subscription profile." },
-        { status: 500 }
+        {
+          ok: false,
+          error:
+            "Could not locate the subscription profile.",
+        },
+        {
+          status: 500,
+        },
       );
     }
 
     if (!profile) {
-      console.warn("paypal_webhook_profile_not_found", {
-        event_id: event.id,
-        event_type: eventType,
-        subscription_id: subscriptionId,
-      });
+      console.warn(
+        "paypal_webhook_profile_not_found",
+        {
+          event_id: event.id,
+          event_type: eventType,
+          subscription_id: subscriptionId,
+        },
+      );
 
       return NextResponse.json({
         ok: true,
         ignored: true,
-        reason: "No Nestrova profile is linked to this subscription.",
+        reason:
+          "No Nestrova profile is linked to this subscription.",
       });
     }
 
     const now = new Date();
-    const existingTrialEnd = profile.trial_ends_at
-      ? new Date(profile.trial_ends_at)
-      : null;
+
+    const existingTrialEnd =
+      profile.trial_ends_at
+        ? new Date(profile.trial_ends_at)
+        : null;
 
     const trialStillActive =
-      existingTrialEnd &&
-      Number.isFinite(existingTrialEnd.getTime()) &&
-      existingTrialEnd.getTime() > now.getTime();
+      existingTrialEnd !== null &&
+      !Number.isNaN(
+        existingTrialEnd.getTime(),
+      ) &&
+      existingTrialEnd.getTime() >
+        now.getTime();
 
-    let isPro = false;
+    const paypalStatus = String(
+      subscription.status ?? "",
+    )
+      .trim()
+      .toUpperCase();
+
+    let hasPaidAccess = false;
     let subscriptionStatus = "inactive";
     let cancelAtPeriodEnd = false;
 
-    switch (subscription.status) {
+    switch (paypalStatus) {
       case "ACTIVE":
-        isPro = true;
-        subscriptionStatus = trialStillActive ? "trialing" : "active";
+        hasPaidAccess = true;
+
+        subscriptionStatus = trialStillActive
+          ? "trialing"
+          : "active";
+        break;
+
+      case "APPROVED":
+        hasPaidAccess = false;
+        subscriptionStatus = "approved";
+        break;
+
+      case "APPROVAL_PENDING":
+        hasPaidAccess = false;
+        subscriptionStatus =
+          "approval_pending";
         break;
 
       case "SUSPENDED":
-        isPro = false;
+        hasPaidAccess = false;
         subscriptionStatus = "suspended";
         break;
 
       case "CANCELLED":
-        isPro = false;
+        hasPaidAccess = false;
         subscriptionStatus = "cancelled";
+        cancelAtPeriodEnd = true;
         break;
 
       case "EXPIRED":
-        isPro = false;
+        hasPaidAccess = false;
         subscriptionStatus = "expired";
         break;
 
-      case "APPROVAL_PENDING":
-      case "APPROVED":
-        isPro = false;
-        subscriptionStatus = "pending";
-        break;
-
       default:
-        isPro = false;
-        subscriptionStatus = String(
-          subscription.status || "unknown"
-        ).toLowerCase();
+        hasPaidAccess = false;
+        subscriptionStatus =
+          paypalStatus.toLowerCase() ||
+          "unknown";
     }
 
-    /*
-     * The first successful paid renewal means the free trial has ended.
-     */
-    if (eventType === "PAYMENT.SALE.COMPLETED") {
-      isPro = true;
-      subscriptionStatus = "active";
+    if (
+      eventType ===
+      "BILLING.SUBSCRIPTION.ACTIVATED"
+    ) {
+      hasPaidAccess = true;
+
+      subscriptionStatus = trialStillActive
+        ? "trialing"
+        : "active";
+
+      cancelAtPeriodEnd = false;
     }
 
-    /*
-     * Failed or refunded subscription payments revoke Pro access until
-     * the merchant resolves the subscription state.
-     */
-    if (eventType === "PAYMENT.SALE.DENIED") {
-      isPro = false;
-      subscriptionStatus = "payment_failed";
+    if (
+      eventType ===
+      "BILLING.SUBSCRIPTION.SUSPENDED"
+    ) {
+      hasPaidAccess = false;
+      subscriptionStatus = "suspended";
     }
 
-    if (eventType === "PAYMENT.SALE.REFUNDED") {
-      isPro = false;
-      subscriptionStatus = "refunded";
+    if (
+      eventType ===
+      "BILLING.SUBSCRIPTION.EXPIRED"
+    ) {
+      hasPaidAccess = false;
+      subscriptionStatus = "expired";
     }
 
-    if (eventType === "BILLING.SUBSCRIPTION.CANCELLED") {
-      isPro = false;
+    if (
+      eventType ===
+      "BILLING.SUBSCRIPTION.CANCELLED"
+    ) {
+      hasPaidAccess = false;
       subscriptionStatus = "cancelled";
       cancelAtPeriodEnd = true;
     }
 
+    if (
+      eventType === "PAYMENT.SALE.COMPLETED"
+    ) {
+      hasPaidAccess = true;
+      subscriptionStatus = "active";
+      cancelAtPeriodEnd = false;
+    }
+
+    if (
+      eventType === "PAYMENT.SALE.DENIED"
+    ) {
+      hasPaidAccess = false;
+      subscriptionStatus =
+        "payment_failed";
+    }
+
+    if (
+      eventType === "PAYMENT.SALE.REFUNDED"
+    ) {
+      hasPaidAccess = false;
+      subscriptionStatus = "refunded";
+    }
+
+    if (
+      eventType === "PAYMENT.SALE.REVERSED"
+    ) {
+      hasPaidAccess = false;
+      subscriptionStatus = "reversed";
+    }
+
+    const savedSubscriptionType:
+      | PaidSubscriptionType
+      | "free" = hasPaidAccess
+      ? planConfiguration.subscriptionType
+      : "free";
+
+    const entitlements = hasPaidAccess
+      ? getSubscriptionEntitlements(
+          planConfiguration.subscriptionType,
+        )
+      : [];
+
     const updatedAt = now.toISOString();
 
-    const { error: updateError } = await admin
+    const {
+      error: updateError,
+    } = await admin
       .from("profiles")
       .update({
-        is_pro: isPro,
-        plan: isPro ? "pro" : "free",
-        subscription_status: subscriptionStatus,
-        paypal_plan_id: subscription.plan_id || PAYPAL_PLAN_ID,
+        is_pro: hasPaidAccess,
+
+        // 기존 코드와의 호환성을 위해 유지
+        plan: savedSubscriptionType,
+
+        subscription_type:
+          savedSubscriptionType,
+
+        entitlements,
+
+        subscription_status:
+          subscriptionStatus,
+
+        paypal_subscription_id:
+          subscriptionId,
+
+        paypal_plan_id:
+          subscription.plan_id ??
+          planConfiguration.planId,
+
         paypal_payer_id:
-          subscription.subscriber?.payer_id || null,
+          subscription.subscriber?.payer_id ??
+          null,
+
         current_period_end:
-          subscription.billing_info?.next_billing_time || null,
-        cancel_at_period_end: cancelAtPeriodEnd,
-        subscription_updated_at: updatedAt,
+          subscription.billing_info
+            ?.next_billing_time ?? null,
+
+        cancel_at_period_end:
+          cancelAtPeriodEnd,
+
+        subscription_updated_at:
+          updatedAt,
+
         updated_at: updatedAt,
       })
-      .eq("auth_user_id", profile.auth_user_id);
+      .eq(
+        "auth_user_id",
+        profile.auth_user_id,
+      );
 
     if (updateError) {
-      console.error("paypal_webhook_profile_update_error", updateError);
+      console.error(
+        "paypal_webhook_profile_update_error",
+        updateError,
+      );
 
       return NextResponse.json(
-        { ok: false, error: "Could not update subscription profile." },
-        { status: 500 }
+        {
+          ok: false,
+          error:
+            "Could not update the subscription profile.",
+        },
+        {
+          status: 500,
+        },
       );
     }
 
-    console.log("paypal_webhook_processed", {
-      event_id: event.id,
-      event_type: eventType,
-      subscription_id: subscriptionId,
-      paypal_status: subscription.status,
-      nestrova_status: subscriptionStatus,
-      is_pro: isPro,
-    });
+    console.log(
+      "paypal_webhook_processed",
+      {
+        event_id: event.id,
+        event_type: eventType,
+        subscription_id: subscriptionId,
+        paypal_plan_id:
+          subscription.plan_id,
+        paypal_status: paypalStatus,
+        subscription_type:
+          savedSubscriptionType,
+        subscription_status:
+          subscriptionStatus,
+        entitlements,
+        has_paid_access: hasPaidAccess,
+      },
+    );
 
     return NextResponse.json({
       ok: true,
-      event_id: event.id || null,
+      event_id: event.id ?? null,
       event_type: eventType,
       subscription_id: subscriptionId,
-      subscription_status: subscriptionStatus,
-      is_pro: isPro,
+      paypal_plan_id:
+        subscription.plan_id ?? null,
+      subscription_type:
+        savedSubscriptionType,
+      subscription_status:
+        subscriptionStatus,
+      entitlements,
+      is_pro: hasPaidAccess,
     });
   } catch (error) {
-    console.error("paypal_webhook_unhandled_error", error);
+    console.error(
+      "paypal_webhook_unhandled_error",
+      error,
+    );
 
     return NextResponse.json(
       {
         ok: false,
-        error: "PayPal webhook processing failed.",
+        error:
+          "PayPal webhook processing failed.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      },
     );
   }
 }
