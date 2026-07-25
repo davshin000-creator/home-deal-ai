@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import AIHomeFeed from "@/components/dashboard/AIHomeFeed";
+import UniversalSearch from "@/components/search/UniversalSearch";
 
 import {
   SignInButton,
@@ -210,6 +212,15 @@ export default function DashboardPage() {
   const [subscription, setSubscription] =
   useState<SubscriptionData | null>(null);
 
+  const [analysisRemaining, setAnalysisRemaining] =
+  useState<number | null>(null);
+
+  const [watchlistCount, setWatchlistCount] =
+  useState(0);
+
+  const [alertCount, setAlertCount] =
+  useState(0);
+
   useEffect(() => {
     if (isSignedIn && user?.id) {
       void loadDashboard();
@@ -221,29 +232,6 @@ export default function DashboardPage() {
     if (!user?.id) {
       return;
     }
-    async function loadSubscription() {
-  if (!user?.id) {
-    return;
-  }
-
-  const supabase = createSupabaseBrowserClient();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select(`
-      plan,
-      subscription_type,
-      subscription_status,
-      trial_ends_at
-    `)
-    .eq("auth_user_id", user.id)
-    .single();
-
-  if (!error && data) {
-    setSubscription(data);
-  }
-}
-
     setLoading(true);
     setMessage("");
 
@@ -303,6 +291,64 @@ export default function DashboardPage() {
 
     if (data) {
       setSubscription(data);
+
+    try {
+  const usageResponse = await fetch(
+    `/api/usage?feature=analysis&user_id=${encodeURIComponent(
+      user.id,
+    )}`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  if (usageResponse.ok) {
+    const usage = await usageResponse.json();
+
+    setAnalysisRemaining(
+      typeof usage.remaining === "number"
+        ? usage.remaining
+        : null,
+    );
+  }
+} catch (error) {
+  console.error(error);
+}
+
+try {
+  const response = await fetch(
+    "/api/trading/watchlist",
+    {
+      cache: "no-store",
+    },
+  );
+
+  if (response.ok) {
+    const result = await response.json();
+
+    setWatchlistCount(
+      result.watchlist?.length ?? 0,
+    );
+  }
+} catch {}
+
+try {
+  const response = await fetch(
+    "/api/trading/alerts",
+    {
+      cache: "no-store",
+    },
+  );
+
+  if (response.ok) {
+    const result = await response.json();
+
+    setAlertCount(
+      result.alerts?.length ?? 0,
+    );
+  }
+} catch {}
+
     }
   } catch (error) {
     console.error(
@@ -376,6 +422,51 @@ export default function DashboardPage() {
         : subscriptionType === "trading"
           ? "Trading Pro"
           : "Free";
+
+  const greeting = (() => {
+  const currentHour = new Date().getHours();
+
+  if (currentHour < 12) {
+    return "Good morning";
+  }
+
+  if (currentHour < 18) {
+    return "Good afternoon";
+  }
+
+  return "Good evening";
+})();
+
+const intelligenceItems = [
+  {
+    label: "Property portfolio",
+    value: `${formatNumber(data?.portfolio_count)} tracked`,
+    href: "/real-estate",
+  },
+  {
+    label: "Trading watchlist",
+    value: `${watchlistCount} assets`,
+    href: "/trading/watchlist",
+  },
+  {
+    label: "Active alerts",
+    value: canUseTrading
+      ? `${alertCount} active`
+      : "Premium locked",
+    href: canUseTrading
+      ? "/notifications"
+      : "/pricing#plans",
+  },
+  {
+    label: "Analysis capacity",
+    value: canUseRealEstate
+      ? "Unlimited"
+      : analysisRemaining === null
+        ? "Loading"
+        : `${analysisRemaining} remaining`,
+    href: "/analyze",
+  },
+];
 
   if (!isSignedIn) {
     return (
@@ -560,7 +651,11 @@ export default function DashboardPage() {
           </header>
 
           <div className="px-5 py-8 md:px-8 md:py-10 xl:px-10">
-            {message ? (
+  <div className="relative z-30 mb-7">
+    <UniversalSearch />
+  </div>
+
+  {message ? (
               <div className="mb-7 flex flex-col gap-4 rounded-[28px] border border-red-400/20 bg-red-400/10 p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-semibold text-red-200">
@@ -589,22 +684,26 @@ export default function DashboardPage() {
                   <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
                   <div className="absolute -bottom-40 left-[15%] h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
 
-                  <div className="relative grid gap-10 xl:grid-cols-[1fr_390px] xl:items-end">
+                  <div className="relative grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_410px]">
                     <div>
                       <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/42">
                         <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.8)]" />
                         Platform Online
                       </div>
 
-                      <h1 className="mt-7 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
-                        Welcome back, {displayName}.
-                      </h1>
+                      <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan-300/65">
+  AI Command Center
+</p>
 
-                      <p className="mt-6 max-w-3xl text-lg leading-8 text-white/48">
-                        Continue your property analysis, review today&apos;s
-                        market intelligence, manage your Watchlist, or explore
-                        Nestrova research.
-                      </p>
+<h1 className="mt-4 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
+  {greeting}, {displayName}.
+</h1>
+
+<p className="mt-6 max-w-3xl text-lg leading-8 text-white/48">
+  Nestrova has reviewed your intelligence workspace and
+  prepared today&apos;s priorities, opportunities, and usage
+  status.
+</p>
                       <div className="mt-8 rounded-[28px] border border-amber-300/20 bg-amber-300/10 p-5">
   <p className="text-[10px] uppercase tracking-[0.2em] text-amber-200/60">
     CURRENT PLAN
@@ -662,23 +761,89 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-[34px] border border-white/10 bg-black/25 p-6">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-                        AI Brief
-                      </p>
+                    <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-black/30 p-6">
+  <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
 
-                      <p className="mt-4 text-xl font-semibold leading-8 tracking-[-0.03em]">
-                        {data?.ai_brief ||
-                          "Your personalized intelligence brief is being prepared."}
-                      </p>
+  <div className="relative">
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-300/65">
+          AI Command Center
+        </p>
 
-                      <Link
-                        href="/trading/briefing"
-                        className="mt-6 inline-flex text-sm font-semibold text-cyan-200/70 transition hover:text-cyan-200"
-                      >
-                        View full intelligence →
-                      </Link>
-                    </div>
+        <p className="mt-2 text-xs text-white/30">
+          Personalized intelligence overview
+        </p>
+      </div>
+
+      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-200">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+        Live
+      </span>
+    </div>
+
+    <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.045] p-5">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.17em] text-white/28">
+        Today&apos;s Intelligence
+      </p>
+
+      <p className="mt-3 text-lg font-semibold leading-7 tracking-[-0.025em]">
+        {data?.ai_brief ||
+          "Your personalized intelligence brief is being prepared."}
+      </p>
+    </div>
+
+    <div className="mt-4 grid gap-3">
+      {intelligenceItems.map((item) => (
+        <Link
+          key={item.label}
+          href={item.href}
+          className="group flex items-center justify-between gap-4 rounded-[20px] border border-white/10 bg-white/[0.035] px-4 py-3.5 transition hover:bg-white/[0.07]"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-black/25 text-[10px] text-cyan-200">
+              ✓
+            </span>
+
+            <p className="text-sm font-medium text-white/58">
+              {item.label}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-white/82">
+              {item.value}
+            </p>
+
+            <span className="text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white">
+              →
+            </span>
+          </div>
+        </Link>
+      ))}
+    </div>
+
+    <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+      <Link
+        href="/trading/briefing"
+        className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3.5 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+      >
+        Open Full Briefing
+      </Link>
+
+      <Link
+        href="/notifications"
+        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-3.5 text-sm font-semibold text-white/58 transition hover:bg-white/10 hover:text-white"
+      >
+        Review Notifications
+      </Link>
+    </div>
+
+    <p className="mt-5 text-center text-[10px] uppercase tracking-[0.14em] text-white/20">
+      Updated from your latest platform activity
+    </p>
+  </div>
+</div>
                   </div>
                 </section>
 
@@ -707,6 +872,91 @@ export default function DashboardPage() {
                     detail="Markets saved to your private Trading Watchlist."
                   />
                 </section>
+
+                <section className="mt-8">
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/30">
+        Plan Usage
+      </p>
+
+      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
+        Your current access and usage.
+      </h2>
+    </div>
+
+    <Link
+      href="/settings/billing"
+      className="text-sm font-semibold text-white/42 transition hover:text-white"
+    >
+      Manage membership →
+    </Link>
+  </div>
+
+  <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <MetricCard
+      label="Current Plan"
+      value={subscriptionDisplayName}
+      detail={`Status: ${subscriptionStatus}`}
+    />
+
+    <MetricCard
+      label="Property Analyses"
+      value={
+        canUseRealEstate
+          ? "Unlimited"
+          : analysisRemaining === null
+            ? "— / 5"
+            : `${Math.max(0, 5 - analysisRemaining)} / 5`
+      }
+      detail={
+        canUseRealEstate
+          ? "Unlimited analysis access is active."
+          : analysisRemaining === null
+            ? "Usage information is loading."
+            : `${analysisRemaining} analyses remaining this month.`
+      }
+    />
+
+    <MetricCard
+      label="Trading Watchlist"
+      value={
+        canUseTrading
+          ? `${watchlistCount} / Unlimited`
+          : `${watchlistCount} / 5`
+      }
+      detail={
+        canUseTrading
+          ? "Unlimited watchlist access is active."
+          : `${Math.max(0, 5 - watchlistCount)} free watchlist slots remaining.`
+      }
+    />
+
+    <MetricCard
+      label="Trading Alerts"
+      value={
+        canUseTrading
+          ? `${alertCount} Active`
+          : "Locked"
+      }
+      detail={
+        canUseTrading
+          ? "Custom trading alerts are enabled."
+          : "Upgrade to Trading Pro or All Access to create alerts."
+      }
+    />
+  </div>
+</section>
+
+<AIHomeFeed
+  aiBrief={data?.ai_brief}
+  recentActivity={data?.recent_activity}
+  watchlistCount={watchlistCount}
+  alertCount={alertCount}
+  analysisRemaining={analysisRemaining}
+  canUseRealEstate={canUseRealEstate}
+  canUseTrading={canUseTrading}
+/>
 
                 <section className="mt-12">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

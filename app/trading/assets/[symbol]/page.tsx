@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import AlertModal from "@/components/trading/AlertModal";
 import UpgradeGate from "@/components/subscriptions/UpgradeGate";
 import useSubscription from "@/hooks/useSubscription";
+import TradingViewChart from "@/components/trading/TradingViewChart";
 
 type WatchlistItem = {
   id: string;
@@ -686,6 +687,11 @@ if (!response.ok || !data.success) {
             </div>
           </section>
         </div>
+
+        <TradingViewChart
+  symbol={symbol}
+  assetType={normalizeAssetType(asset.assetType)}
+/>
 
         <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/30">
