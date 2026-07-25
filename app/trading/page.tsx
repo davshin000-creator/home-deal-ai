@@ -534,14 +534,14 @@ export default async function TradingPage() {
 
       
       <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
-  <div className="grid gap-8 xl:grid-cols-[1.35fr_420px]">
+  <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.35fr)_420px]">
     <div>
       <TopOpportunities
         opportunities={opportunities}
       />
     </div>
 
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8 self-start">
       <WatchlistPanel />
 
       <TradingAI
@@ -554,7 +554,7 @@ export default async function TradingPage() {
   </div>
 </section>
 
-      <section className="relative mx-auto grid max-w-[1480px] gap-6 px-5 py-8 md:px-8 xl:grid-cols-[1fr_1fr]">
+      <section className="relative mx-auto mt-4 grid max-w-[1480px] gap-6 px-5 py-10 md:px-8 xl:grid-cols-[1fr_1fr]">
         <article className="rounded-[42px] border border-white/10 bg-white/[0.055] p-7 md:p-8">
           <div className="flex items-start justify-between gap-5">
             <div>
