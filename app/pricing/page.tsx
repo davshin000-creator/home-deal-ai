@@ -1,407 +1,1065 @@
 ﻿"use client";
 
 import PayPalSubscriptionButton from "@/components/payments/PayPalSubscriptionButton";
-import { useUser, UserButton } from "@/components/auth/ClerkCompat";
+import {
+  useUser,
+  UserButton,
+} from "@/components/auth/ClerkCompat";
 
-const proFeatures = [
-  "Unlimited AI property analysis",
-  "Nestrova Brain Console",
-  "AI Deal Comparison",
-  "Investment Memo access",
-  "Portfolio and saved deal workflow",
-  "Future AI agent features",
+type PlanFeature = {
+  text: string;
+  emphasized?: boolean;
+};
+
+type ComparisonValue = string | boolean;
+
+type ComparisonRow = {
+  feature: string;
+  free: ComparisonValue;
+  realEstate: ComparisonValue;
+  trading: ComparisonValue;
+  allAccess: ComparisonValue;
+};
+
+const platformFeatures = [
+  {
+    label: "Real Estate AI",
+    title: "Analyze properties in seconds.",
+    description:
+      "Estimate fair value, rental potential, investment quality, and deal strength from one workspace.",
+    icon: "⌂",
+    accent:
+      "border-cyan-400/20 bg-cyan-400/10 text-cyan-200",
+  },
+  {
+    label: "Trading Intelligence",
+    title: "Find opportunities before they disappear.",
+    description:
+      "Track opportunity scores, market regimes, watchlists, risk levels, and customized alerts.",
+    icon: "↗",
+    accent:
+      "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
+  },
+  {
+    label: "AI Decision Engine",
+    title: "Understand the signal, not just the number.",
+    description:
+      "Turn complex market and property data into clear explanations designed to support better decisions.",
+    icon: "N",
+    accent:
+      "border-violet-400/20 bg-violet-400/10 text-violet-200",
+  },
+  {
+    label: "Growing Platform",
+    title: "One account for future Nestrova products.",
+    description:
+      "All Access members receive eligible future AI products while their subscription remains active.",
+    icon: "+",
+    accent:
+      "border-amber-400/20 bg-amber-400/10 text-amber-200",
+  },
 ];
 
-const freeFeatures = [
-  "Explore core property analysis",
-  "Preview Nestrova Brain outputs",
-  "Test market search workflow",
-  "Upgrade only when ready",
+const freeFeatures: PlanFeature[] = [
+  {
+    text: "5 AI property analyses per month",
+  },
+  {
+    text: "Trading market dashboard",
+  },
+  {
+    text: "Top AI opportunities",
+  },
+  {
+    text: "Watchlist for up to 5 assets",
+  },
+  {
+    text: "Public Nestrova research",
+  },
+];
+
+const realEstateFeatures: PlanFeature[] = [
+  {
+    text: "Unlimited property analyses",
+    emphasized: true,
+  },
+  {
+    text: "AI fair-value estimate",
+  },
+  {
+    text: "Deal Score and investment metrics",
+  },
+  {
+    text: "Rent and yield estimates",
+  },
+  {
+    text: "Saved properties and comparisons",
+  },
+  {
+    text: "Advanced property AI insights",
+  },
+];
+
+const tradingFeatures: PlanFeature[] = [
+  {
+    text: "Unlimited trading watchlists",
+    emphasized: true,
+  },
+  {
+    text: "AI opportunity scores",
+  },
+  {
+    text: "Asset intelligence pages",
+  },
+  {
+    text: "Custom trading alerts",
+  },
+  {
+    text: "AI Daily Brief",
+  },
+  {
+    text: "Portfolio intelligence",
+  },
+];
+
+const allAccessFeatures: PlanFeature[] = [
+  {
+    text: "Everything in Real Estate Pro",
+    emphasized: true,
+  },
+  {
+    text: "Everything in Trading Pro",
+    emphasized: true,
+  },
+  {
+    text: "Eligible future AI products",
+  },
+  {
+    text: "Premium AI workflows",
+  },
+  {
+    text: "Early access to new features",
+  },
+  {
+    text: "Priority product support",
+  },
+];
+
+const comparisonRows: ComparisonRow[] = [
+  {
+    feature: "Property analyses",
+    free: "5 / month",
+    realEstate: "Unlimited",
+    trading: "—",
+    allAccess: "Unlimited",
+  },
+  {
+    feature: "AI fair value",
+    free: true,
+    realEstate: true,
+    trading: false,
+    allAccess: true,
+  },
+  {
+    feature: "Deal Score",
+    free: "Limited",
+    realEstate: "Full",
+    trading: "—",
+    allAccess: "Full",
+  },
+  {
+    feature: "Rent and yield estimates",
+    free: "Limited",
+    realEstate: true,
+    trading: false,
+    allAccess: true,
+  },
+  {
+    feature: "Trading dashboard",
+    free: true,
+    realEstate: true,
+    trading: true,
+    allAccess: true,
+  },
+  {
+    feature: "Watchlist assets",
+    free: "5",
+    realEstate: "5",
+    trading: "Unlimited",
+    allAccess: "Unlimited",
+  },
+  {
+    feature: "Asset intelligence",
+    free: "Preview",
+    realEstate: "Preview",
+    trading: "Full",
+    allAccess: "Full",
+  },
+  {
+    feature: "Custom AI alerts",
+    free: false,
+    realEstate: false,
+    trading: true,
+    allAccess: true,
+  },
+  {
+    feature: "AI Daily Brief",
+    free: false,
+    realEstate: false,
+    trading: true,
+    allAccess: true,
+  },
+  {
+    feature: "Portfolio intelligence",
+    free: false,
+    realEstate: false,
+    trading: true,
+    allAccess: true,
+  },
+  {
+    feature: "Future Nestrova products",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: true,
+  },
+  {
+    feature: "Early feature access",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: true,
+  },
 ];
 
 const faqs = [
   {
-    q: "Can I cancel anytime?",
-    a: "Yes. Nestrova Pro is designed as a flexible monthly subscription.",
+    question: "Can I cancel at any time?",
+    answer:
+      "Yes. You can cancel your PayPal subscription at any time. Your access remains available according to your current billing and subscription status.",
   },
   {
-    q: "What does Pro unlock?",
-    a: "Pro unlocks unlimited analysis, Brain Console, Compare, Memo, and advanced AI investment workflows.",
+    question: "How does the 5-day trial work?",
+    answer:
+      "You start with access to the selected paid plan. Unless the subscription is canceled before the trial ends, PayPal automatically begins the monthly billing cycle.",
   },
   {
-    q: "Is this financial advice?",
-    a: "No. Nestrova is an AI decision-support tool. Verify property data and consult qualified professionals before making investment decisions.",
+    question: "Why does Nestrova AI Pro cost $17.99?",
+    answer:
+      "Real Estate Pro and Trading Pro cost $9.99 each. Nestrova AI Pro combines both for $17.99, saving $2 each month compared with subscribing separately.",
+  },
+  {
+    question: "Will Nestrova AI Pro include future products?",
+    answer:
+      "Eligible future Nestrova AI products are intended to be included for active All Access members. Specialized services or third-party costs may be offered separately.",
+  },
+  {
+    question: "Can I use Nestrova for financial advice?",
+    answer:
+      "Nestrova is an AI research and decision-support platform, not a financial adviser, brokerage, appraiser, or guarantee of future results. Always verify important information independently.",
+  },
+  {
+    question: "Is payment information stored by Nestrova?",
+    answer:
+      "Subscription checkout and billing are handled securely through PayPal. Nestrova stores the subscription identifiers and access status needed to manage your account.",
   },
 ];
+
+function CheckIcon() {
+  return (
+    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-[11px] font-black text-emerald-300">
+      ✓
+    </span>
+  );
+}
+
+function PlanFeatureList({
+  features,
+}: {
+  features: PlanFeature[];
+}) {
+  return (
+    <div className="grid gap-3">
+      {features.map((feature) => (
+        <div
+          key={feature.text}
+          className="flex items-start gap-3"
+        >
+          <CheckIcon />
+
+          <p
+            className={
+              feature.emphasized
+                ? "text-sm font-semibold leading-6 text-white/85"
+                : "text-sm leading-6 text-white/55"
+            }
+          >
+            {feature.text}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ComparisonCell({
+  value,
+  highlighted = false,
+}: {
+  value: ComparisonValue;
+  highlighted?: boolean;
+}) {
+  if (typeof value === "boolean") {
+    return value ? (
+      <span
+        className={
+          highlighted
+            ? "inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-300 text-xs font-black text-black"
+            : "inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-xs font-black text-emerald-300"
+        }
+      >
+        ✓
+      </span>
+    ) : (
+      <span className="text-white/20">—</span>
+    );
+  }
+
+  return (
+    <span
+      className={
+        highlighted
+          ? "font-semibold text-white"
+          : "text-white/55"
+      }
+    >
+      {value}
+    </span>
+  );
+}
 
 export default function PricingPage() {
   const { isLoaded, isSignedIn } = useUser();
 
   return (
-    <main id="top" className="min-h-screen overflow-hidden bg-[#050505] px-5 py-10 text-white md:px-8">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
-        <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-white/[0.075] blur-3xl" />
-        <div className="absolute right-[-260px] top-10 h-[820px] w-[820px] rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="absolute bottom-[-320px] left-[20%] h-[780px] w-[780px] rounded-full bg-emerald-400/10 blur-3xl" />
-      </div>
-
-      <section className="relative mx-auto grid max-w-[1480px] gap-10">
-        <header className="flex items-center justify-between gap-4">
-  <a
-    href="/"
-    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
-  >
-    Back to Nestrova
-  </a>
-
-  {!isLoaded ? (
-    <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/40">
-      Loading...
-    </span>
-  ) : isSignedIn ? (
-    <UserButton />
-  ) : (
-    <a
-      href="/login"
-      className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
+    <main
+      id="top"
+      className="min-h-screen overflow-hidden bg-[#050505] px-5 py-8 text-white md:px-8 md:py-10"
     >
-      Login
-    </a>
-  )}
-</header>
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.12]" />
 
-        <div className="grid gap-10 py-8 xl:grid-cols-[1fr_560px] xl:items-center">
-  <div>
-    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
-      <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.85)]" />
-      Nestrova Intelligence Platform
-    </div>
+        <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-cyan-400/[0.08] blur-3xl" />
 
-    <h1 className="mt-8 max-w-5xl text-6xl font-semibold leading-[0.88] tracking-[-0.08em] md:text-8xl">
-      One AI.
-      <span className="block bg-gradient-to-r from-white via-cyan-100 to-emerald-200 bg-clip-text text-transparent">
-        Every Investment.
-      </span>
-    </h1>
+        <div className="absolute right-[-280px] top-20 h-[820px] w-[820px] rounded-full bg-violet-400/[0.08] blur-3xl" />
 
-    <p className="mt-8 max-w-3xl text-xl leading-9 text-white/55">
-      Real Estate Intelligence, Trading Research, Watchlist Alerts,
-      Portfolio Analytics, and future AI Copilot tools—all inside one
-      decision platform.
-    </p>
-
-    <div className="mt-8 flex flex-wrap gap-3">
-      <a
-        href="/dashboard"
-        className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-      >
-        Start Free
-      </a>
-
-      <a
-        href="#plans"
-        className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-      >
-        Explore Pro
-      </a>
-    </div>
-
-    <div className="mt-8 flex flex-wrap gap-3 text-sm text-white/40">
-      <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2">
-        Real Estate AI
-      </span>
-
-      <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2">
-        Trading Intelligence
-      </span>
-
-      <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2">
-        Private Watchlists
-      </span>
-
-      <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2">
-        Secure PayPal Checkout
-      </span>
-    </div>
-  </div>
-
-  <div className="relative">
-    <div className="absolute -inset-10 rounded-full bg-cyan-400/10 blur-3xl" />
-
-    <div className="relative overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.065] p-5 shadow-[0_50px_170px_rgba(0,0,0,0.58)] backdrop-blur-2xl md:p-6">
-      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-xs font-black text-black">
-            N
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold">
-              Nestrova Daily Intelligence
-            </p>
-
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
-              Live Platform Preview
-            </p>
-          </div>
-        </div>
-
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-          Online
-        </span>
+        <div className="absolute bottom-[-340px] left-[18%] h-[780px] w-[780px] rounded-full bg-emerald-400/[0.09] blur-3xl" />
       </div>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-[28px] border border-white/10 bg-black/25 p-5 sm:col-span-2">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/65">
-                AI Daily Brief
-              </p>
+      <div className="relative mx-auto grid max-w-[1480px] gap-16">
+        <header className="flex items-center justify-between gap-4">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
+          >
+            <span aria-hidden="true">←</span>
+            Nestrova
+          </a>
 
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                Market conditions are improving.
-              </p>
-
-              <p className="mt-3 text-sm leading-6 text-white/40">
-                Public research indicates stronger momentum with controlled
-                risk and several assets entering watch conditions.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-center">
-              <p className="text-[9px] uppercase tracking-[0.14em] text-cyan-200/60">
-                Confidence
-              </p>
-
-              <p className="mt-1 text-2xl font-semibold text-cyan-200">
-                83%
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-            Top Opportunity
-          </p>
-
-          <div className="mt-3 flex items-end justify-between gap-3">
-            <p className="text-3xl font-semibold">
-              BTC
-            </p>
-
-            <p className="text-2xl font-semibold text-cyan-300">
-              91
-            </p>
-          </div>
-
-          <p className="mt-3 text-xs text-white/35">
-            Multi-timeframe research score
-          </p>
-        </div>
-
-        <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-            Market Regime
-          </p>
-
-          <p className="mt-3 text-3xl font-semibold">
-            Bullish
-          </p>
-
-          <p className="mt-3 text-xs text-emerald-300/65">
-            Medium risk · improving
-          </p>
-        </div>
-
-        <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-            Watchlist Alerts
-          </p>
-
-          <div className="mt-3 flex items-center justify-between">
-            <p className="text-3xl font-semibold">
-              3
-            </p>
-
-            <span className="h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.9)]" />
-          </div>
-
-          <p className="mt-3 text-xs text-white/35">
-            Conditions matched recently
-          </p>
-        </div>
-
-        <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-            Property Intelligence
-          </p>
-
-          <p className="mt-3 text-3xl font-semibold">
-            86
-          </p>
-
-          <p className="mt-3 text-xs text-emerald-300/65">
-            Strong investment quality
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-white/25">
-            Unified Workspace
-          </p>
-
-          <p className="mt-1 text-sm font-semibold text-white/70">
-            Property · Markets · Alerts · Research
-          </p>
-        </div>
-
-        <span className="text-xl text-white/35">
-          →
-        </span>
-      </div>
-    </div>
-
-    <div className="relative mx-auto -mt-5 w-[88%] rounded-[30px] border border-emerald-400/20 bg-[#0a1511]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-              Most Popular
+          {!isLoaded ? (
+            <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/35">
+              Loading...
             </span>
-
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/40">
-              5-Day Trial
-            </span>
-          </div>
-
-          <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30">
-            Nestrova Pro
-          </p>
-
-          <div className="mt-2 flex items-end gap-2">
-            <p className="text-5xl font-semibold tracking-[-0.07em]">
-              $19
-            </p>
-
-            <p className="pb-2 text-sm text-white/40">
-              / month
-            </p>
-          </div>
-        </div>
-
-        <a
-          href="#plans"
-          className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-black transition hover:bg-neutral-200"
-        >
-          View Pro Benefits
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-        <div
-            id="plans"
-            className="scroll-mt-8 grid gap-6 xl:grid-cols-[1fr_1.15fr_460px]"
-        >
-          <div className="rounded-[42px] border border-white/10 bg-white/[0.055] p-8 backdrop-blur-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Free</p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Explore the system.</h2>
-            <p className="mt-4 text-sm leading-6 text-white/45">Get a feel for the workflow before upgrading.</p>
-            <div className="mt-8 grid gap-3 text-sm text-white/55">
-            {freeFeatures.map((feature) => (
-  <p key={feature}>• {feature}</p>
-))}
-            </div>
-            <a href="/analyze" className="mt-8 inline-flex w-full justify-center rounded-full border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white">
-              Start Free Analysis
+          ) : isSignedIn ? (
+            <UserButton />
+          ) : (
+            <a
+              href="/login"
+              className="rounded-full border border-white/10 bg-white/[0.05] px-5 py-2 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white"
+            >
+              Sign in
             </a>
-          </div>
+          )}
+        </header>
 
-          <div className="relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.075] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
-            <div className="relative flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Nestrova Pro</p>
-                <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Unlock the full AI investment brain.</h2>
-              </div>
-              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
-                Recommended
+        <section className="grid gap-12 py-8 xl:grid-cols-[1fr_570px] xl:items-center">
+          <div>
+            <div className="inline-flex items-center gap-3 rounded-full border border-amber-300/20 bg-amber-300/[0.08] px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+              <span className="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_16px_rgba(252,211,77,0.85)]" />
+              Founding Member Pricing
+            </div>
+
+            <h1 className="mt-8 max-w-5xl text-6xl font-semibold leading-[0.9] tracking-[-0.075em] md:text-8xl">
+              One AI platform.
+              <span className="block bg-gradient-to-r from-white via-cyan-100 to-emerald-200 bg-clip-text text-transparent">
+                Smarter decisions.
+              </span>
+            </h1>
+
+            <p className="mt-8 max-w-3xl text-lg leading-8 text-white/52 md:text-xl md:leading-9">
+              Analyze real estate, discover trading
+              opportunities, create intelligent alerts, and
+              access future Nestrova products from one
+              decision platform.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href="#plans"
+                className="rounded-full bg-white px-7 py-4 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+              >
+                View plans
+              </a>
+
+              <a
+                href="/dashboard"
+                className="rounded-full border border-white/10 bg-white/[0.055] px-7 py-4 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+              >
+                Continue free
+              </a>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-3 text-xs font-semibold text-white/38">
+              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
+                5-day free trial
+              </span>
+
+              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
+                Cancel anytime
+              </span>
+
+              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
+                Secure PayPal billing
+              </span>
+
+              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
+                New features added regularly
               </span>
             </div>
-            <div className="relative mt-8 grid gap-3 text-sm text-white/65 md:grid-cols-2">
-              {proFeatures.map((feature) => (
-  <p key={feature}>• {feature}</p>
-))}
-            </div>
-            <div className="relative mt-8 grid gap-4 md:grid-cols-3">
-              {[["Brain", "Live decision engine"], ["Compare", "Rank multiple deals"], ["Memo", "Investor-ready reports"]].map(([title, body]) => (
-                <div key={title} className="rounded-[26px] border border-white/10 bg-black/25 p-4">
-                  <p className="text-sm font-semibold text-white">{title}</p>
-                  <p className="mt-2 text-xs leading-5 text-white/40">{body}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <aside className="rounded-[42px] border border-white/10 bg-white/[0.075] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Checkout</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em]">
-  Start your 5-day free trial.
-</h2>
+          <div className="relative">
+            <div className="absolute -inset-12 rounded-full bg-cyan-400/10 blur-3xl" />
 
-<p className="mt-3 text-sm leading-6 text-white/50">
-  Subscribe with PayPal today. Your first 5 days are free, then Nestrova Pro renews automatically at $19/month until canceled.
-</p>
-            <div className="mt-6 rounded-[30px] border border-white/10 bg-black/25 p-4">
-              <PayPalSubscriptionButton />
+            <div className="relative overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.065] p-5 shadow-[0_50px_170px_rgba(0,0,0,0.58)] backdrop-blur-2xl md:p-6">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
+                    N
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold">
+                      Nestrova Intelligence
+                    </p>
+
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
+                      Unified workspace
+                    </p>
+                  </div>
+                </div>
+
+                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                  Online
+                </span>
+              </div>
+
+              <div className="mt-5 rounded-[30px] border border-white/10 bg-black/25 p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/65">
+                  Today&apos;s AI Brief
+                </p>
+
+                <div className="mt-4 flex items-start justify-between gap-5">
+                  <div>
+                    <p className="text-2xl font-semibold tracking-[-0.04em]">
+                      Opportunities are strengthening.
+                    </p>
+
+                    <p className="mt-3 text-sm leading-6 text-white/40">
+                      Nestrova combines property intelligence,
+                      market research, risk analysis, and custom
+                      monitoring in one workspace.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-center">
+                    <p className="text-[9px] uppercase tracking-[0.14em] text-cyan-200/55">
+                      Confidence
+                    </p>
+
+                    <p className="mt-1 text-2xl font-semibold text-cyan-200">
+                      83%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                    Property Score
+                  </p>
+
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <p className="text-3xl font-semibold">
+                      86
+                    </p>
+
+                    <span className="text-xs font-semibold text-emerald-300/70">
+                      Strong
+                    </span>
+                  </div>
+
+                  <p className="mt-3 text-xs text-white/35">
+                    Investment quality
+                  </p>
+                </div>
+
+                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                    Top Opportunity
+                  </p>
+
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <p className="text-3xl font-semibold">
+                      BTC
+                    </p>
+
+                    <p className="text-2xl font-semibold text-cyan-300">
+                      91
+                    </p>
+                  </div>
+
+                  <p className="mt-3 text-xs text-white/35">
+                    AI research score
+                  </p>
+                </div>
+
+                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                    Active Alerts
+                  </p>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-3xl font-semibold">
+                      3
+                    </p>
+
+                    <span className="h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.9)]" />
+                  </div>
+
+                  <p className="mt-3 text-xs text-white/35">
+                    Conditions recently matched
+                  </p>
+                </div>
+
+                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
+                    Products
+                  </p>
+
+                  <p className="mt-3 text-3xl font-semibold">
+                    2+
+                  </p>
+
+                  <p className="mt-3 text-xs text-amber-200/60">
+                    More AI tools coming
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex items-center justify-between rounded-[25px] border border-emerald-400/20 bg-emerald-400/[0.07] px-5 py-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-emerald-200/50">
+                    Best overall value
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-white/75">
+                    Real Estate + Trading for $17.99
+                  </p>
+                </div>
+
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-black">
+                  Save $2
+                </span>
+              </div>
             </div>
-            <p className="mt-5 text-xs leading-5 text-white/35">
-  Secure subscription checkout is handled by PayPal. Cancel anytime. Unless canceled before the trial ends, your subscription automatically renews at $19/month.
-</p>
-          </aside>
-        </div>
+          </div>
+        </section>
 
-        <section className="rounded-[48px] border border-white/10 bg-white/[0.055] p-8 backdrop-blur-2xl md:p-10">
-          <div className="grid gap-8 xl:grid-cols-[420px_1fr]">
+        <section>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/35">
+              Why Nestrova
+            </p>
+
+            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
+              Replace scattered research with one AI
+              workspace.
+            </h2>
+
+            <p className="mt-5 text-base leading-7 text-white/45">
+              Spend less time switching between tools and more
+              time understanding the opportunities that matter.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {platformFeatures.map((feature) => (
+              <article
+                key={feature.label}
+                className="rounded-[34px] border border-white/10 bg-white/[0.05] p-6 backdrop-blur-2xl"
+              >
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl border text-lg font-black ${feature.accent}`}
+                >
+                  {feature.icon}
+                </div>
+
+                <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+                  {feature.label}
+                </p>
+
+                <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">
+                  {feature.title}
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-white/42">
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section
+          id="plans"
+          className="scroll-mt-8"
+        >
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-semibold text-white/45">
+              Monthly plans · 5-day trial on paid plans
+            </div>
+
+            <h2 className="mt-6 text-5xl font-semibold tracking-[-0.065em] md:text-7xl">
+              Choose the intelligence you need.
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/45">
+              Start with one product or unlock the complete
+              Nestrova platform at the founding-member rate.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:items-stretch">
+            <article className="flex min-h-full flex-col rounded-[40px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-2xl">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/30">
+                  Free
+                </p>
+
+                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
+                  Explore Nestrova
+                </h3>
+
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/42">
+                  Test the core workflows before choosing a paid
+                  product.
+                </p>
+
+                <div className="mt-7 flex items-end gap-2">
+                  <p className="text-5xl font-semibold tracking-[-0.07em]">
+                    $0
+                  </p>
+
+                  <p className="pb-2 text-sm text-white/35">
+                    forever
+                  </p>
+                </div>
+              </div>
+
+              <div className="my-7 h-px bg-white/10" />
+
+              <PlanFeatureList features={freeFeatures} />
+
+              <div className="mt-auto pt-8">
+                <a
+                  href="/dashboard"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-5 py-4 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+                >
+                  Continue free
+                </a>
+
+                <p className="mt-4 text-center text-xs leading-5 text-white/28">
+                  No payment method required.
+                </p>
+              </div>
+            </article>
+
+            <article className="flex min-h-full flex-col rounded-[40px] border border-cyan-400/20 bg-cyan-400/[0.055] p-7 shadow-[0_32px_100px_rgba(34,211,238,0.05)] backdrop-blur-2xl">
+              <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200/55">
+                      Real Estate Pro
+                    </p>
+
+                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
+                      Property Intelligence
+                    </h3>
+                  </div>
+
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-200">
+                    Property
+                  </span>
+                </div>
+
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/42">
+                  Built for home buyers, property researchers,
+                  and real-estate investors.
+                </p>
+
+                <div className="mt-7 flex items-end gap-2">
+                  <p className="text-5xl font-semibold tracking-[-0.07em]">
+                    $9.99
+                  </p>
+
+                  <p className="pb-2 text-sm text-white/35">
+                    / month
+                  </p>
+                </div>
+              </div>
+
+              <div className="my-7 h-px bg-white/10" />
+
+              <PlanFeatureList
+                features={realEstateFeatures}
+              />
+
+              <div className="mt-auto pt-8">
+                <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
+                  <PayPalSubscriptionButton subscriptionType="real_estate" />
+                </div>
+
+                <p className="mt-4 text-center text-xs leading-5 text-white/28">
+                  5 days free, then $9.99 per month.
+                </p>
+              </div>
+            </article>
+
+            <article className="flex min-h-full flex-col rounded-[40px] border border-emerald-400/20 bg-emerald-400/[0.055] p-7 shadow-[0_32px_100px_rgba(52,211,153,0.05)] backdrop-blur-2xl">
+              <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-200/55">
+                      Trading Pro
+                    </p>
+
+                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
+                      Market Intelligence
+                    </h3>
+                  </div>
+
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">
+                    Trading
+                  </span>
+                </div>
+
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/42">
+                  Built for investors who need research,
+                  monitoring, watchlists, and alerts.
+                </p>
+
+                <div className="mt-7 flex items-end gap-2">
+                  <p className="text-5xl font-semibold tracking-[-0.07em]">
+                    $9.99
+                  </p>
+
+                  <p className="pb-2 text-sm text-white/35">
+                    / month
+                  </p>
+                </div>
+              </div>
+
+              <div className="my-7 h-px bg-white/10" />
+
+              <PlanFeatureList
+                features={tradingFeatures}
+              />
+
+              <div className="mt-auto pt-8">
+                <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
+                  <PayPalSubscriptionButton subscriptionType="trading" />
+                </div>
+
+                <p className="mt-4 text-center text-xs leading-5 text-white/28">
+                  5 days free, then $9.99 per month.
+                </p>
+              </div>
+            </article>
+
+            <article className="relative flex min-h-full flex-col overflow-hidden rounded-[40px] border border-amber-300/30 bg-gradient-to-b from-amber-300/[0.12] via-white/[0.075] to-emerald-400/[0.055] p-7 shadow-[0_38px_130px_rgba(252,211,77,0.09)] backdrop-blur-2xl xl:-translate-y-4">
+              <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-amber-300/15 blur-3xl" />
+
+              <div className="relative">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-200/70">
+                      Nestrova AI Pro
+                    </p>
+
+                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
+                      Complete AI Platform
+                    </h3>
+                  </div>
+
+                  <span className="rounded-full bg-amber-200 px-3 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-black">
+                    Most Popular
+                  </span>
+                </div>
+
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/52">
+                  Unlock both current products and eligible
+                  future Nestrova AI experiences.
+                </p>
+
+                <div className="mt-7 flex items-end gap-2">
+                  <p className="text-5xl font-semibold tracking-[-0.07em]">
+                    $17.99
+                  </p>
+
+                  <p className="pb-2 text-sm text-white/40">
+                    / month
+                  </p>
+                </div>
+
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold text-emerald-200">
+                  Save $2 every month
+                </div>
+              </div>
+
+              <div className="relative my-7 h-px bg-white/10" />
+
+              <div className="relative">
+                <PlanFeatureList
+                  features={allAccessFeatures}
+                />
+              </div>
+
+              <div className="relative mt-auto pt-8">
+                <div className="rounded-[27px] border border-amber-200/20 bg-black/30 p-3">
+                  <PayPalSubscriptionButton subscriptionType="all_access" />
+                </div>
+
+                <p className="mt-4 text-center text-xs leading-5 text-white/35">
+                  5 days free, then $17.99 per month.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-6 text-white/30">
+            Paid subscriptions renew automatically until
+            canceled. Founding-member prices may change for new
+            subscribers as Nestrova adds products and
+            capabilities.
+          </p>
+        </section>
+
+        <section className="overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl">
+          <div className="border-b border-white/10 px-7 py-8 md:px-10">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/30">
+              Compare plans
+            </p>
+
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
+              See exactly what each plan unlocks.
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/42">
+              Choose a focused product or combine both with
+              Nestrova AI Pro.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-[960px] w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="w-[30%] px-7 py-5 text-xs font-semibold uppercase tracking-[0.16em] text-white/30 md:px-10">
+                    Feature
+                  </th>
+
+                  <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-white/35">
+                    Free
+                  </th>
+
+                  <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200/65">
+                    Real Estate
+                  </th>
+
+                  <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200/65">
+                    Trading
+                  </th>
+
+                  <th className="bg-amber-300/[0.055] px-5 py-5 text-center text-xs font-bold uppercase tracking-[0.14em] text-amber-200">
+                    AI Pro
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr
+                    key={row.feature}
+                    className="border-b border-white/[0.07] last:border-b-0"
+                  >
+                    <td className="px-7 py-5 text-sm font-medium text-white/65 md:px-10">
+                      {row.feature}
+                    </td>
+
+                    <td className="px-5 py-5 text-center text-sm">
+                      <ComparisonCell value={row.free} />
+                    </td>
+
+                    <td className="px-5 py-5 text-center text-sm">
+                      <ComparisonCell
+                        value={row.realEstate}
+                      />
+                    </td>
+
+                    <td className="px-5 py-5 text-center text-sm">
+                      <ComparisonCell
+                        value={row.trading}
+                      />
+                    </td>
+
+                    <td className="bg-amber-300/[0.035] px-5 py-5 text-center text-sm">
+                      <ComparisonCell
+                        value={row.allAccess}
+                        highlighted
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="rounded-[46px] border border-white/10 bg-white/[0.05] p-7 backdrop-blur-2xl md:p-10">
+          <div className="grid gap-10 xl:grid-cols-[390px_1fr]">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">FAQ</p>
-              <h2 className="mt-4 text-5xl font-semibold tracking-[-0.06em]">Built for a clean launch.</h2>
-              <p className="mt-4 text-sm leading-6 text-white/45">Keep pricing simple. Let users understand the value quickly.</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-white/30">
+                Frequently asked questions
+              </p>
+
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
+                Clear answers before you subscribe.
+              </h2>
+
+              <p className="mt-5 text-sm leading-7 text-white/42">
+                Nestrova is being built as a transparent,
+                flexible AI platform. Start small and upgrade
+                when the product becomes useful to your
+                workflow.
+              </p>
             </div>
+
             <div className="grid gap-4">
               {faqs.map((faq) => (
-                <div key={faq.q} className="rounded-[28px] border border-white/10 bg-black/20 p-5">
-                  <h3 className="text-lg font-semibold tracking-[-0.02em]">{faq.q}</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/45">{faq.a}</p>
-                </div>
+                <details
+                  key={faq.question}
+                  className="group rounded-[28px] border border-white/10 bg-black/20 p-5 open:bg-black/30"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold tracking-[-0.02em] text-white/80">
+                    {faq.question}
+
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-lg font-light text-white/40 transition group-open:rotate-45 group-open:text-white">
+                      +
+                    </span>
+                  </summary>
+
+                  <p className="mt-4 pr-10 text-sm leading-7 text-white/42">
+                    {faq.answer}
+                  </p>
+                </details>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="rounded-[48px] border border-white/10 bg-white/[0.07] p-8 text-center shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-12">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">Ready</p>
-          <h2 className="mx-auto mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.06em] md:text-7xl">
-            Start with one property. Upgrade when you want the full investment brain.
-          </h2>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="/analyze" className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white">
-              Start Free
-            </a>
-            <a href="#top" className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black transition hover:bg-neutral-200">
-              Choose Pro
-            </a>
+        <section className="relative overflow-hidden rounded-[48px] border border-white/10 bg-white/[0.07] p-8 text-center shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-14">
+          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+
+          <div className="pointer-events-none absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+
+          <div className="relative">
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/30">
+              Start today
+            </p>
+
+            <h2 className="mx-auto mt-5 max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
+              Ready to make smarter decisions?
+            </h2>
+
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/45">
+              Begin free or unlock the complete Nestrova AI
+              platform with a 5-day trial.
+            </p>
+
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
+              <a
+                href="#plans"
+                className="rounded-full bg-white px-8 py-4 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+              >
+                Choose your plan
+              </a>
+
+              <a
+                href="/dashboard"
+                className="rounded-full border border-white/10 bg-white/[0.06] px-8 py-4 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+              >
+                Continue free
+              </a>
+            </div>
+
+            <p className="mt-6 text-xs text-white/28">
+              Secure PayPal checkout · Cancel anytime
+            </p>
           </div>
         </section>
-      </section>
+
+        <footer className="flex flex-col gap-4 border-t border-white/10 py-8 text-xs text-white/28 md:flex-row md:items-center md:justify-between">
+          <p>
+            © 2026 Nestrova. AI research and decision
+            support.
+          </p>
+
+          <div className="flex flex-wrap gap-5">
+            <a
+              href="/terms"
+              className="transition hover:text-white/65"
+            >
+              Terms
+            </a>
+
+            <a
+              href="/privacy"
+              className="transition hover:text-white/65"
+            >
+              Privacy
+            </a>
+
+            <a
+              href="/"
+              className="transition hover:text-white/65"
+            >
+              Home
+            </a>
+          </div>
+        </footer>
+      </div>
     </main>
   );
 }
-
-

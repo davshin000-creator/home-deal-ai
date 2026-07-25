@@ -1,12 +1,8 @@
 ﻿import Link from "next/link";
 import ExecutiveBrief from "@/components/trading/ExecutiveBrief";
-import MarketOverview from "@/components/trading/MarketOverview";
 import TopOpportunities from "@/components/trading/TopOpportunities";
 import TradingAI from "@/components/trading/TradingAI";
-import WatchlistPanel from "@/components/trading/WatchlistPanel";
 
-
-import PortfolioAI from "@/components/trading/PortfolioAI";
 export const dynamic = "force-dynamic";
 
 const API_BASE_URL =
@@ -394,7 +390,6 @@ export default async function TradingPage() {
           </div>
         ) : null}
       </section>
-      
 
       <ExecutiveBrief
         market={market}
@@ -532,27 +527,17 @@ export default async function TradingPage() {
         </article>
       </section>
 
-      
-      <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
-  <div className="grid gap-8 xl:grid-cols-[1.35fr_420px]">
-    <div>
+      <TopOpportunities opportunities={opportunities} />
       <TopOpportunities
-        opportunities={opportunities}
+    opportunities={opportunities}
       />
-    </div>
-
-    <div className="space-y-8">
-      <WatchlistPanel />
 
       <TradingAI
-        market={market}
-        council={council}
-        opportunities={opportunities}
-        system={data?.system}
+      market={market}
+      council={council}
+      opportunities={opportunities}
+      system={data?.system}
       />
-    </div>
-  </div>
-</section>
 
       <section className="relative mx-auto grid max-w-[1480px] gap-6 px-5 py-8 md:px-8 xl:grid-cols-[1fr_1fr]">
         <article className="rounded-[42px] border border-white/10 bg-white/[0.055] p-7 md:p-8">
@@ -807,4 +792,3 @@ export default async function TradingPage() {
     </main>
   );
 }
-

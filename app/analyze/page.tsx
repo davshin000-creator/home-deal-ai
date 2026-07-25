@@ -103,6 +103,11 @@ export default function AnalyzePage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [usageRemaining, setUsageRemaining] = useState<number | null>(null);
   const [analysisGoal, setAnalysisGoal] = useState("investment");
+  const [isGuestResult, setIsGuestResult] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestUnlocked, setGuestUnlocked] = useState(false);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const [guestRequiresSignup, setGuestRequiresSignup] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -162,11 +167,9 @@ const usageResponse = await fetch(
   async function analyzeProperty() {
   setMessage("");
   setResult(null);
-
-  if (!isSignedIn) {
-    setMessage("Please sign in to analyze properties.");
-    return;
-  }
+  setGuestUnlocked(false);
+  setGuestEmail("");
+  setGuestRequiresSignup(false);
 
   if (!address.trim()) {
     setMessage("Property address is required.");
@@ -199,26 +202,46 @@ const usageResponse = await fetch(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      if (response.status === 429) {
-        setMessage(
-          data.detail ||
-            "Monthly analysis limit reached. Upgrade to Pro to continue.",
-        );
-        setShowUpgradeModal(true);
-      } else if (response.status === 401) {
-        setMessage(
-          data.detail || "Please sign in to analyze properties.",
-        );
-      } else {
-        setMessage(
-          data.detail || "Could not analyze this property.",
-        );
-      }
+  if (
+    response.status === 429 &&
+    data.code === "PROPERTY_ANALYSIS_LIMIT_REACHED"
+  ) {
+    setMessage(
+      data.error ??
+        "Real Estate Pro or Nestrova AI Pro is required for unlimited property analyses.",
+    );
 
-      return;
-    }
+    setGuestRequiresSignup(false);
+    setShowUpgradeModal(true);
+  } else if (response.status === 429) {
+    setMessage(
+      data.detail ??
+        "You have reached the current analysis limit.",
+    );
+
+    setGuestRequiresSignup(
+      Boolean(data.requires_signup),
+    );
+
+    setShowUpgradeModal(true);
+  } else if (response.status === 401) {
+    setMessage(
+      data.detail ??
+        "Please sign in to analyze properties.",
+    );
+  } else {
+    setMessage(
+      data.detail ??
+        data.error ??
+        "Could not analyze this property.",
+    );
+  }
+
+  return;
+}
 
     setResult(data);
+    setIsGuestResult(Boolean(data.is_guest));
     setIsPro(Boolean(data.server_verified_pro));
 
     if (typeof data?.usage?.remaining === "number") {
@@ -228,6 +251,34 @@ const usageResponse = await fetch(
     setMessage("Server connection failed.");
   } finally {
     setLoading(false);
+  }
+}
+
+ async function unlockGuestResult() {
+  if (!guestEmail.trim() || !guestEmail.includes("@")) {
+    setMessage("Enter a valid email to unlock the full report.");
+    return;
+  }
+
+  setGuestSubmitting(true);
+
+  try {
+    await fetch("/api/lead/capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: guestEmail.trim(),
+        address: result?.address,
+        listing_price: result?.listing_price,
+      }),
+    });
+
+    setGuestUnlocked(true);
+  } catch (error) {
+    console.error(error);
+    setMessage("Could not unlock the report. Try again.");
+  } finally {
+    setGuestSubmitting(false);
   }
 }
 
@@ -796,37 +847,71 @@ const heroDescription = result
   }}
 />
 
-            <div className="rounded-[38px] border border-cyan-400/20 bg-cyan-400/[0.05] p-6 backdrop-blur-2xl">
+            <div className="relative overflow-hidden rounded-[38px] border border-cyan-400/20 bg-cyan-400/[0.05] p-6 backdrop-blur-2xl">
   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
     AI Negotiation
   </p>
 
-  <div className="mt-5 grid gap-4 md:grid-cols-3">
-    <div>
-      <p className="text-xs text-white/40">Suggested Offer</p>
-      <p className="mt-2 text-2xl font-semibold">
-        {money(result.negotiation?.suggested_offer)}
-      </p>
+  <div
+    className={
+      isGuestResult && !guestUnlocked
+        ? "pointer-events-none select-none blur-md"
+        : ""
+    }
+  >
+    <div className="mt-5 grid gap-4 md:grid-cols-3">
+      <div>
+        <p className="text-xs text-white/40">Suggested Offer</p>
+        <p className="mt-2 text-2xl font-semibold">
+          {money(result.negotiation?.suggested_offer)}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs text-white/40">Maximum Offer</p>
+        <p className="mt-2 text-2xl font-semibold">
+          {money(result.negotiation?.maximum_offer)}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs text-white/40">Potential Savings</p>
+        <p className="mt-2 text-2xl font-semibold text-emerald-300">
+          {money(result.negotiation?.estimated_savings)}
+        </p>
+      </div>
     </div>
 
-    <div>
-      <p className="text-xs text-white/40">Maximum Offer</p>
-      <p className="mt-2 text-2xl font-semibold">
-        {money(result.negotiation?.maximum_offer)}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-xs text-white/40">Potential Savings</p>
-      <p className="mt-2 text-2xl font-semibold text-emerald-300">
-        {money(result.negotiation?.estimated_savings)}
-      </p>
+    <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/65">
+      {result.negotiation?.strategy}
     </div>
   </div>
 
-  <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/65">
-    {result.negotiation?.strategy}
-  </div>
+  {isGuestResult && !guestUnlocked && (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/55 px-6 text-center backdrop-blur-sm">
+      <p className="text-sm font-semibold text-white">
+        Unlock your negotiation strategy &amp; offer range — free
+      </p>
+
+      <div className="flex w-full max-w-sm flex-col gap-2 sm:flex-row">
+        <input
+          type="email"
+          value={guestEmail}
+          onChange={(event) => setGuestEmail(event.target.value)}
+          placeholder="you@email.com"
+          className="w-full rounded-full border border-white/15 bg-black/40 px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={unlockGuestResult}
+          disabled={guestSubmitting}
+          className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
+        >
+          {guestSubmitting ? "Unlocking..." : "Unlock Free"}
+        </button>
+      </div>
+    </div>
+  )}
 </div>
 
             <div className="grid gap-6 xl:grid-cols-3">
@@ -891,33 +976,53 @@ const heroDescription = result
 
       <div className="relative">
         <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/70">
-          Free Plan Limit
+          {guestRequiresSignup ? "Free Preview Used" : "Free Plan Limit"}
         </p>
 
         <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-white">
-          Monthly analysis limit reached.
+          {guestRequiresSignup
+            ? "You've used your free preview analysis."
+            : "Monthly analysis limit reached."}
         </h2>
 
         <p className="mt-4 text-sm leading-7 text-white/50">
-          The Free plan includes 3 property analyses per month. Upgrade to
-          Nestrova Pro for up to 100 monthly analyses and advanced investment
-          tools.
+          {guestRequiresSignup
+            ? "Sign up free to get 3 property analyses every month, or go Pro for up to 100 per month."
+            : "The Free plan includes 3 property analyses per month. Upgrade to Nestrova Pro for up to 100 monthly analyses and advanced investment tools."}
         </p>
 
         <div className="mt-7 grid gap-3 rounded-[26px] border border-white/10 bg-black/25 p-5 text-sm text-white/60">
-          <p>100 property analyses per month</p>
-          <p>AI investment reports</p>
-          <p>Advanced comparison and portfolio tools</p>
-          <p>Nestrova Brain access</p>
+          {guestRequiresSignup ? (
+            <>
+              <p>3 free property analyses every month</p>
+              <p>Save and compare properties</p>
+              <p>Full negotiation &amp; offer strategy on every report</p>
+            </>
+          ) : (
+            <>
+              <p>100 property analyses per month</p>
+              <p>AI investment reports</p>
+              <p>Advanced comparison and portfolio tools</p>
+              <p>Nestrova Brain access</p>
+            </>
+          )}
         </div>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <a
-            href="/pricing"
-            className="flex-1 rounded-full bg-white px-6 py-4 text-center text-sm font-semibold text-black transition hover:bg-neutral-200"
-          >
-            Upgrade to Pro
-          </a>
+          {guestRequiresSignup ? (
+            <SignInButton mode="modal">
+              <button className="flex-1 rounded-full bg-white px-6 py-4 text-center text-sm font-semibold text-black transition hover:bg-neutral-200">
+                Sign Up Free
+              </button>
+            </SignInButton>
+          ) : (
+            <a
+              href="/pricing"
+              className="flex-1 rounded-full bg-white px-6 py-4 text-center text-sm font-semibold text-black transition hover:bg-neutral-200"
+            >
+              Upgrade to Pro
+            </a>
+          )}
 
           <button
             type="button"

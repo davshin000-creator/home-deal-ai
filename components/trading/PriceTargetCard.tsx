@@ -1,0 +1,65 @@
+type PriceTargets = {
+  bull: number;
+  base: number;
+  bear: number;
+};
+
+type PriceTargetCardProps = {
+  targets: PriceTargets;
+};
+
+function formatTarget(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+export default function PriceTargetCard({
+  targets,
+}: PriceTargetCardProps) {
+  const items = [
+    {
+      label: "Bull case",
+      value: targets.bull,
+      className: "bg-emerald-50 text-emerald-800",
+    },
+    {
+      label: "Base case",
+      value: targets.base,
+      className: "bg-blue-50 text-blue-800",
+    },
+    {
+      label: "Bear case",
+      value: targets.bear,
+      className: "bg-red-50 text-red-800",
+    },
+  ];
+
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Price Targets
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold text-slate-950">
+        Scenario valuation
+      </h2>
+
+      <div className="mt-6 grid gap-3">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className={"rounded-2xl p-4 " + item.className}
+          >
+            <p className="text-sm font-semibold opacity-80">{item.label}</p>
+            <p className="mt-1 text-2xl font-bold">
+              {formatTarget(item.value)}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

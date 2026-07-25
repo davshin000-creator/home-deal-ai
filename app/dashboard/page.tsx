@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import {
   SignInButton,
@@ -29,6 +30,13 @@ type DashboardData = {
   weekly_reports: number;
   ai_brief: string;
   recent_activity: DashboardActivity[];
+};
+
+type SubscriptionData = {
+  plan: string;
+  subscription_type: string;
+  subscription_status: string;
+  trial_ends_at: string | null;
 };
 
 type ProductCard = {
@@ -97,8 +105,9 @@ const sidebarItems = [
   { label: "Real Estate", href: "/real-estate", marker: "R" },
   { label: "Trading", href: "/trading", marker: "T" },
   { label: "Watchlist", href: "/trading/watchlist", marker: "W" },
-  { label: "Pricing", href: "/pricing", marker: "P" },
   { label: "Notifications", href: "/notifications", marker: "N" },
+  { label: "Billing", href: "/settings/billing", marker: "B" },
+  { label: "Pricing", href: "/pricing", marker: "P" },
 ];
 
 function accentClasses(accent: ProductCard["accent"]) {
@@ -198,9 +207,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [subscription, setSubscription] =
+  useState<SubscriptionData | null>(null);
+
   useEffect(() => {
     if (isSignedIn && user?.id) {
       void loadDashboard();
+      void loadSubscription();
     }
   }, [isSignedIn, user?.id]);
 
@@ -208,6 +221,28 @@ export default function DashboardPage() {
     if (!user?.id) {
       return;
     }
+    async function loadSubscription() {
+  if (!user?.id) {
+    return;
+  }
+
+  const supabase = createSupabaseBrowserClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(`
+      plan,
+      subscription_type,
+      subscription_status,
+      trial_ends_at
+    `)
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if (!error && data) {
+    setSubscription(data);
+  }
+}
 
     setLoading(true);
     setMessage("");
@@ -236,6 +271,46 @@ export default function DashboardPage() {
       setLoading(false);
     }
   }
+
+  async function loadSubscription() {
+  if (!user?.id) {
+    return;
+  }
+
+  try {
+    const supabase = createSupabaseBrowserClient();
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(
+        `
+          plan,
+          subscription_type,
+          subscription_status,
+          trial_ends_at
+        `,
+      )
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error(
+        "dashboard_subscription_load_error",
+        error,
+      );
+      return;
+    }
+
+    if (data) {
+      setSubscription(data);
+    }
+  } catch (error) {
+    console.error(
+      "dashboard_subscription_unexpected_error",
+      error,
+    );
+  }
+}
 
   const displayName = useMemo(() => {
     if (data?.user_name?.trim()) {
@@ -269,6 +344,38 @@ export default function DashboardPage() {
 
     return "Investor";
   }, [data?.user_name, user]);
+
+    const subscriptionType =
+    subscription?.subscription_type ??
+    subscription?.plan ??
+    "free";
+
+  const subscriptionStatus =
+    subscription?.subscription_status ?? "free";
+
+  const isPaidSubscription =
+    subscriptionStatus === "active" ||
+    subscriptionStatus === "trialing" ||
+    subscriptionStatus === "approved";
+
+  const canUseRealEstate =
+    isPaidSubscription &&
+    (subscriptionType === "real_estate" ||
+      subscriptionType === "all_access");
+
+  const canUseTrading =
+    isPaidSubscription &&
+    (subscriptionType === "trading" ||
+      subscriptionType === "all_access");
+
+  const subscriptionDisplayName =
+    subscriptionType === "all_access"
+      ? "Nestrova AI Pro"
+      : subscriptionType === "real_estate"
+        ? "Real Estate Pro"
+        : subscriptionType === "trading"
+          ? "Trading Pro"
+          : "Free";
 
   if (!isSignedIn) {
     return (
@@ -372,20 +479,31 @@ export default function DashboardPage() {
             </p>
 
             <p className="mt-3 text-xl font-semibold">
-              Intelligence Hub
+              {subscriptionDisplayName}
             </p>
 
             <p className="mt-3 text-xs leading-6 text-white/38">
-              Real Estate, Trading, Research, and personalized tools in one
-              account.
-            </p>
+  {subscriptionType === "all_access"
+    ? "Real Estate and Trading Intelligence are unlocked."
+    : subscriptionType === "real_estate"
+      ? "Real Estate Intelligence is unlocked."
+      : subscriptionType === "trading"
+        ? "Trading Intelligence is unlocked."
+        : "Explore the free platform or upgrade to unlock premium intelligence."}
+</p>
 
             <Link
-              href="/pricing"
-              className="mt-5 inline-flex w-full justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold text-black transition hover:bg-neutral-200"
-            >
-              View Pro Access
-            </Link>
+  href={
+    subscriptionType === "free"
+      ? "/pricing#plans"
+      : "/settings/billing"
+  }
+  className="mt-5 inline-flex w-full justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold text-black transition hover:bg-neutral-200"
+>
+  {subscriptionType === "free"
+    ? "View Upgrade Options"
+    : "Manage Membership"}
+</Link>
           </div>
         </aside>
 
@@ -487,6 +605,39 @@ export default function DashboardPage() {
                         market intelligence, manage your Watchlist, or explore
                         Nestrova research.
                       </p>
+                      <div className="mt-8 rounded-[28px] border border-amber-300/20 bg-amber-300/10 p-5">
+  <p className="text-[10px] uppercase tracking-[0.2em] text-amber-200/60">
+    CURRENT PLAN
+  </p>
+
+  <div className="mt-3 flex items-center justify-between">
+
+    <div>
+
+      <p className="text-2xl font-semibold">
+        {subscriptionDisplayName}
+      </p>
+
+      <p className="mt-2 text-sm text-white/45">
+        Status: {subscriptionStatus}
+      </p>
+    </div>
+
+    <Link
+  href={
+    subscriptionType === "free"
+      ? "/pricing#plans"
+      : "/settings/billing"
+  }
+  className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+>
+  {subscriptionType === "free"
+    ? "Upgrade"
+    : "Manage"}
+</Link>
+
+  </div>
+</div>
 
                       <div className="mt-8 flex flex-wrap gap-3">
                         <Link
