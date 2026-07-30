@@ -1,12 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 import {
-  getCurrentUserProfile,
-} from "@/lib/supabase/server";
+  createClient,
+  type SupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 
+import {
+  createSupabaseAdminClient,
+} from "@/lib/supabase/server";
 import {
   hasFeature,
 } from "@/lib/subscriptions/entitlements";
+
+export const dynamic = "force-dynamic";
 
 type AlertCondition =
   | "opportunity_score"
@@ -14,7 +25,10 @@ type AlertCondition =
   | "regime_change"
   | "buy_signal";
 
-type AssetType = "crypto" | "stock" | "etf";
+type AssetType =
+  | "crypto"
+  | "stock"
+  | "etf";
 
 type CreateAlertBody = {
   symbol?: unknown;
@@ -26,35 +40,276 @@ type CreateAlertBody = {
   is_active?: unknown;
 };
 
-function normalizeSymbol(value: unknown): string {
-  if (typeof value !== "string") {
+type AuthenticatedContext = {
+  supabase: SupabaseClient<any, any, any>;
+  user: User;
+};
+
+type ApiErrorBody = {
+  success: false;
+  error: string;
+  code?: string;
+};
+
+const ALERT_RULE_SELECT = `
+  id,
+  user_id,
+  watchlist_id,
+  symbol,
+  asset_type,
+  condition_type,
+  opportunity_threshold,
+  risk_threshold,
+  regime_threshold,
+  is_active,
+  last_triggered_at,
+  created_at,
+  updated_at
+`;
+
+function getSupabaseEnvironment() {
+  const supabaseUrl =
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL
+      ?.trim();
+
+  const supabaseAnonKey =
+    process.env
+      .NEXT_PUBLIC_SUPABASE_ANON_KEY
+      ?.trim();
+
+  if (
+    !supabaseUrl ||
+    !supabaseAnonKey
+  ) {
+    throw new Error(
+      "Missing public Supabase environment variables.",
+    );
+  }
+
+  return {
+    supabaseUrl,
+    supabaseAnonKey,
+  };
+}
+
+async function createCookieClient() {
+  const cookieStore =
+    await cookies();
+
+  const {
+    supabaseUrl,
+    supabaseAnonKey,
+  } = getSupabaseEnvironment();
+
+  return createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(
+              ({
+                name,
+                value,
+                options,
+              }) => {
+                cookieStore.set(
+                  name,
+                  value,
+                  options,
+                );
+              },
+            );
+          } catch {
+            /*
+             * Some server contexts do not
+             * permit cookie writes.
+             */
+          }
+        },
+      },
+    },
+  );
+}
+
+function getBearerToken(
+  request: NextRequest,
+) {
+  const authorization =
+    request.headers
+      .get("authorization")
+      ?.trim();
+
+  if (!authorization) {
     return "";
   }
 
-  return value.trim().toUpperCase();
+  const match =
+    authorization.match(
+      /^Bearer\s+(.+)$/i,
+    );
+
+  return match?.[1]?.trim() ?? "";
 }
 
-function normalizeAssetType(value: unknown): AssetType {
-  if (typeof value !== "string") {
+async function getAuthenticatedContext(
+  request: NextRequest,
+): Promise<AuthenticatedContext | null> {
+  const accessToken =
+    getBearerToken(request);
+
+  /*
+   * Mobile authentication.
+   */
+  if (accessToken) {
+    const {
+      supabaseUrl,
+      supabaseAnonKey,
+    } = getSupabaseEnvironment();
+
+    const supabase = createClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        global: {
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+          },
+        },
+
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      },
+    );
+
+    const {
+      data: { user },
+      error,
+    } =
+      await supabase.auth.getUser(
+        accessToken,
+      );
+
+    if (error || !user) {
+      console.error(
+        "trading_alert_mobile_auth_error",
+        error,
+      );
+
+      return null;
+    }
+
+    return {
+      supabase:
+        supabase as SupabaseClient<
+          any,
+          any,
+          any
+        >,
+      user,
+    };
+  }
+
+  /*
+   * Web cookie authentication.
+   */
+  const supabase =
+    await createCookieClient();
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  return {
+    supabase:
+      supabase as SupabaseClient<
+        any,
+        any,
+        any
+      >,
+    user,
+  };
+}
+
+function jsonError(
+  error: string,
+  status: number,
+  code?: string,
+) {
+  const body: ApiErrorBody = {
+    success: false,
+    error,
+    ...(code ? { code } : {}),
+  };
+
+  return NextResponse.json(
+    body,
+    { status },
+  );
+}
+
+function normalizeSymbol(
+  value: unknown,
+): string {
+  if (
+    typeof value !== "string"
+  ) {
+    return "";
+  }
+
+  return value
+    .trim()
+    .toUpperCase();
+}
+
+function normalizeAssetType(
+  value: unknown,
+): AssetType {
+  if (
+    typeof value !== "string"
+  ) {
     return "crypto";
   }
 
-  const normalizedValue = value.trim().toLowerCase();
+  const normalizedValue =
+    value.trim().toLowerCase();
 
-  if (normalizedValue === "stock") {
+  if (
+    normalizedValue === "stock"
+  ) {
     return "stock";
   }
 
-  if (normalizedValue === "etf") {
+  if (
+    normalizedValue === "etf"
+  ) {
     return "etf";
   }
 
   return "crypto";
 }
 
-function normalizeCondition(value: unknown): AlertCondition | null {
+function normalizeCondition(
+  value: unknown,
+): AlertCondition | null {
   if (
-    value === "opportunity_score" ||
+    value ===
+      "opportunity_score" ||
     value === "risk_change" ||
     value === "regime_change" ||
     value === "buy_signal"
@@ -65,15 +320,24 @@ function normalizeCondition(value: unknown): AlertCondition | null {
   return null;
 }
 
-function normalizeScoreThreshold(value: unknown): number | null {
-  if (value === null || value === undefined || value === "") {
+function normalizeScoreThreshold(
+  value: unknown,
+): number | null {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
     return null;
   }
 
-  const numericValue = Number(value);
+  const numericValue =
+    Number(value);
 
   if (
-    !Number.isInteger(numericValue) ||
+    !Number.isInteger(
+      numericValue,
+    ) ||
     numericValue < 1 ||
     numericValue > 100
   ) {
@@ -83,12 +347,17 @@ function normalizeScoreThreshold(value: unknown): number | null {
   return numericValue;
 }
 
-function normalizeRiskThreshold(value: unknown): string | null {
-  if (typeof value !== "string") {
+function normalizeRiskThreshold(
+  value: unknown,
+): string | null {
+  if (
+    typeof value !== "string"
+  ) {
     return null;
   }
 
-  const normalizedValue = value.trim().toUpperCase();
+  const normalizedValue =
+    value.trim().toUpperCase();
 
   if (
     normalizedValue === "LOW" ||
@@ -101,326 +370,418 @@ function normalizeRiskThreshold(value: unknown): string | null {
   return null;
 }
 
-function normalizeRegimeThreshold(value: unknown): string | null {
-  if (typeof value !== "string") {
+function normalizeRegimeThreshold(
+  value: unknown,
+): string | null {
+  if (
+    typeof value !== "string"
+  ) {
     return null;
   }
 
-  const normalizedValue = value.trim();
+  const normalizedValue =
+    value.trim();
 
-  return normalizedValue.length > 0 ? normalizedValue : null;
+  return normalizedValue.length > 0
+    ? normalizedValue
+    : null;
 }
 
-function getBoolean(value: unknown, fallback: boolean): boolean {
-  return typeof value === "boolean" ? value : fallback;
+function getBoolean(
+  value: unknown,
+  fallback: boolean,
+): boolean {
+  return typeof value === "boolean"
+    ? value
+    : fallback;
 }
 
-export async function GET(request: NextRequest) {
+async function getUserProfile(
+  userId: string,
+) {
+  const admin =
+    createSupabaseAdminClient();
+
+  const {
+    data,
+    error,
+  } = await admin
+    .from("profiles")
+    .select(
+      `
+        auth_user_id,
+        is_pro,
+        plan,
+        subscription_type,
+        subscription_status,
+        entitlements,
+        trial_ends_at
+      `,
+    )
+    .eq(
+      "auth_user_id",
+      userId,
+    )
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "trading_alert_profile_lookup_error",
+      error,
+    );
+
+    throw new Error(
+      "Unable to load the subscription profile.",
+    );
+  }
+
+  return data;
+}
+
+/**
+ * GET /api/trading/alerts
+ *
+ * Optional query:
+ * ?symbol=BTC
+ *
+ * Supports:
+ * - Web Supabase cookies
+ * - Mobile Bearer access token
+ */
+export async function GET(
+  request: NextRequest,
+) {
   try {
-    const supabase = await createSupabaseServerClient();
+    const authentication =
+      await getAuthenticatedContext(
+        request,
+      );
+
+    if (!authentication) {
+      return jsonError(
+        "You must be signed in to view alerts.",
+        401,
+      );
+    }
 
     const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+      supabase,
+      user,
+    } = authentication;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "You must be signed in to view alerts.",
-        },
-        {
-          status: 401,
-        },
+    const symbolFilter =
+      normalizeSymbol(
+        request.nextUrl
+          .searchParams
+          .get("symbol"),
       );
-    }
-
-    const searchParams = request.nextUrl.searchParams;
-    const symbolFilter = normalizeSymbol(searchParams.get("symbol"));
 
     let query = supabase
-      .from("trading_alert_rules")
-      .select(
-        `
-          id,
-          user_id,
-          watchlist_id,
-          symbol,
-          asset_type,
-          condition_type,
-          opportunity_threshold,
-          risk_threshold,
-          regime_threshold,
-          is_active,
-          last_triggered_at,
-          created_at,
-          updated_at
-        `,
+      .from(
+        "trading_alert_rules",
       )
-      .eq("user_id", user.id)
-      .order("created_at", {
-        ascending: false,
-      });
+      .select(
+        ALERT_RULE_SELECT,
+      )
+      .eq(
+        "user_id",
+        user.id,
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      );
 
     if (symbolFilter) {
-      query = query.eq("symbol", symbolFilter);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Trading alerts GET database error:", error);
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unable to load trading alerts.",
-        },
-        {
-          status: 500,
-        },
+      query = query.eq(
+        "symbol",
+        symbolFilter,
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      alerts: data ?? [],
-    });
-  } catch (error) {
-    console.error("Trading alerts GET unexpected error:", error);
+    const {
+      data,
+      error,
+    } = await query;
+
+    if (error) {
+      console.error(
+        "trading_alerts_get_database_error",
+        error,
+      );
+
+      return jsonError(
+        "Unable to load trading alerts.",
+        500,
+      );
+    }
 
     return NextResponse.json(
       {
-        success: false,
-        error: "An unexpected error occurred while loading alerts.",
+        success: true,
+        alerts: data ?? [],
       },
       {
-        status: 500,
+        headers: {
+          "Cache-Control":
+            "no-store, max-age=0",
+        },
       },
+    );
+  } catch (error) {
+    console.error(
+      "trading_alerts_get_unexpected_error",
+      error,
+    );
+
+    return jsonError(
+      "An unexpected error occurred while loading alerts.",
+      500,
     );
   }
 }
-
-export async function POST(request: NextRequest) {
+/**
+ * POST /api/trading/alerts
+ *
+ * Creates or updates one trading alert rule.
+ *
+ * Supports:
+ * - Web Supabase cookies
+ * - Mobile Bearer access token
+ */
+export async function POST(
+  request: NextRequest,
+) {
   try {
-    const supabase = await createSupabaseServerClient();
+    const authentication =
+      await getAuthenticatedContext(
+        request,
+      );
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "You must be signed in to create an alert.",
-        },
-        {
-          status: 401,
-        },
+    if (!authentication) {
+      return jsonError(
+        "You must be signed in to create an alert.",
+        401,
       );
     }
 
-const {
-  profile,
-} = await getCurrentUserProfile();
+    const {
+      supabase,
+      user,
+    } = authentication;
 
-const canCreateTradingAlerts = hasFeature(
-  profile,
-  "trading",
-);
+    const profile =
+      await getUserProfile(
+        user.id,
+      );
 
-if (!canCreateTradingAlerts) {
-  return NextResponse.json(
-    {
-      success: false,
-      code: "TRADING_SUBSCRIPTION_REQUIRED",
-      error:
+    const canCreateTradingAlerts =
+      hasFeature(
+        profile,
+        "trading",
+      );
+
+    if (
+      !canCreateTradingAlerts
+    ) {
+      return jsonError(
         "Trading Pro or Nestrova AI Pro is required to create custom trading alerts.",
-    },
-    {
-      status: 403,
-    },
-  );
-}
+        403,
+        "TRADING_SUBSCRIPTION_REQUIRED",
+      );
+    }
 
     let body: CreateAlertBody;
 
     try {
-      body = (await request.json()) as CreateAlertBody;
+      body =
+        (await request.json()) as CreateAlertBody;
     } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "The request body must contain valid JSON.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "The request body must contain valid JSON.",
+        400,
       );
     }
 
-    const symbol = normalizeSymbol(body.symbol);
-    const assetType = normalizeAssetType(body.asset_type);
-    const conditionType = normalizeCondition(body.condition_type);
+    const symbol =
+      normalizeSymbol(
+        body.symbol,
+      );
 
-    const opportunityThreshold = normalizeScoreThreshold(
-      body.opportunity_threshold,
-    );
+    const assetType =
+      normalizeAssetType(
+        body.asset_type,
+      );
 
-    const riskThreshold = normalizeRiskThreshold(body.risk_threshold);
+    const conditionType =
+      normalizeCondition(
+        body.condition_type,
+      );
 
-    const regimeThreshold = normalizeRegimeThreshold(
-      body.regime_threshold,
-    );
+    const opportunityThreshold =
+      normalizeScoreThreshold(
+        body.opportunity_threshold,
+      );
 
-    const isActive = getBoolean(body.is_active, true);
+    const riskThreshold =
+      normalizeRiskThreshold(
+        body.risk_threshold,
+      );
+
+    const regimeThreshold =
+      normalizeRegimeThreshold(
+        body.regime_threshold,
+      );
+
+    const isActive =
+      getBoolean(
+        body.is_active,
+        true,
+      );
 
     if (!symbol) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "A valid asset symbol is required.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "A valid asset symbol is required.",
+        400,
       );
     }
 
     if (!conditionType) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "A valid alert condition is required.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "A valid alert condition is required.",
+        400,
       );
     }
 
     if (
-      conditionType === "opportunity_score" &&
+      conditionType ===
+        "opportunity_score" &&
       opportunityThreshold === null
     ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Opportunity-score alerts require a threshold from 1 to 100.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "Opportunity-score alerts require a threshold from 1 to 100.",
+        400,
       );
     }
 
     if (
-      conditionType === "risk_change" &&
+      conditionType ===
+        "risk_change" &&
       riskThreshold === null
     ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Risk-change alerts require LOW, MEDIUM, or HIGH.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "Risk-change alerts require LOW, MEDIUM, or HIGH.",
+        400,
       );
     }
 
-    const { data: watchlistItem, error: watchlistError } =
-      await supabase
-        .from("trading_watchlist")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("symbol", symbol)
-        .eq("asset_type", assetType)
-        .maybeSingle();
+    if (
+      conditionType ===
+        "regime_change" &&
+      regimeThreshold === null
+    ) {
+      return jsonError(
+        "Regime-change alerts require a target market regime.",
+        400,
+      );
+    }
+
+    const {
+      data: watchlistItem,
+      error: watchlistError,
+    } = await supabase
+      .from(
+        "trading_watchlist",
+      )
+      .select("id")
+      .eq(
+        "user_id",
+        user.id,
+      )
+      .eq(
+        "symbol",
+        symbol,
+      )
+      .eq(
+        "asset_type",
+        assetType,
+      )
+      .maybeSingle();
 
     if (watchlistError) {
       console.error(
-        "Trading alert watchlist lookup error:",
+        "trading_alert_watchlist_lookup_error",
         watchlistError,
       );
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unable to verify the related watchlist item.",
-        },
-        {
-          status: 500,
-        },
+      return jsonError(
+        "Unable to verify the related Watchlist item.",
+        500,
       );
     }
 
     const alertRule = {
       user_id: user.id,
-      watchlist_id: watchlistItem?.id ?? null,
+      watchlist_id:
+        watchlistItem?.id ?? null,
       symbol,
       asset_type: assetType,
-      condition_type: conditionType,
+      condition_type:
+        conditionType,
 
       opportunity_threshold:
-        conditionType === "opportunity_score"
+        conditionType ===
+        "opportunity_score"
           ? opportunityThreshold
           : null,
 
       risk_threshold:
-        conditionType === "risk_change"
+        conditionType ===
+        "risk_change"
           ? riskThreshold
           : null,
 
       regime_threshold:
-        conditionType === "regime_change"
+        conditionType ===
+        "regime_change"
           ? regimeThreshold
           : null,
 
       is_active: isActive,
-      updated_at: new Date().toISOString(),
+      updated_at:
+        new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from("trading_alert_rules")
-      .upsert(alertRule, {
-        onConflict: "user_id,symbol,asset_type,condition_type",
-      })
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "trading_alert_rules",
+      )
+      .upsert(
+        alertRule,
+        {
+          onConflict:
+            "user_id,symbol,asset_type,condition_type",
+        },
+      )
       .select(
-        `
-          id,
-          user_id,
-          watchlist_id,
-          symbol,
-          asset_type,
-          condition_type,
-          opportunity_threshold,
-          risk_threshold,
-          regime_threshold,
-          is_active,
-          last_triggered_at,
-          created_at,
-          updated_at
-        `,
+        ALERT_RULE_SELECT,
       )
       .single();
 
     if (error) {
-      console.error("Trading alerts POST database error:", error);
+      console.error(
+        "trading_alerts_post_database_error",
+        error,
+      );
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unable to save this trading alert.",
-        },
-        {
-          status: 500,
-        },
+      return jsonError(
+        "Unable to save this trading alert.",
+        500,
       );
     }
 
@@ -434,105 +795,120 @@ if (!canCreateTradingAlerts) {
       },
     );
   } catch (error) {
-    console.error("Trading alerts POST unexpected error:", error);
+    console.error(
+      "trading_alerts_post_unexpected_error",
+      error,
+    );
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "An unexpected error occurred while saving the alert.",
-      },
-      {
-        status: 500,
-      },
+    return jsonError(
+      "An unexpected error occurred while saving the alert.",
+      500,
     );
   }
 }
 
-export async function DELETE(request: NextRequest) {
+/**
+ * DELETE /api/trading/alerts?id=<alert-id>
+ *
+ * Deletes one alert rule owned by the signed-in user.
+ *
+ * Supports:
+ * - Web Supabase cookies
+ * - Mobile Bearer access token
+ */
+export async function DELETE(
+  request: NextRequest,
+) {
   try {
-    const supabase = await createSupabaseServerClient();
+    const authentication =
+      await getAuthenticatedContext(
+        request,
+      );
+
+    if (!authentication) {
+      return jsonError(
+        "You must be signed in to delete an alert.",
+        401,
+      );
+    }
 
     const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+      supabase,
+      user,
+    } = authentication;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "You must be signed in to delete an alert.",
-        },
-        {
-          status: 401,
-        },
-      );
-    }
-
-    const searchParams = request.nextUrl.searchParams;
-    const alertId = searchParams.get("id")?.trim() ?? "";
+    const alertId =
+      request.nextUrl
+        .searchParams
+        .get("id")
+        ?.trim() ?? "";
 
     if (!alertId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "An alert ID is required.",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "An alert ID is required.",
+        400,
       );
     }
 
-    const { data, error } = await supabase
-      .from("trading_alert_rules")
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "trading_alert_rules",
+      )
       .delete()
-      .eq("id", alertId)
-      .eq("user_id", user.id)
+      .eq(
+        "id",
+        alertId,
+      )
+      .eq(
+        "user_id",
+        user.id,
+      )
       .select("id")
       .maybeSingle();
 
     if (error) {
-      console.error("Trading alerts DELETE database error:", error);
+      console.error(
+        "trading_alerts_delete_database_error",
+        error,
+      );
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unable to delete this alert.",
-        },
-        {
-          status: 500,
-        },
+      return jsonError(
+        "Unable to delete this alert.",
+        500,
       );
     }
 
     if (!data) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "The requested alert was not found.",
-        },
-        {
-          status: 404,
-        },
+      return jsonError(
+        "The requested alert was not found.",
+        404,
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      deleted_id: data.id,
-    });
-  } catch (error) {
-    console.error("Trading alerts DELETE unexpected error:", error);
-
     return NextResponse.json(
       {
-        success: false,
-        error: "An unexpected error occurred while deleting the alert.",
+        success: true,
+        deleted_id: data.id,
       },
       {
-        status: 500,
+        headers: {
+          "Cache-Control":
+            "no-store, max-age=0",
+        },
       },
+    );
+  } catch (error) {
+    console.error(
+      "trading_alerts_delete_unexpected_error",
+      error,
+    );
+
+    return jsonError(
+      "An unexpected error occurred while deleting the alert.",
+      500,
     );
   }
 }
