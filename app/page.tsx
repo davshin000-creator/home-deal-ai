@@ -22,10 +22,10 @@ const products = [
     eyebrow: "Market Intelligence",
     title: "Trading",
     description:
-      "Explore market regimes, AI Council research, shadow performance, risk conditions, and verified strategy intelligence.",
+      "Real-time AI market intelligence, opportunity scoring, AI Council consensus, watchlists, alerts, and research.",
     href: "/trading",
-    action: "Open Trading Intelligence",
-    status: "Preview",
+    action: "Open Trading",
+    status: "Live",
     accent: "cyan",
     features: [
       "Market scanner",
