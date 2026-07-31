@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import SiteFooter from "@/components/site/SiteFooter";
 
 const products = [
   {
@@ -213,7 +214,7 @@ export default async function HomePage() {
         <div>
           <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.85)]" />
-            AI Intelligence Platform
+            AI Research & Intelligence Platform
           </div>
 
           <h1 className="mt-8 max-w-6xl text-6xl font-semibold leading-[0.88] tracking-[-0.08em] md:text-8xl">
@@ -227,20 +228,33 @@ export default async function HomePage() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="#products"
-              className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.2)] transition hover:-translate-y-0.5 hover:bg-neutral-200"
-            >
-              Explore Products
-            </Link>
+  <Link
+    href="#products"
+    className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black"
+  >
+    Explore Products
+  </Link>
 
-            <Link
-              href="/real-estate"
-              className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-            >
-              Analyze Real Estate
-            </Link>
-          </div>
+  <Link
+    href="/real-estate"
+    className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white"
+  >
+    Open Real Estate
+  </Link>
+</div>
+
+<div className="mt-8 max-w-3xl rounded-[24px] border border-cyan-300/15 bg-cyan-300/[0.055] p-5">
+  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200/75">
+    Research and educational platform
+  </p>
+
+  <p className="mt-3 text-sm leading-7 text-white/42">
+    Nestrova provides AI-powered market intelligence, real estate
+    research, and informational decision-support tools. It does not
+    execute trades, provide brokerage services, or offer personalized
+    financial advice.
+  </p>
+</div>
 
           <p className="mt-5 text-sm text-white/35">
             Start with Real Estate Intelligence. Trading Intelligence is now
@@ -501,38 +515,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
-        <div className="mx-auto flex max-w-[1480px] flex-col gap-5 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p>© 2026 Nestrova.</p>
-            <p className="mt-1">
-              Verified intelligence for better decisions.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-5">
-            <Link href="/real-estate" className="hover:text-white">
-              Real Estate
-            </Link>
-            <Link href="/trading" className="hover:text-white">
-              Trading
-            </Link>
-            <Link href="/research" className="hover:text-white">
-              Research
-            </Link>
-            <Link href="/privacy" className="hover:text-white">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-white">
-              Terms
-            </Link>
-            <Link href="/pricing" className="hover:text-white">
-              Pricing
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

@@ -1,4 +1,6 @@
-﻿export default function TermsPage() {
+﻿import SiteFooter from "@/components/site/SiteFooter";
+
+export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#050505] px-6 py-12 text-white">
       <section className="mx-auto max-w-4xl rounded-[40px] border border-white/10 bg-white/[0.07] p-8">
@@ -21,6 +23,13 @@
           <p>By using Nestrova, you agree not to rely solely on the platform for purchasing, selling, financing, or investing decisions.</p>
         </div>
       </section>
+
+      <div className="mx-auto mt-8 max-w-4xl px-8 pb-8">
+        <SiteFooter
+          showProductLinks={false}
+          className="rounded-3xl border border-black/10 bg-black px-6"
+        />
+      </div>
     </main>
   );
 }

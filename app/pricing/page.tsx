@@ -5,6 +5,7 @@ import {
   useUser,
   UserButton,
 } from "@/components/auth/ClerkCompat";
+import SiteFooter from "@/components/site/SiteFooter";
 
 type PlanFeature = {
   text: string;
@@ -1030,35 +1031,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <footer className="flex flex-col gap-4 border-t border-white/10 py-8 text-xs text-white/28 md:flex-row md:items-center md:justify-between">
-          <p>
-            © 2026 Nestrova. AI research and decision
-            support.
-          </p>
-
-          <div className="flex flex-wrap gap-5">
-            <a
-              href="/terms"
-              className="transition hover:text-white/65"
-            >
-              Terms
-            </a>
-
-            <a
-              href="/privacy"
-              className="transition hover:text-white/65"
-            >
-              Privacy
-            </a>
-
-            <a
-              href="/"
-              className="transition hover:text-white/65"
-            >
-              Home
-            </a>
-          </div>
-        </footer>
+        <SiteFooter />
       </div>
     </main>
   );

@@ -213,7 +213,7 @@ if (!response.ok || !data.success) {
               </option>
 
               <option value="buy_signal">
-                New AI BUY signal appears
+                New AI research signal appears
               </option>
             </select>
           </div>
@@ -288,7 +288,7 @@ if (!response.ok || !data.success) {
           {condition === "buy_signal" ? (
             <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.06] p-4">
               <p className="text-sm leading-6 text-emerald-100/70">
-                You will be notified when a new AI-generated BUY signal
+                You will be notified when a new AI research signal
                 is detected for {symbol}.
               </p>
             </div>

@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
@@ -557,32 +558,7 @@ export default async function VerifiedStrategiesPage() {
         </p>
       </section>
 
-      <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
-        <div className="mx-auto flex max-w-[1480px] flex-col gap-5 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <p>© 2026 Nestrova Trading Intelligence.</p>
-
-          <div className="flex flex-wrap gap-5">
-            <Link href="/trading" className="hover:text-white">
-              Overview
-            </Link>
-            <Link
-              href="/trading/markets"
-              className="hover:text-white"
-            >
-              Markets
-            </Link>
-            <Link
-              href="/trading/strategies"
-              className="hover:text-white"
-            >
-              Strategies
-            </Link>
-            <Link href="/terms" className="hover:text-white">
-              Terms
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 import ExecutiveBrief from "@/components/trading/ExecutiveBrief";
 import MarketOverview from "@/components/trading/MarketOverview";
 import TopOpportunities from "@/components/trading/TopOpportunities";
@@ -776,34 +777,7 @@ export default async function TradingPage() {
         </p>
       </section>
 
-      <footer className="relative border-t border-white/10 px-5 py-10 md:px-8">
-        <div className="mx-auto flex max-w-[1480px] flex-col gap-5 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p>© 2026 Nestrova.</p>
-            <p className="mt-1">
-              Verified intelligence for better decisions.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-5">
-            <Link href="/" className="hover:text-white">
-              Platform
-            </Link>
-            <Link href="/real-estate" className="hover:text-white">
-              Real Estate
-            </Link>
-            <Link href="/research" className="hover:text-white">
-              Research
-            </Link>
-            <Link href="/privacy" className="hover:text-white">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-white">
-              Terms
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

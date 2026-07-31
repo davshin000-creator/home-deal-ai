@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 import { redirect } from "next/navigation";
 
 import { getCurrentUserProfile } from "@/lib/supabase/server";
@@ -569,34 +570,7 @@ export default async function BillingPage() {
           </div>
         </section>
 
-        <footer className="flex flex-col gap-4 border-t border-white/10 py-8 text-xs text-white/28 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © 2026 Nestrova. Account and billing management.
-          </p>
-
-          <div className="flex flex-wrap gap-5">
-            <Link
-              href="/terms"
-              className="transition hover:text-white/60"
-            >
-              Terms
-            </Link>
-
-            <Link
-              href="/privacy"
-              className="transition hover:text-white/60"
-            >
-              Privacy
-            </Link>
-
-            <Link
-              href="/pricing"
-              className="transition hover:text-white/60"
-            >
-              Pricing
-            </Link>
-          </div>
-        </footer>
+        <SiteFooter />
       </div>
     </main>
   );

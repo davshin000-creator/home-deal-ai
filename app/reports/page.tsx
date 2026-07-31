@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 import { useEffect, useState } from "react";
 
 import {
@@ -316,32 +317,7 @@ export default function ReportsPage() {
           )}
         </section>
 
-        <footer className="mt-10 flex flex-col gap-3 border-t border-white/10 py-7 text-sm text-white/30 sm:flex-row sm:items-center sm:justify-between">
-          <p>Nestrova Property Intelligence</p>
-
-          <div className="flex gap-5">
-            <Link
-              href="/dashboard"
-              className="transition hover:text-white"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/analyze"
-              className="transition hover:text-white"
-            >
-              Analyze
-            </Link>
-
-            <Link
-              href="/pricing"
-              className="transition hover:text-white"
-            >
-              Pricing
-            </Link>
-          </div>
-        </footer>
+        <SiteFooter className="mt-10 px-0" />
       </div>
     </main>
   );

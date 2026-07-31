@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 
 const SITE_URL = "https://nestrovaai.com";
 const PAGE_URL = `${SITE_URL}/how-much-should-i-offer-on-a-house`;
@@ -427,30 +428,7 @@ export default function HowMuchShouldIOfferPage() {
           </Link>
         </section>
 
-        <footer className="flex flex-col gap-5 border-t border-white/10 py-8 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} Nestrova</p>
-
-          <div className="flex flex-wrap gap-5">
-            <Link
-              href="/property-deal-analyzer"
-              className="transition hover:text-white"
-            >
-              Deal Analyzer
-            </Link>
-            <Link
-              href="/is-this-house-overpriced"
-              className="transition hover:text-white"
-            >
-              Is This House Overpriced?
-            </Link>
-            <Link href="/privacy" className="transition hover:text-white">
-              Privacy
-            </Link>
-            <Link href="/terms" className="transition hover:text-white">
-              Terms
-            </Link>
-          </div>
-        </footer>
+        <SiteFooter className="px-0" />
       </div>
     </main>
   );

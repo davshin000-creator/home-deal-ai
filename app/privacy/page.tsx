@@ -1,4 +1,6 @@
-﻿export default function PrivacyPage() {
+﻿import SiteFooter from "@/components/site/SiteFooter";
+
+export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-4xl rounded-3xl border bg-white p-8 shadow-sm">
@@ -44,9 +46,16 @@
 
           <section>
             <h2 className="text-xl font-bold text-gray-900">8. Contact</h2>
-            <p className="mt-2">Questions about this Privacy Policy can be sent to support@nestrova.com.</p>
+            <p className="mt-2">Questions about this Privacy Policy can be sent to support@nestrovaai.com.</p>
           </section>
-        </div>
+          </div>
+      </div>
+
+      <div className="mx-auto mt-8 max-w-4xl">
+        <SiteFooter
+          showProductLinks={false}
+          className="rounded-3xl border border-black/10 bg-black px-6"
+        />
       </div>
     </main>
   );
