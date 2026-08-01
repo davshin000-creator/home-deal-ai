@@ -91,9 +91,9 @@ export default function AnalyzePage() {
 
   const [address, setAddress] = useState("");
   const [listingPrice, setListingPrice] = useState("");
-  const [downPaymentPercent, setDownPaymentPercent] = useState("25");
-  const [interestRate, setInterestRate] = useState("6.5");
-  const [loanTermYears, setLoanTermYears] = useState("30");
+  const downPaymentPercent = 25;
+  const interestRate = 6.5;
+  const loanTermYears = 30;
   const [isPro, setIsPro] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -192,9 +192,9 @@ const usageResponse = await fetch(
       body: JSON.stringify({
         address: address.trim(),
         listing_price: Number(listingPrice),
-        down_payment_percent: Number(downPaymentPercent || 25),
-        interest_rate: Number(interestRate || 6.5),
-        loan_term_years: Number(loanTermYears || 30),
+        down_payment_percent: downPaymentPercent,
+        interest_rate: interestRate,
+        loan_term_years: loanTermYears,
         analysis_goal: analysisGoal,
       }),
     });
@@ -517,12 +517,6 @@ const heroDescription = result
     <option value="research">Just Researching</option>
   </select>
 </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <input className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Down payment %" value={downPaymentPercent} onChange={(e) => setDownPaymentPercent(e.target.value)} />
-              <input className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Interest rate" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
-              <input className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Loan term years" value={loanTermYears} onChange={(e) => setLoanTermYears(e.target.value)} />
-            </div>
 
             {message && <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-sm text-white/70">{message}</div>}
           </div>

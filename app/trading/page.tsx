@@ -164,12 +164,33 @@ async function getTradingState(): Promise<{
 }
 
 function cleanLabel(value?: string | null) {
-  if (!value) {
-    return "Unavailable";
+  const normalized = String(value ?? "")
+    .replaceAll("_", " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized) {
+    return "AI Research Strategy";
   }
 
-  return value
-    .replaceAll("_", " ")
+  const replacementCharacterCount =
+    (normalized.match(/�/g) ?? []).length;
+
+  const questionMarkCount =
+    (normalized.match(/\?/g) ?? []).length;
+
+  const looksCorrupted =
+    replacementCharacterCount > 0 ||
+    questionMarkCount >= 3 ||
+    normalized.includes("ì") ||
+    normalized.includes("ë") ||
+    normalized.includes("í");
+
+  if (looksCorrupted) {
+    return "AI Research Strategy";
+  }
+
+  return normalized
     .toLowerCase()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

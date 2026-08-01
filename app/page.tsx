@@ -241,6 +241,13 @@ export default async function HomePage() {
   >
     Open Real Estate
   </Link>
+
+  <Link
+  href="/trading"
+  className="rounded-full border border-white/15 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white transition hover:bg-white/[0.10]"
+>
+  Open Trading
+</Link>
 </div>
 
 <div className="mt-8 max-w-3xl rounded-[24px] border border-cyan-300/15 bg-cyan-300/[0.055] p-5">
