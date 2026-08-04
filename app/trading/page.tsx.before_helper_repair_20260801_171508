@@ -5,6 +5,8 @@ import MarketOverview from "@/components/trading/MarketOverview";
 import LiveTopOpportunities from "@/components/trading/LiveTopOpportunities";
 import TradingAI from "@/components/trading/TradingAI";
 import WatchlistPanel from "@/components/trading/WatchlistPanel";
+
+
 import PortfolioAI from "@/components/trading/PortfolioAI";
 export const dynamic = "force-dynamic";
 
@@ -170,7 +172,6 @@ async function getTradingState(): Promise<{
 function cleanLabel(value?: string | null) {
   const normalized = String(value ?? "")
     .replaceAll("_", " ")
-    .replaceAll("-", " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -179,14 +180,17 @@ function cleanLabel(value?: string | null) {
   }
 
   const replacementCharacterCount =
-    (normalized.match(/\uFFFD/g) ?? []).length;
+    (normalized.match(/�/g) ?? []).length;
 
   const questionMarkCount =
     (normalized.match(/\?/g) ?? []).length;
 
   const looksCorrupted =
     replacementCharacterCount > 0 ||
-    questionMarkCount >= 3;
+    questionMarkCount >= 3 ||
+    normalized.includes("ì") ||
+    normalized.includes("ë") ||
+    normalized.includes("í");
 
   if (looksCorrupted) {
     return "AI Research Strategy";
@@ -194,21 +198,11 @@ function cleanLabel(value?: string | null) {
 
   return normalized
     .toLowerCase()
-    .replace(
-      /\b\w/g,
-      (letter) => letter.toUpperCase(),
-    );
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatNumber(
-  value?: number | null,
-  digits = 2,
-) {
-  if (
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
+function formatNumber(value?: number | null, digits = 2) {
+  if (value === null || value === undefined) {
     return "—";
   }
 
@@ -217,14 +211,8 @@ function formatNumber(
   });
 }
 
-function formatPercent(
-  value?: number | null,
-) {
-  if (
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
+function formatPercent(value?: number | null) {
+  if (value === null || value === undefined) {
     return "—";
   }
 
@@ -1044,10 +1032,6 @@ export default async function TradingPage() {
       </section>
 
       
-      <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
-        <PortfolioAI />
-      </section>
-
       <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
   <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.35fr)_420px]">
     <div>

@@ -28,14 +28,17 @@ type PublicOpportunity = {
   research_version?: string;
   research_reasons?: string[];
   score_components?: Record<string, number>;
-  source_available?: boolean;
-  generated_at?: string;
-  public_mode?: string;
-  execution_exposed?: boolean;
-  disclaimer?: string;
 };
 
-
+type PublicTradingState = {
+  system?: {
+    public_mode?: string;
+    execution_exposed?: boolean;
+  };
+  opportunities?: {
+    top_opportunities?: PublicOpportunity[];
+  };
+};
 
 type WatchlistItem = {
   id: string;
@@ -425,9 +428,7 @@ export default function AssetDetailPage() {
     async function loadPublicResearch() {
       try {
         const response = await fetch(
-          `${TRADING_API_URL}/api/v1/assets/${encodeURIComponent(
-            symbol,
-          )}`,
+          `${TRADING_API_URL}/api/v1/core/state`,
           {
             method: "GET",
             cache: "no-store",
@@ -437,46 +438,50 @@ export default function AssetDetailPage() {
           },
         );
 
-        if (response.status === 404) {
-          throw new Error(
-            "Public research is not currently available for this asset.",
-          );
-        }
-
         if (!response.ok) {
           throw new Error(
             `Public API returned ${response.status}.`,
           );
         }
 
-        const opportunity =
-          (await response.json()) as PublicOpportunity;
+        const data =
+          (await response.json()) as PublicTradingState;
 
         if (
-          opportunity.public_mode !== "READ_ONLY" ||
-          opportunity.execution_exposed !== false
+          data.system?.public_mode !== "READ_ONLY" ||
+          data.system?.execution_exposed !== false
         ) {
           throw new Error(
             "Public API safety validation failed.",
           );
         }
 
-        if (
-          opportunity.source_available !== true
-        ) {
-          throw new Error(
-            "Public research source is unavailable.",
+        const opportunities =
+          data.opportunities?.top_opportunities ?? [];
+
+        const matchingOpportunity =
+          opportunities.find(
+            (item) =>
+              item.symbol
+                ?.trim()
+                .toUpperCase() === symbol,
           );
-        }
 
         if (!active) {
+          return;
+        }
+
+        if (!matchingOpportunity) {
+          setPublicResearchError(
+            "This asset is not currently included in the public Top Opportunities list.",
+          );
           return;
         }
 
         setAsset(
           buildAssetFromPublicOpportunity(
             fallbackAsset,
-            opportunity,
+            matchingOpportunity,
           ),
         );
 

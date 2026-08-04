@@ -186,7 +186,7 @@ function consensusClasses(value?: string) {
     case "BUY":
     case "BULLISH":
       return "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
-    case "SHADOW_ONLY":
+    case "SHADOW":
     case "WATCH":
     case "HOLD":
       return "border-cyan-400/20 bg-cyan-400/10 text-cyan-200";

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -8,12 +8,12 @@ import UniversalSearch from "@/components/search/UniversalSearch";
 
 import {
   SignInButton,
+  UserButton,
   useUser,
 } from "@/components/auth/ClerkCompat";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import DashboardNotifications from "@/components/notifications/DashboardNotifications";
-import UnifiedDashboardHero from "@/components/dashboard/UnifiedDashboardHero";
-import NestrovaAppShell from "@/components/shell/NestrovaAppShell";
 
 type DashboardActivity = {
   title: string;
@@ -102,7 +102,15 @@ const products: ProductCard[] = [
   },
 ];
 
-
+const sidebarItems = [
+  { label: "Dashboard", href: "/dashboard", marker: "D" },
+  { label: "Real Estate", href: "/real-estate", marker: "R" },
+  { label: "Trading", href: "/trading", marker: "T" },
+  { label: "Watchlist", href: "/trading/watchlist", marker: "W" },
+  { label: "Notifications", href: "/notifications", marker: "N" },
+  { label: "Billing", href: "/settings/billing", marker: "B" },
+  { label: "Pricing", href: "/pricing", marker: "P" },
+];
 
 function accentClasses(accent: ProductCard["accent"]) {
   if (accent === "emerald") {
@@ -510,17 +518,142 @@ const intelligenceItems = [
   }
 
   return (
-    <NestrovaAppShell
-      userName={data?.user_name || displayName}
-      title="Unified Intelligence"
-      subtitle="Trading and real estate intelligence in one workspace."
-    >
+    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
       <FloatingAIAssistant />
 
-      <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10 xl:px-10">
-        <div className="relative z-30 mb-7">
-          <UniversalSearch />
-        </div>
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
+        <div className="absolute -left-48 -top-52 h-[760px] w-[760px] rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute right-[-320px] top-20 h-[820px] w-[820px] rounded-full bg-violet-400/10 blur-3xl" />
+        <div className="absolute bottom-[-360px] left-[25%] h-[760px] w-[760px] rounded-full bg-emerald-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto flex min-h-screen max-w-[1700px]">
+        <aside className="sticky top-0 hidden h-screen w-[270px] shrink-0 border-r border-white/10 bg-[#070707]/85 px-5 py-6 backdrop-blur-2xl lg:flex lg:flex-col">
+          <Link href="/" className="flex items-center gap-3 px-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-white text-sm font-black text-black shadow-[0_0_44px_rgba(255,255,255,0.2)]">
+              N
+            </div>
+
+            <div>
+              <p className="font-semibold tracking-[-0.03em]">
+                Nestrova
+              </p>
+              <p className="text-[9px] uppercase tracking-[0.22em] text-white/30">
+                Intelligence Platform
+              </p>
+            </div>
+          </Link>
+
+          <nav className="mt-10 grid gap-2">
+            {sidebarItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
+                  item.href === "/dashboard"
+                    ? "border border-white/10 bg-white/[0.08] text-white"
+                    : "text-white/45 hover:bg-white/[0.055] hover:text-white"
+                }`}
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-black/25 text-[10px] font-bold text-white/45 group-hover:text-white">
+                  {item.marker}
+                </span>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mt-auto rounded-[28px] border border-white/10 bg-white/[0.05] p-5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.17em] text-white/30">
+              Platform Access
+            </p>
+
+            <p className="mt-3 text-xl font-semibold">
+              {subscriptionDisplayName}
+            </p>
+
+            <p className="mt-3 text-xs leading-6 text-white/38">
+  {subscriptionType === "all_access"
+    ? "Real Estate and Trading Intelligence are unlocked."
+    : subscriptionType === "real_estate"
+      ? "Real Estate Intelligence is unlocked."
+      : subscriptionType === "trading"
+        ? "Trading Intelligence is unlocked."
+        : "Explore the free platform or upgrade to unlock premium intelligence."}
+</p>
+
+            <Link
+  href={
+    subscriptionType === "free"
+      ? "/pricing#plans"
+      : "/settings/billing"
+  }
+  className="mt-5 inline-flex w-full justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold text-black transition hover:bg-neutral-200"
+>
+  {subscriptionType === "free"
+    ? "View Upgrade Options"
+    : "Manage Membership"}
+</Link>
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/78 backdrop-blur-2xl">
+            <div className="flex items-center justify-between gap-5 px-5 py-4 md:px-8">
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/"
+                  className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-xs font-black text-black lg:hidden"
+                >
+                  N
+                </Link>
+
+                <div>
+                  <p className="text-sm font-semibold">
+                    Nestrova Dashboard
+                  </p>
+                  <p className="text-xs text-white/32">
+                    Your unified intelligence workspace
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+  <Link
+    href="/trading/briefing"
+    className="hidden rounded-full border border-white/10 bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+  >
+    Daily Briefing
+  </Link>
+
+  <NotificationBell />
+
+  <UserButton />
+</div>
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto border-t border-white/[0.06] px-5 py-3 lg:hidden">
+              {sidebarItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-semibold ${
+                    item.href === "/dashboard"
+                      ? "border-white/20 bg-white text-black"
+                      : "border-white/10 bg-white/[0.045] text-white/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </header>
+
+          <div className="px-5 py-8 md:px-8 md:py-10 xl:px-10">
+  <div className="relative z-30 mb-7">
+    <UniversalSearch />
+  </div>
 
   {message ? (
               <div className="mb-7 flex flex-col gap-4 rounded-[28px] border border-red-400/20 bg-red-400/10 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -547,18 +680,172 @@ const intelligenceItems = [
               <DashboardSkeleton />
             ) : (
               <>
-                <UnifiedDashboardHero
-                  userName={data?.user_name || displayName}
-                  realEstateScore={data?.avg_deal_score}
-                  savedProperties={
-                    data?.saved_deals ??
-                    data?.portfolio_count ??
-                    0
-                  }
-                  tradingWatchlist={watchlistCount}
-                  aiReports={data?.ai_reports}
-                  aiBrief={data?.ai_brief}
-                />
+                <section className="relative overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.06] p-7 shadow-[0_42px_140px_rgba(0,0,0,0.48)] backdrop-blur-2xl md:p-10">
+                  <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
+                  <div className="absolute -bottom-40 left-[15%] h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+
+                  <div className="relative grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_410px]">
+                    <div>
+                      <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/42">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.8)]" />
+                        Platform Online
+                      </div>
+
+                      <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan-300/65">
+  AI Command Center
+</p>
+
+<h1 className="mt-4 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
+  {greeting}, {displayName}.
+</h1>
+
+<p className="mt-6 max-w-3xl text-lg leading-8 text-white/48">
+  Nestrova has reviewed your intelligence workspace and
+  prepared today&apos;s priorities, opportunities, and usage
+  status.
+</p>
+                      <div className="mt-8 rounded-[28px] border border-amber-300/20 bg-amber-300/10 p-5">
+  <p className="text-[10px] uppercase tracking-[0.2em] text-amber-200/60">
+    CURRENT PLAN
+  </p>
+
+  <div className="mt-3 flex items-center justify-between">
+
+    <div>
+
+      <p className="text-2xl font-semibold">
+        {subscriptionDisplayName}
+      </p>
+
+      <p className="mt-2 text-sm text-white/45">
+        Status: {subscriptionStatus}
+      </p>
+    </div>
+
+    <Link
+  href={
+    subscriptionType === "free"
+      ? "/pricing#plans"
+      : "/settings/billing"
+  }
+  className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+>
+  {subscriptionType === "free"
+    ? "Upgrade"
+    : "Manage"}
+</Link>
+
+  </div>
+</div>
+
+                      <div className="mt-8 flex flex-wrap gap-3">
+                        <Link
+                          href="/analyze"
+                          className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+                        >
+                          Analyze Property
+                        </Link>
+
+                        <Link
+                          href="/trading/briefing"
+                          className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3.5 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+                        >
+                          Open Daily Briefing
+                        </Link>
+                        <Link
+                          href="/notifications"
+                          className="hidden rounded-full border border-white/10 bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+                        >
+                          Notifications
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-black/30 p-6">
+  <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+
+  <div className="relative">
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-300/65">
+          AI Command Center
+        </p>
+
+        <p className="mt-2 text-xs text-white/30">
+          Personalized intelligence overview
+        </p>
+      </div>
+
+      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-200">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+        Live
+      </span>
+    </div>
+
+    <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.045] p-5">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.17em] text-white/28">
+        Today&apos;s Intelligence
+      </p>
+
+      <p className="mt-3 text-lg font-semibold leading-7 tracking-[-0.025em]">
+        {data?.ai_brief ||
+          "Your personalized intelligence brief is being prepared."}
+      </p>
+    </div>
+
+    <div className="mt-4 grid gap-3">
+      {intelligenceItems.map((item) => (
+        <Link
+          key={item.label}
+          href={item.href}
+          className="group flex items-center justify-between gap-4 rounded-[20px] border border-white/10 bg-white/[0.035] px-4 py-3.5 transition hover:bg-white/[0.07]"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-black/25 text-[10px] text-cyan-200">
+              ✓
+            </span>
+
+            <p className="text-sm font-medium text-white/58">
+              {item.label}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-white/82">
+              {item.value}
+            </p>
+
+            <span className="text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white">
+              →
+            </span>
+          </div>
+        </Link>
+      ))}
+    </div>
+
+    <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+      <Link
+        href="/trading/briefing"
+        className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3.5 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+      >
+        Open Full Briefing
+      </Link>
+
+      <Link
+        href="/notifications"
+        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-3.5 text-sm font-semibold text-white/58 transition hover:bg-white/10 hover:text-white"
+      >
+        Review Notifications
+      </Link>
+    </div>
+
+    <p className="mt-5 text-center text-[10px] uppercase tracking-[0.14em] text-white/20">
+      Updated from your latest platform activity
+    </p>
+  </div>
+</div>
+                  </div>
+                </section>
 
                 <section className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
                   <MetricCard
@@ -901,7 +1188,9 @@ const intelligenceItems = [
 </section>
               </>
             )}
+          </div>
+        </div>
       </div>
-    </NestrovaAppShell>
+    </main>
   );
 }

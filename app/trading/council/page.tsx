@@ -140,7 +140,7 @@ function consensusClasses(value?: string) {
 
     case "HOLD":
     case "WATCH":
-    case "SHADOW_ONLY":
+    case "SHADOW":
       return "border-cyan-400/25 bg-cyan-400/10 text-cyan-200";
 
     case "NO_TRADE":

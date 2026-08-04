@@ -8,34 +8,6 @@ import UpgradeGate from "@/components/subscriptions/UpgradeGate";
 import useSubscription from "@/hooks/useSubscription";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import AssetAITimeline from "@/components/trading/AssetAITimeline";
-import AIDecisionBreakdown from "@/components/trading/AIDecisionBreakdown";
-
-const TRADING_API_URL =
-  process.env.NEXT_PUBLIC_NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
-
-
-type PublicOpportunity = {
-  symbol?: string;
-  asset_name?: string;
-  asset_type?: string;
-  opportunity_score?: number;
-  confidence?: number;
-  regime?: string;
-  risk?: string;
-  research_style?: string;
-  score_basis?: string;
-  research_version?: string;
-  research_reasons?: string[];
-  score_components?: Record<string, number>;
-  source_available?: boolean;
-  generated_at?: string;
-  public_mode?: string;
-  execution_exposed?: boolean;
-  disclaimer?: string;
-};
-
-
 
 type WatchlistItem = {
   id: string;
@@ -273,91 +245,6 @@ function getMockAsset(symbol: string): AssetData {
   );
 }
 
-function buildAssetFromPublicOpportunity(
-  fallback: AssetData,
-  opportunity: PublicOpportunity,
-): AssetData {
-  const reasons =
-    opportunity.research_reasons
-      ?.map((reason) => String(reason).trim())
-      .filter(Boolean) ?? [];
-
-  const components =
-    opportunity.score_components ?? {};
-
-  const componentTechnicals = Object.entries(
-    components,
-  ).map(([key, value]) => ({
-    label: key
-      .replaceAll("_", " ")
-      .replace(/\w/g, (letter) =>
-        letter.toUpperCase(),
-      ),
-    value:
-      value > 0
-        ? `+${value}`
-        : String(value),
-    interpretation:
-      `${key.replaceAll("_", " ")} contribution to the public AI score.`,
-  }));
-
-  const publicAssetType =
-    opportunity.asset_type === "crypto"
-      ? "Crypto"
-      : opportunity.asset_type === "stock"
-        ? "Stock"
-        : fallback.assetType;
-
-  return {
-    ...fallback,
-    name:
-      opportunity.asset_name?.trim() ||
-      fallback.name,
-    assetType: publicAssetType,
-    score:
-      opportunity.opportunity_score ??
-      fallback.score,
-    confidence:
-      opportunity.confidence ??
-      fallback.confidence,
-    risk:
-      opportunity.risk ??
-      fallback.risk,
-    regime:
-      opportunity.regime ??
-      fallback.regime,
-    summary:
-      reasons.length > 0
-        ? reasons
-        : fallback.summary,
-    technicals:
-      componentTechnicals.length > 0
-        ? componentTechnicals
-        : fallback.technicals,
-    signals: [
-      {
-        label:
-          (opportunity.opportunity_score ?? 0) >= 80
-            ? "BUY"
-            : (opportunity.opportunity_score ?? 0) >= 65
-              ? "HOLD"
-              : "WATCH",
-        time: "Current public research",
-      },
-      {
-        label:
-          opportunity.research_style?.trim() ||
-          fallback.signals[0]?.label ||
-          "WATCH",
-        time:
-          opportunity.research_version?.trim() ||
-          "Public opportunity engine",
-      },
-    ],
-  };
-}
-
-
 function getRiskClasses(risk: string) {
   const normalizedRisk = risk.toUpperCase();
 
@@ -401,112 +288,7 @@ export default function AssetDetailPage() {
     return cleanSymbol(rawSymbol);
   }, [params]);
 
-  const fallbackAsset = useMemo(
-    () => getMockAsset(symbol),
-    [symbol],
-  );
-
-  const [asset, setAsset] =
-    useState<AssetData>(fallbackAsset);
-
-  const [isPublicResearchLoading, setIsPublicResearchLoading] =
-    useState(true);
-
-  const [publicResearchError, setPublicResearchError] =
-    useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    setAsset(fallbackAsset);
-    setIsPublicResearchLoading(true);
-    setPublicResearchError(null);
-
-    async function loadPublicResearch() {
-      try {
-        const response = await fetch(
-          `${TRADING_API_URL}/api/v1/assets/${encodeURIComponent(
-            symbol,
-          )}`,
-          {
-            method: "GET",
-            cache: "no-store",
-            headers: {
-              Accept: "application/json",
-            },
-          },
-        );
-
-        if (response.status === 404) {
-          throw new Error(
-            "Public research is not currently available for this asset.",
-          );
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            `Public API returned ${response.status}.`,
-          );
-        }
-
-        const opportunity =
-          (await response.json()) as PublicOpportunity;
-
-        if (
-          opportunity.public_mode !== "READ_ONLY" ||
-          opportunity.execution_exposed !== false
-        ) {
-          throw new Error(
-            "Public API safety validation failed.",
-          );
-        }
-
-        if (
-          opportunity.source_available !== true
-        ) {
-          throw new Error(
-            "Public research source is unavailable.",
-          );
-        }
-
-        if (!active) {
-          return;
-        }
-
-        setAsset(
-          buildAssetFromPublicOpportunity(
-            fallbackAsset,
-            opportunity,
-          ),
-        );
-
-        setPublicResearchError(null);
-      } catch (error) {
-        if (!active) {
-          return;
-        }
-
-        setPublicResearchError(
-          error instanceof Error
-            ? error.message
-            : "Public research could not be loaded.",
-        );
-      } finally {
-        if (active) {
-          setIsPublicResearchLoading(false);
-        }
-      }
-    }
-
-    void loadPublicResearch();
-
-    return () => {
-      active = false;
-    };
-  }, [
-    fallbackAsset,
-    symbol,
-  ]);
+  const asset = useMemo(() => getMockAsset(symbol), [symbol]);
 
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [isCheckingWatchlist, setIsCheckingWatchlist] = useState(true);
@@ -754,30 +536,6 @@ if (!response.ok || !data.success) {
                 <p className="mt-2 text-lg text-white/45">
                   {asset.name}
                 </p>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <span
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      publicResearchError
-                        ? "bg-amber-300"
-                        : "bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,0.75)]"
-                    }`}
-                  />
-
-                  <p className="text-xs text-white/35">
-                    {isPublicResearchLoading
-                      ? "Loading current public research..."
-                      : publicResearchError
-                        ? "Showing fallback research data"
-                        : "Connected to current Public Gateway research"}
-                  </p>
-                </div>
-
-                {publicResearchError ? (
-                  <p className="mt-3 max-w-2xl text-xs leading-5 text-amber-100/55">
-                    {publicResearchError}
-                  </p>
-                ) : null}
               </div>
 
               <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -930,14 +688,6 @@ if (!response.ok || !data.success) {
             </div>
           </section>
         </div>
-
-        <AIDecisionBreakdown
-          score={asset.score}
-          confidence={asset.confidence}
-          risk={asset.risk}
-          regime={asset.regime}
-          components={asset.technicals}
-        />
 
         <AssetAITimeline
           symbol={symbol}

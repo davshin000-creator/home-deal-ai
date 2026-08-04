@@ -270,7 +270,7 @@ export default function ExecutiveBrief({
               </p>
             </div>
 
-            <h2 className="mt-6 max-w-3xl text-4xl font-semibold tracking-[-0.055em] md:text-5xl">
+            <h2 className="mt-6 max-w-3xl text-[clamp(1.45rem,4vw,2.25rem)] font-semibold tracking-[-0.055em] md:text-5xl break-words [overflow-wrap:anywhere] leading-tight">
               What the market means today.
             </h2>
 

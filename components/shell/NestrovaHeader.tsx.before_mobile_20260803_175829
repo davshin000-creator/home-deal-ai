@@ -1,0 +1,84 @@
+﻿"use client";
+
+import Link from "next/link";
+import { useMemo } from "react";
+import NotificationBell from "@/components/notifications/NotificationBell";
+
+type NestrovaHeaderProps = {
+  userName?: string | null;
+  title?: string;
+  subtitle?: string;
+};
+
+function getGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour < 12) {
+    return "Good morning";
+  }
+
+  if (hour < 18) {
+    return "Good afternoon";
+  }
+
+  return "Good evening";
+}
+
+function getFirstName(
+  userName?: string | null,
+) {
+  const normalized = String(userName ?? "")
+    .trim()
+    .split(/\s+/)[0];
+
+  return normalized || "Investor";
+}
+
+export default function NestrovaHeader({
+  userName,
+  title = "Unified Intelligence",
+  subtitle = "Trading and real estate intelligence in one workspace.",
+}: NestrovaHeaderProps) {
+  const greeting = useMemo(
+    () => getGreeting(),
+    [],
+  );
+
+  const firstName = getFirstName(userName);
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080b]/82 backdrop-blur-2xl">
+      <div className="flex min-h-[78px] items-center justify-between gap-5 px-5 py-4 md:px-8">
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-300/65">
+            {greeting}, {firstName}
+          </p>
+
+          <h1 className="mt-1 truncate text-xl font-bold tracking-[-0.035em] text-white">
+            {title}
+          </h1>
+
+          <p className="mt-1 hidden truncate text-xs text-white/30 sm:block">
+            {subtitle}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-semibold text-white/45 lg:flex">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            AI Systems Online
+          </div>
+
+          <NotificationBell />
+
+          <Link
+            href="/analyze"
+            className="hidden rounded-[14px] bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-xs font-bold text-white shadow-[0_14px_40px_rgba(139,92,246,0.25)] transition hover:brightness-110 sm:inline-flex"
+          >
+            New Analysis
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}

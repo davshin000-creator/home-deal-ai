@@ -5,17 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 
 export type Opportunity = {
   symbol?: string;
-  asset_name?: string;
-  asset_type?: "crypto" | "stock" | string;
   opportunity_score?: number;
-  confidence?: number;
   regime?: string;
   risk?: string;
   research_style?: string;
   score_basis?: string;
-  research_version?: string;
-  research_reasons?: string[];
-  score_components?: Record<string, number>;
 };
 
 type OpportunityCardProps = {
@@ -170,21 +164,7 @@ function getBasisReason(scoreBasis?: string) {
   return cleanLabel(scoreBasis);
 }
 
-function getAssetType(
-  opportunity: Opportunity,
-  symbol: string,
-) {
-  const explicitType =
-    opportunity.asset_type?.trim().toLowerCase();
-
-  if (explicitType === "crypto") {
-    return "crypto";
-  }
-
-  if (explicitType === "stock") {
-    return "stock";
-  }
-
+function getAssetType(symbol: string) {
   const normalizedSymbol = symbol.toUpperCase();
 
   if (
@@ -213,12 +193,6 @@ export default function OpportunityCard({
   const score = opportunity.opportunity_score ?? 0;
   const recommendation = getRecommendation(score);
   const basisReason = getBasisReason(opportunity.score_basis);
-
-  const publicReasons =
-    opportunity.research_reasons
-      ?.map((reason) => String(reason).trim())
-      .filter(Boolean)
-      .slice(0, 3) ?? [];
 
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [isCheckingWatchlist, setIsCheckingWatchlist] = useState(true);
@@ -322,20 +296,12 @@ export default function OpportunityCard({
             ? undefined
             : JSON.stringify({
                 symbol,
-                assetName:
-                  opportunity.asset_name?.trim() || symbol,
-                assetType: getAssetType(
-                  opportunity,
-                  symbol,
-                ),
+                assetName: symbol,
+                assetType: getAssetType(symbol),
                 opportunityScore: score,
                 risk: opportunity.risk ?? null,
                 regime: opportunity.regime ?? null,
-                notes:
-                  opportunity.research_reasons
-                    ?.slice(0, 3)
-                    .join(" | ") ??
-                  opportunity.score_basis ?? null,
+                notes: opportunity.score_basis ?? null,
               }),
         },
       );
@@ -446,48 +412,31 @@ export default function OpportunityCard({
           </p>
 
           <div className="mt-4 space-y-3">
-            {publicReasons.length > 0 ? (
-              publicReasons.map((reason, index) => (
-                <div
-                  key={`${symbol}-reason-${index}`}
-                  className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4"
-                >
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-300" />
+            <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-300" />
 
-                  <p className="text-sm leading-6 text-white/58">
-                    {reason}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <>
-                <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-300" />
+              <p className="text-sm leading-6 text-white/58">
+                {getRegimeReason(opportunity.regime)}
+              </p>
+            </div>
 
-                  <p className="text-sm leading-6 text-white/58">
-                    {getRegimeReason(opportunity.regime)}
-                  </p>
-                </div>
+            <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-300" />
 
-                <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-300" />
+              <p className="text-sm leading-6 text-white/58">
+                {getStyleReason(opportunity.research_style)}
+              </p>
+            </div>
 
-                  <p className="text-sm leading-6 text-white/58">
-                    {getStyleReason(opportunity.research_style)}
-                  </p>
-                </div>
+            {basisReason ? (
+              <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-300" />
 
-                {basisReason ? (
-                  <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-300" />
-
-                    <p className="text-sm leading-6 text-white/58">
-                      Signal basis: {basisReason}.
-                    </p>
-                  </div>
-                ) : null}
-              </>
-            )}
+                <p className="text-sm leading-6 text-white/58">
+                  Signal basis: {basisReason}.
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
 

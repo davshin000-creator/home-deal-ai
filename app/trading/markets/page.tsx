@@ -1,5 +1,8 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import SiteFooter from "@/components/site/SiteFooter";
+import MarketsOpportunityExplorer, {
+  type MarketOpportunity,
+} from "@/components/trading/MarketsOpportunityExplorer";
 
 export const dynamic = "force-dynamic";
 
@@ -7,14 +10,7 @@ const API_BASE_URL =
   process.env.NESTROVA_TRADING_API_URL ??
   "https://api.nestrovaai.com";
 
-type Opportunity = {
-  symbol?: string;
-  opportunity_score?: number;
-  regime?: string;
-  risk?: string;
-  research_style?: string;
-  score_basis?: string;
-};
+type Opportunity = MarketOpportunity;
 
 type MarketState = {
   base_asset?: string;
@@ -33,6 +29,9 @@ type TradingState = {
   opportunities?: {
     top_opportunities?: Opportunity[];
     candidate_count?: number;
+    crypto_candidate_count?: number;
+    stock_candidate_count?: number;
+    us_stock_source_available?: boolean;
     ranking_status?: string;
     source_available?: boolean;
   };
@@ -395,6 +394,26 @@ export default async function TradingMarketsPage() {
               <p className="mt-2 text-2xl font-semibold">
                 {data?.opportunities?.candidate_count ?? 0}
               </p>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
+                    Crypto
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {data?.opportunities?.crypto_candidate_count ?? 0}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
+                    U.S. Stocks
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {data?.opportunities?.stock_candidate_count ?? 0}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -431,89 +450,9 @@ export default async function TradingMarketsPage() {
           </Link>
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05]">
-          <div className="hidden grid-cols-[0.6fr_1fr_1fr_1fr_1.2fr] gap-4 border-b border-white/10 px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30 md:grid">
-            <p>Rank</p>
-            <p>Asset</p>
-            <p>Opportunity</p>
-            <p>Regime</p>
-            <p>Risk / Style</p>
-          </div>
-
-          {opportunities.length > 0 ? (
-            opportunities.map((item, index) => (
-              <article
-                key={`${item.symbol}-${index}`}
-                className="grid gap-4 border-b border-white/10 px-6 py-6 last:border-b-0 md:grid-cols-[0.6fr_1fr_1fr_1fr_1.2fr] md:items-center"
-              >
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/30 md:hidden">
-                    Rank
-                  </p>
-                  <p className="mt-1 text-xl font-semibold text-white/45 md:mt-0">
-                    #{index + 1}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/30 md:hidden">
-                    Asset
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold tracking-[-0.04em] md:mt-0">
-                    {item.symbol ?? "Unknown"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/30 md:hidden">
-                    Opportunity
-                  </p>
-                  <p
-                    className={`mt-1 text-2xl font-semibold md:mt-0 ${opportunityClasses(
-                      item.opportunity_score,
-                    )}`}
-                  >
-                    {item.opportunity_score ?? 0}
-                    <span className="text-sm text-white/30"> / 100</span>
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/30 md:hidden">
-                    Regime
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-white/62 md:mt-0">
-                    {cleanLabel(item.regime)}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/30 md:hidden">
-                    Risk / Style
-                  </p>
-
-                  <div className="mt-2 flex flex-wrap items-center gap-2 md:mt-0">
-                    <span
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${riskClasses(
-                        item.risk,
-                      )}`}
-                    >
-                      {cleanLabel(item.risk)}
-                    </span>
-
-                    <span className="text-xs text-white/40">
-                      {item.research_style ?? "Unavailable"}
-                    </span>
-                  </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="p-10 text-sm text-white/42">
-              No public market rankings are currently available.
-            </div>
-          )}
-        </div>
+        <MarketsOpportunityExplorer
+          opportunities={opportunities}
+        />
       </section>
 
       <section className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8">

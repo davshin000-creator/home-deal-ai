@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.1",
+  "product": "Nestrova Trading",
+  "generated_at": "2026-08-01T02:48:59.935506-07:00",
+  "disclaimer": "Nestrova Trading provides simulated research, market intelligence, and educational analysis. It does not provide personalized financial advice or guaranteed results.",
+  "system": {
+    "core_health": "OK",
+    "recommended_action": "CONTINUE_ANALYSIS",
+    "kernel_status": "UNKNOWN",
+    "public_mode": "READ_ONLY",
+    "execution_exposed": false
+  },
+  "market": {
+    "base_asset": "BTC",
+    "regime": "MIXED",
+    "confidence": 68,
+    "risk": "MEDIUM",
+    "research_style": "ShadowOnly",
+    "data_time": "2026-07-03 19:41:22",
+    "source_available": true
+  },
+  "opportunities": {
+    "top_opportunities": [
+      {
+        "symbol": "XRP",
+        "opportunity_score": 83,
+        "regime": "BULL_TREND",
+        "risk": "LOW",
+        "research_style": "Momentum/Leader",
+        "score_basis": "WORLD_MODEL_WEIGHTED_SCORE"
+      },
+      {
+        "symbol": "ETH",
+        "opportunity_score": 77,
+        "regime": "BULL_TREND",
+        "risk": "LOW",
+        "research_style": "Momentum/Leader",
+        "score_basis": "WORLD_MODEL_WEIGHTED_SCORE"
+      },
+      {
+        "symbol": "SOL",
+        "opportunity_score": 77,
+        "regime": "BULL_TREND",
+        "risk": "LOW",
+        "research_style": "Momentum/Leader",
+        "score_basis": "WORLD_MODEL_WEIGHTED_SCORE"
+      },
+      {
+        "symbol": "BTC",
+        "opportunity_score": 70,
+        "regime": "MIXED",
+        "risk": "MEDIUM",
+        "research_style": "ShadowOnly",
+        "score_basis": "WORLD_MODEL_WEIGHTED_SCORE"
+      },
+      {
+        "symbol": "DOGE",
+        "opportunity_score": 60,
+        "regime": "MIXED",
+        "risk": "MEDIUM",
+        "research_style": "ShadowOnly",
+        "score_basis": "WORLD_MODEL_WEIGHTED_SCORE"
+      }
+    ],
+    "candidate_count": 5,
+    "ranking_status": "AVAILABLE",
+    "source_available": true
+  },
+  "council": {
+    "consensus": "SHADOW",
+    "confidence": 37,
+    "veto": false,
+    "agent_count": 7,
+    "votes": [
+      {
+        "agent": "MarketAI",
+        "view": "ABSTAIN",
+        "confidence": 50
+      },
+      {
+        "agent": "OpportunityAI",
+        "view": "ABSTAIN",
+        "confidence": 50
+      },
+      {
+        "agent": "StrategyLeague",
+        "view": "SHADOW",
+        "confidence": 70
+      },
+      {
+        "agent": "CapitalAI",
+        "view": "NO_TRADE",
+        "confidence": 85
+      },
+      {
+        "agent": "PositionAI",
+        "view": "HOLD",
+        "confidence": 75
+      },
+      {
+        "agent": "RiskAI",
+        "view": "BUY",
+        "confidence": 60
+      },
+      {
+        "agent": "ResearchAI",
+        "view": "SHADOW",
+        "confidence": 80
+      }
+    ],
+    "source_available": true
+  },
+  "shadow_research": {
+    "total_shadow_results": 430,
+    "supervisor_status": "OK",
+    "module_count": 3,
+    "module_statuses": [
+      {
+        "step": "world_model_v2",
+        "status": "OK"
+      },
+      {
+        "step": "command_center_v8",
+        "status": "OK"
+      },
+      {
+        "step": "shadow_factory",
+        "status": "OK"
+      }
+    ],
+    "last_update": "2026-07-03 02:54:26",
+    "source_available": true
+  },
+  "verification": {
+    "total_shadow_results": 430,
+    "verified_count": 1,
+    "watch_count": 0,
+    "strategy_count": 3,
+    "strategies": [
+      {
+        "name": "SCALPING",
+        "status": "VERIFIED",
+        "trade_count": 53,
+        "win_rate": 52.83,
+        "profit_factor": 1.9994,
+        "average_return": 0.0084
+      },
+      {
+        "name": "AI_SURVIVAL_SCALPING",
+        "status": "SHADOW",
+        "trade_count": 372,
+        "win_rate": 38.44,
+        "profit_factor": 0.9584,
+        "average_return": -0.00036
+      },
+      {
+        "name": "AI�ĺ�����_��Ķ��_�����ĺ�",
+        "status": "SHADOW",
+        "trade_count": 5,
+        "win_rate": 40.0,
+        "profit_factor": 0.9734,
+        "average_return": -0.00028
+      }
+    ],
+    "generated_at": "2026-08-01 02:20:32",
+    "source_available": true
+  },
+  "research": {
+    "strategy_models_observed": 3,
+    "active_hypotheses": 0,
+    "hypothesis_data_status": "UNAVAILABLE",
+    "source_available": true
+  }
+}
