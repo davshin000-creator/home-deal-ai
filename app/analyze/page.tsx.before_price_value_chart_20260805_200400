@@ -9,7 +9,6 @@ import PropertyMap from "@/components/PropertyMap";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import RealEstateAnalyzeShell from "@/components/shell/RealEstateAnalyzeShell";
 import {
-  PriceValueComparison,
   PropertyHeroCard,
   ScoreProgressCard,
 } from "@/components/real-estate/report";
@@ -618,13 +617,6 @@ const resultLocation = result
                 confidence={
                   result.confidence_score ?? 90
                 }
-              />
-            </section>
-
-            <section className="mt-6">
-              <PriceValueComparison
-                listingPrice={result.listing_price}
-                fairValue={result.fair_value}
               />
             </section>
 

@@ -1,20 +1,4 @@
-import {
-  BrainIcon,
-  GaugeIcon,
-  PulseIcon,
-  ShieldIcon,
-  SparkIcon,
-  TrendUpIcon,
-} from "@/components/ui/NestrovaIcons";
-
-import {
-  GlassPanel,
-  MetricTile,
-  SectionHeader,
-  StatusChip,
-} from "@/components/ui/nestrova";
-
-type MarketState = {
+﻿type MarketState = {
   base_asset?: string;
   regime?: string;
   confidence?: number;
@@ -126,85 +110,97 @@ export default function MarketOverview({
   ).length;
 
   return (
-    <GlassPanel
-      tone="emerald"
-      className="h-full"
-      contentClassName="flex h-full min-w-0 flex-col p-6 md:p-7"
-    >
-      <SectionHeader
-        eyebrow="Market Overview"
-        title="Current intelligence snapshot."
-        description="Public read-only research across U.S. stocks and crypto."
-        tone="emerald"
-        icon={<PulseIcon className="h-4 w-4" />}
-        action={
-          <StatusChip
-            tone={
-              String(market?.risk ?? "").toUpperCase() === "LOW"
-                ? "emerald"
-                : String(market?.risk ?? "").toUpperCase() === "MEDIUM"
-                  ? "amber"
-                  : "red"
-            }
-            icon={<ShieldIcon className="h-3.5 w-3.5" />}
-            className="px-4 py-2 text-[11px]"
-          >
-            {cleanLabel(market?.risk)} Risk
-          </StatusChip>
-        }
-      />
+    <section className="h-full rounded-[32px] border border-white/10 bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] md:p-7">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300/65">
+            Market Overview
+          </p>
 
-      <div className="mt-7 grid min-w-0 gap-4 sm:grid-cols-2">
-        <MetricTile
-          label="Market Regime"
-          value={cleanLabel(market?.regime)}
-          detail={`Base reference: ${
-            market?.base_asset ?? "Market"
-          }`}
-          icon={<TrendUpIcon className="h-5 w-5" />}
-          tone="emerald"
-        />
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em]">
+            Current intelligence snapshot.
+          </h2>
 
-        <MetricTile
-          label="AI Confidence"
-          value={`${confidence}%`}
-          detail={
-            <div className="mt-1">
-              <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,0.5)]"
-                  style={{
-                    width: `${confidence}%`,
-                  }}
-                />
-              </div>
-            </div>
-          }
-          icon={<GaugeIcon className="h-5 w-5" />}
-          tone="cyan"
-        />
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/38">
+            Public read-only research across U.S. stocks and crypto.
+          </p>
+        </div>
 
-        <MetricTile
-          label="Public Coverage"
-          value={opportunities.length}
-          detail={`${stockCount} stocks · ${cryptoCount} crypto`}
-          icon={<SparkIcon className="h-5 w-5" />}
-          tone="violet"
-        />
-
-        <MetricTile
-          label="Council Consensus"
-          value={cleanLabel(council?.consensus)}
-          detail={`${council?.agent_count ?? 0} research agents · ${clampScore(
-            council?.confidence,
-          )}%`}
-          icon={<BrainIcon className="h-5 w-5" />}
-          tone="amber"
-        />
+        <span
+          className={`inline-flex self-start rounded-full border px-4 py-2 text-xs font-bold ${riskClasses(
+            market?.risk,
+          )}`}
+        >
+          {cleanLabel(market?.risk)} Risk
+        </span>
       </div>
 
-      <div className="mt-6 flex flex-1 flex-col">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-7 grid gap-4 sm:grid-cols-2">
+        <article className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+            Market Regime
+          </p>
+
+          <p className="mt-3 text-2xl font-black">
+            {cleanLabel(market?.regime)}
+          </p>
+
+          <p className="mt-2 text-xs text-white/30">
+            Base reference: {market?.base_asset ?? "Market"}
+          </p>
+        </article>
+
+        <article className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+            AI Confidence
+          </p>
+
+          <p className="mt-3 text-2xl font-black text-cyan-200">
+            {confidence}%
+          </p>
+
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-cyan-300"
+              style={{
+                width: `${confidence}%`,
+              }}
+            />
+          </div>
+        </article>
+
+        <article className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+            Public Coverage
+          </p>
+
+          <p className="mt-3 text-2xl font-black">
+            {opportunities.length}
+          </p>
+
+          <p className="mt-2 text-xs text-white/30">
+            {stockCount} stocks · {cryptoCount} crypto
+          </p>
+        </article>
+
+        <article className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+            Council Consensus
+          </p>
+
+          <p className="mt-3 break-words text-2xl font-black">
+            {cleanLabel(council?.consensus)}
+          </p>
+
+          <p className="mt-2 text-xs text-white/30">
+            {council?.agent_count ?? 0} research agents ·{" "}
+            {clampScore(council?.confidence)}%
+          </p>
+        </article>
+      </div>
+
+      <div className="mt-6">
+        <div className="flex items-center justify-between gap-4">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
             Leading Opportunities
           </p>
@@ -214,7 +210,7 @@ export default function MarketOverview({
           </p>
         </div>
 
-        <div className="mt-4 flex-1 space-y-3">
+        <div className="mt-4 space-y-3">
           {rankedOpportunities.length > 0 ? (
             rankedOpportunities.map(
               (item, index) => {
@@ -225,10 +221,10 @@ export default function MarketOverview({
                 return (
                   <div
                     key={`${item.symbol}-${index}`}
-                    className="flex min-w-0 items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-white/[0.035] px-4 py-3 transition hover:border-white/20 hover:bg-white/[0.06]"
+                    className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-white/[0.035] px-4 py-3"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-bold tracking-[-0.02em]">
+                      <p className="truncate font-bold">
                         {item.symbol ?? "Unknown"}
                       </p>
 
@@ -261,6 +257,6 @@ export default function MarketOverview({
         No brokerage balances, private positions, orders, or execution
         capability are included.
       </p>
-    </GlassPanel>
+    </section>
   );
 }

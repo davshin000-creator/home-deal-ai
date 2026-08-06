@@ -8,11 +8,7 @@ import AddressAutocomplete from "@/components/AddressAutocomplete";
 import PropertyMap from "@/components/PropertyMap";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import RealEstateAnalyzeShell from "@/components/shell/RealEstateAnalyzeShell";
-import {
-  PriceValueComparison,
-  PropertyHeroCard,
-  ScoreProgressCard,
-} from "@/components/real-estate/report";
+import { ScoreProgressCard } from "@/components/real-estate/report";
 import {
   BrainIcon,
   GaugeIcon,
@@ -443,13 +439,6 @@ const heroDescription = result
     )}.`
   : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
 
-const resultLocation = result
-  ? parsePropertyLocation(result.address)
-  : {
-      city: null,
-      state: null,
-    };
-
   return (
     <RealEstateAnalyzeShell>
       <div className="mx-auto w-full max-w-[1500px] px-5 py-8 md:px-8 md:py-10">
@@ -590,44 +579,7 @@ const resultLocation = result
         {loading && <section className="mt-8 grid gap-4">{[1,2,3].map((item) => <div key={item} className="animate-pulse rounded-[34px] border border-white/10 bg-white/[0.055] p-6"><div className="h-5 w-48 rounded-full bg-white/10" /><div className="mt-5 h-8 w-2/3 rounded-full bg-white/10" /><div className="mt-6 grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((metric) => <div key={metric} className="h-16 rounded-2xl bg-white/10" />)}</div></div>)}</section>}
 
         {result && (
-          <>
-            <section className="mt-8">
-              <PropertyHeroCard
-                address={result.address}
-                city={resultLocation.city}
-                state={resultLocation.state}
-                imageUrl={
-                  result.image_url ??
-                  result.thumbnail ??
-                  result.photo_url ??
-                  null
-                }
-                recommendation={resultAction}
-                score={overallScore}
-                listingPrice={result.listing_price}
-                fairValue={result.fair_value}
-                monthlyRent={
-                  result.estimated_monthly_rent
-                }
-                cashFlow={
-                  result.estimated_monthly_cash_flow
-                }
-                discountPercent={
-                  result.discount_percent
-                }
-                confidence={
-                  result.confidence_score ?? 90
-                }
-              />
-            </section>
-
-            <section className="mt-6">
-              <PriceValueComparison
-                listingPrice={result.listing_price}
-                fairValue={result.fair_value}
-              />
-            </section>
-
+           <>
             <section className="mt-8 grid gap-6">
               {(() => {
   const action =
@@ -702,7 +654,15 @@ const resultLocation = result
           </p>
         </div>
 
-        
+        <div className="rounded-[30px] border border-white/10 bg-black/25 px-6 py-5 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+            Home Value Score
+          </p>
+          <p className="mt-2 text-5xl font-semibold tracking-[-0.06em]">
+            {overallScore}
+          </p>
+          <p className="mt-1 text-sm text-white/40">out of 100</p>
+        </div>
       </div>
 
       <div className="mt-7 grid gap-5 lg:grid-cols-2">
@@ -759,26 +719,10 @@ const resultLocation = result
                   <h2 className="mt-2 text-5xl font-semibold tracking-[-0.06em]">{result.status}</h2>
                   <p className="mt-4 max-w-4xl text-sm leading-6 text-white/55">{result.summary}</p>
                 </div>
-                <div
-                  className={`flex shrink-0 items-center gap-3 rounded-[18px] border px-4 py-3 ${getVerdictStyle(
-                    result.status,
-                  )}`}
-                >
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.16em] opacity-65">
-                      Investment Grade
-                    </p>
-
-                    <p className="mt-1 text-2xl font-black tracking-[-0.05em]">
-                      {grade}
-                    </p>
-                  </div>
-
-                  <div className="h-8 w-px bg-current opacity-20" />
-
-                  <p className="text-sm font-bold">
-                    {overallScore}/100
-                  </p>
+                <div className={`rounded-[30px] border p-5 text-center ${getVerdictStyle(result.status)}`}>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em]">Investment Grade</p>
+                  <p className="mt-2 text-6xl font-semibold tracking-[-0.07em]">{grade}</p>
+                  <p className="mt-1 text-xl font-semibold">{overallScore}/100</p>
                 </div>
               </div>
 
@@ -854,6 +798,15 @@ const resultLocation = result
                 </div>
               </div>
 
+              <div className="mt-6 grid gap-4 md:grid-cols-5">
+                {[["Listing Price", money(result.listing_price)], ["AI Fair Value", money(result.fair_value)], ["Discount / Premium", percent(result.discount_percent)], ["Monthly Rent", money(result.estimated_monthly_rent)], ["Cash Flow", `${money(result.estimated_monthly_cash_flow)}/mo`]].map(([label, value]) => (
+                  <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">{label}</p>
+                    <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button onClick={saveToPortfolio} disabled={saving} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:bg-white/30">
                   {saving ? "Saving..." : "Save to Portfolio"}
@@ -886,6 +839,21 @@ const resultLocation = result
         </p>
       </div>
 
+      <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-center lg:w-56">
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+          AI Confidence
+        </p>
+
+        <p className="mt-3 text-6xl font-bold">
+          {result.confidence_score ?? 90}%
+        </p>
+
+        <p className="mt-2 text-sm text-cyan-200">
+          {(result.confidence_score ?? 90) >= 85
+            ? "High Confidence"
+            : "Moderate Confidence"}
+        </p>
+      </div>
     </div>
 
     <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -1027,163 +995,36 @@ const resultLocation = result
   )}
 </div>
 
-            <div className="grid min-w-0 gap-6 xl:grid-cols-3">
-              <div className="flex min-w-0 flex-col rounded-[32px] border border-cyan-300/15 bg-cyan-300/[0.055] p-6 backdrop-blur-2xl">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200/60">
-                      Forecast Outlook
-                    </p>
-
-                    <h3 className="mt-3 break-words text-2xl font-black tracking-[-0.045em] [overflow-wrap:anywhere]">
-                      {result.forecast_outlook ||
-                        "Forecast Ready"}
-                    </h3>
-                  </div>
-
-                  <div className="shrink-0 rounded-[16px] border border-cyan-300/15 bg-cyan-300/10 px-4 py-3 text-right">
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-cyan-200/45">
-                      Appreciation
-                    </p>
-
-                    <p className="mt-1 text-xl font-black text-cyan-100">
-                      {Number(
-                        result.expected_appreciation ?? 0,
-                      ).toFixed(1)}
-                      %
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex-1 space-y-3">
-                  {(result.forecast_reasons ?? []).length >
-                  0 ? (
-                    (result.forecast_reasons ?? []).map(
-                      (reason) => (
-                        <div
-                          key={reason}
-                          className="flex min-w-0 gap-3 rounded-[18px] border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/58"
-                        >
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-
-                          <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-                            {reason}
-                          </span>
-                        </div>
-                      ),
-                    )
-                  ) : (
-                    <p className="rounded-[18px] border border-dashed border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/35">
-                      Forecast reasoning will appear when
-                      sufficient market data is available.
-                    </p>
-                  )}
+            <div className="grid gap-6 xl:grid-cols-3">
+              <div className="rounded-[38px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Forecast</p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{result.forecast_outlook || "Forecast Ready"}</h3>
+                <div className="mt-5 grid gap-3 text-sm text-white/55">
+                  <p>Forecast Score: {result.forecast_score || 0}/100</p>
+                  <p>Expected Appreciation: {result.expected_appreciation || 0}%</p>
+                  {(result.forecast_reasons || []).map((reason) => <p key={reason}>{reason}</p>)}
                 </div>
               </div>
 
-              <div className="flex min-w-0 flex-col rounded-[32px] border border-amber-300/15 bg-amber-300/[0.05] p-6 backdrop-blur-2xl">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/60">
-                      Neighborhood Profile
-                    </p>
-
-                    <h3 className="mt-3 break-words text-2xl font-black tracking-[-0.045em] [overflow-wrap:anywhere]">
-                      {result.neighborhood_grade ||
-                        "Neighborhood Profile"}
-                    </h3>
-                  </div>
-
-                  <span className="shrink-0 rounded-full border border-amber-300/15 bg-amber-300/10 px-3 py-2 text-xs font-bold text-amber-100">
-                    Area Intelligence
-                  </span>
-                </div>
-
-                <div className="mt-6 flex-1 space-y-3">
-                  {(result.neighborhood_reasons ?? [])
-                    .length > 0 ? (
-                    (
-                      result.neighborhood_reasons ?? []
-                    ).map((reason) => (
-                      <div
-                        key={reason}
-                        className="flex min-w-0 gap-3 rounded-[18px] border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/58"
-                      >
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" />
-
-                        <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-                          {reason}
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="rounded-[18px] border border-dashed border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/35">
-                      Neighborhood details will appear when
-                      local data is available.
-                    </p>
-                  )}
+              <div className="rounded-[38px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Neighborhood</p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{result.neighborhood_grade || "Neighborhood Profile"}</h3>
+                <div className="mt-5 grid gap-3 text-sm text-white/55">
+                  <p>Neighborhood Score: {result.neighborhood_score || 0}/100</p>
+                  {(result.neighborhood_reasons || []).map((reason) => <p key={reason}>{reason}</p>)}
                 </div>
               </div>
 
-              <div className="flex min-w-0 flex-col rounded-[32px] border border-violet-300/15 bg-violet-300/[0.05] p-6 backdrop-blur-2xl">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-200/60">
-                    Financing
-                  </p>
-
-                  <h3 className="mt-3 text-2xl font-black tracking-[-0.045em]">
-                    Monthly Ownership Stack
-                  </h3>
-                </div>
-
-                <div className="mt-6 grid flex-1 gap-3">
-                  {[
-                    [
-                      "Down Payment",
-                      money(result.down_payment),
-                    ],
-                    [
-                      "Loan Amount",
-                      money(result.loan_amount),
-                    ],
-                    [
-                      "Mortgage",
-                      `${money(
-                        result.monthly_mortgage,
-                      )}/mo`,
-                    ],
-                    [
-                      "Property Tax",
-                      `${money(
-                        result.monthly_property_tax,
-                      )}/mo`,
-                    ],
-                    [
-                      "Insurance",
-                      `${money(
-                        result.monthly_insurance,
-                      )}/mo`,
-                    ],
-                    [
-                      "Maintenance",
-                      `${money(
-                        result.monthly_maintenance,
-                      )}/mo`,
-                    ],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="flex min-w-0 items-center justify-between gap-4 rounded-[17px] border border-white/10 bg-black/20 px-4 py-3"
-                    >
-                      <span className="min-w-0 truncate text-sm text-white/38">
-                        {label}
-                      </span>
-
-                      <span className="shrink-0 text-sm font-bold text-white/75">
-                        {value}
-                      </span>
-                    </div>
-                  ))}
+              <div className="rounded-[38px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Financing</p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Monthly Stack</h3>
+                <div className="mt-5 grid gap-3 text-sm text-white/55">
+                  <p>Down Payment: {money(result.down_payment)}</p>
+                  <p>Loan Amount: {money(result.loan_amount)}</p>
+                  <p>Mortgage: {money(result.monthly_mortgage)}/mo</p>
+                  <p>Tax: {money(result.monthly_property_tax)}/mo</p>
+                  <p>Insurance: {money(result.monthly_insurance)}/mo</p>
+                  <p>Maintenance: {money(result.monthly_maintenance)}/mo</p>
                 </div>
               </div>
             </div>

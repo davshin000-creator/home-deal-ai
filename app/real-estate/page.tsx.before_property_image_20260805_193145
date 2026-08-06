@@ -33,7 +33,6 @@ type SavedProperty = {
   brain_score?: number | null;
   recommendation?: string | null;
   summary?: string | null;
-  image_url?: string | null;
   created_at?: string | null;
 };
 
@@ -100,39 +99,11 @@ function recommendationTone(
 }
 
 
-function resolvePropertyImageUrl(
-  value?: string | null,
-) {
-  const normalized = String(value ?? "").trim();
-
-  if (!normalized) {
-    return null;
-  }
-
-  try {
-    const parsed = new URL(normalized);
-
-    if (
-      parsed.protocol !== "https:" &&
-      parsed.protocol !== "http:"
-    ) {
-      return null;
-    }
-
-    return parsed.toString();
-  } catch {
-    return null;
-  }
-}
-
 function PropertyVisual({
   property,
 }: {
   property: SavedProperty;
 }) {
-  const [imageFailed, setImageFailed] =
-    useState(false);
-
   const location =
     [property.city, property.state]
       .filter(Boolean)
@@ -148,80 +119,45 @@ function PropertyVisual({
     ),
   );
 
-  const imageUrl = resolvePropertyImageUrl(
-    property.image_url,
-  );
-
-  const showPropertyImage =
-    Boolean(imageUrl) && !imageFailed;
-
   return (
-    <div className="group/visual relative h-52 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(145deg,#14382d_0%,#142236_48%,#241637_100%)]">
-      {showPropertyImage ? (
-        <>
-          <img
-            src={imageUrl ?? undefined}
-            alt={
-              property.address
-                ? `Property at ${property.address}`
-                : "Saved property"
-            }
-            loading="lazy"
-            onError={() => setImageFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover/visual:scale-[1.045]"
-          />
+    <div className="relative h-52 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(145deg,#14382d_0%,#142236_48%,#241637_100%)]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.055)_1px,transparent_1px)] bg-[size:34px_34px] opacity-25" />
 
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.12)_42%,rgba(0,0,0,0.88))]" />
-        </>
-      ) : (
-        <>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.055)_1px,transparent_1px)] bg-[size:34px_34px] opacity-25" />
+      <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-emerald-300/15 blur-3xl" />
 
-          <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-emerald-300/15 blur-3xl" />
+      <div className="absolute left-1/2 top-[46%] h-24 w-40 -translate-x-1/2 -translate-y-1/2 rounded-[8px] border border-white/15 bg-white/[0.07] shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
+        <div className="absolute -left-4 -right-4 -top-10 h-14 bg-emerald-100/[0.14] [clip-path:polygon(50%_0%,100%_100%,0%_100%)]" />
 
-          <div className="absolute left-1/2 top-[46%] h-24 w-40 -translate-x-1/2 -translate-y-1/2 rounded-[8px] border border-white/15 bg-white/[0.07] shadow-[0_24px_70px_rgba(0,0,0,0.28)] transition duration-500 group-hover/visual:-translate-y-[54%]">
-            <div className="absolute -left-4 -right-4 -top-10 h-14 bg-emerald-100/[0.14] [clip-path:polygon(50%_0%,100%_100%,0%_100%)]" />
+        <div className="absolute bottom-0 left-5 h-14 w-9 rounded-t-[5px] border border-white/10 bg-black/25" />
 
-            <div className="absolute bottom-0 left-5 h-14 w-9 rounded-t-[5px] border border-white/10 bg-black/25" />
-
-            <div className="absolute right-5 top-5 grid grid-cols-2 gap-2">
-              {Array.from({ length: 4 }).map(
-                (_, index) => (
-                  <span
-                    key={index}
-                    className="h-5 w-6 rounded-[3px] border border-cyan-100/15 bg-cyan-100/15"
-                  />
-                ),
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/40 px-3 py-2 backdrop-blur-xl">
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/45">
-          {showPropertyImage
-            ? "Property Photo"
-            : "AI Property Visual"}
-        </p>
+        <div className="absolute right-5 top-5 grid grid-cols-2 gap-2">
+          {Array.from({ length: 4 }).map(
+            (_, index) => (
+              <span
+                key={index}
+                className="h-5 w-6 rounded-[3px] border border-cyan-100/15 bg-cyan-100/15"
+              />
+            ),
+          )}
+        </div>
       </div>
 
-      <div className="absolute right-4 top-4 rounded-[15px] border border-white/10 bg-black/45 px-3 py-2 text-right backdrop-blur-xl">
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/40">
+      <div className="absolute right-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-2 backdrop-blur-xl">
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/35">
           Deal Score
         </p>
 
-        <p className="mt-1 text-lg font-black text-emerald-200">
+        <p className="mt-1 text-right text-lg font-black text-emerald-200">
           {score || "—"}
         </p>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-5 pt-14">
-        <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200/65">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/75 to-transparent p-5 pt-14">
+        <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200/60">
           Property Intelligence
         </p>
 
-        <p className="mt-2 truncate text-lg font-bold text-white">
+        <p className="mt-2 truncate text-lg font-bold">
           {location}
         </p>
       </div>

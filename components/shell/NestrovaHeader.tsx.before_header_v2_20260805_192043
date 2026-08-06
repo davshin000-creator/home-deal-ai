@@ -1,14 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserButton } from "@/components/auth/ClerkCompat";
-import {
-  ArrowRightIcon,
-  SparkIcon,
-} from "@/components/ui/NestrovaIcons";
 
 type NestrovaHeaderProps = {
   userName?: string | null;
@@ -162,62 +158,6 @@ function isCurrentPath(
   );
 }
 
-type HeaderTheme = {
-  eyebrowClasses: string;
-  iconClasses: string;
-  actionClasses: string;
-  actionHref: string;
-  actionLabel: string;
-};
-
-function getHeaderTheme(
-  pathname: string,
-): HeaderTheme {
-  const isRealEstate =
-    pathname.startsWith("/real-estate") ||
-    pathname.startsWith("/analyze") ||
-    pathname.startsWith("/saved") ||
-    pathname.startsWith("/compare") ||
-    pathname.startsWith("/reports");
-
-  if (isRealEstate) {
-    return {
-      eyebrowClasses: "text-emerald-200/70",
-      iconClasses:
-        "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
-      actionClasses:
-        "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/[0.16]",
-      actionHref: "/analyze",
-      actionLabel: "Analyze Property",
-    };
-  }
-
-  const isTrading =
-    pathname.startsWith("/trading");
-
-  if (isTrading) {
-    return {
-      eyebrowClasses: "text-cyan-200/70",
-      iconClasses:
-        "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
-      actionClasses:
-        "border-cyan-300/20 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/[0.16]",
-      actionHref: "/trading/markets",
-      actionLabel: "Explore Markets",
-    };
-  }
-
-  return {
-    eyebrowClasses: "text-violet-200/70",
-    iconClasses:
-      "border-violet-300/20 bg-violet-300/10 text-violet-200",
-    actionClasses:
-      "border-violet-300/20 bg-violet-300/10 text-violet-100 hover:bg-violet-300/[0.16]",
-    actionHref: "/trading",
-    actionLabel: "Open Intelligence",
-  };
-}
-
 export default function NestrovaHeader({
   userName,
   title = "Unified Intelligence",
@@ -234,39 +174,12 @@ export default function NestrovaHeader({
   );
 
   const firstName = getFirstName(userName);
-  const headerTheme = getHeaderTheme(pathname);
-
-  const mobileActiveClasses =
-    pathname.startsWith("/trading")
-      ? "border-cyan-300/20 bg-cyan-300/[0.10] text-white"
-      : (
-          pathname.startsWith("/real-estate") ||
-          pathname.startsWith("/analyze") ||
-          pathname.startsWith("/saved") ||
-          pathname.startsWith("/compare") ||
-          pathname.startsWith("/reports")
-        )
-        ? "border-emerald-300/20 bg-emerald-300/[0.10] text-white"
-        : "border-violet-300/20 bg-violet-300/[0.10] text-white";
-
-  const mobileActiveIconClasses =
-    pathname.startsWith("/trading")
-      ? "border-cyan-300/20 bg-cyan-300/15 text-cyan-100"
-      : (
-          pathname.startsWith("/real-estate") ||
-          pathname.startsWith("/analyze") ||
-          pathname.startsWith("/saved") ||
-          pathname.startsWith("/compare") ||
-          pathname.startsWith("/reports")
-        )
-        ? "border-emerald-300/20 bg-emerald-300/15 text-emerald-100"
-        : "border-violet-300/20 bg-violet-300/15 text-violet-100";
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080b]/82 backdrop-blur-2xl">
-        <div className="flex min-h-[84px] min-w-0 items-center justify-between gap-4 px-4 py-4 md:px-7 xl:px-8">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080b]/85 backdrop-blur-2xl">
+        <div className="flex min-h-[78px] items-center justify-between gap-4 px-4 py-4 md:px-8">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               onClick={() =>
@@ -276,7 +189,7 @@ export default function NestrovaHeader({
               }
               aria-label="Open navigation"
               aria-expanded={mobileMenuOpen}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-white/10 bg-white/[0.05] text-white/60 transition hover:border-white/20 hover:bg-white/[0.09] hover:text-white xl:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.05] text-white/70 transition hover:bg-white/[0.09] hover:text-white xl:hidden"
             >
               <span className="grid gap-1">
                 <span className="block h-0.5 w-4 rounded-full bg-current" />
@@ -287,67 +200,42 @@ export default function NestrovaHeader({
 
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-violet-400 via-fuchsia-500 to-indigo-500 text-sm font-black text-white shadow-[0_0_28px_rgba(168,85,247,0.28)] xl:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-violet-400 to-fuchsia-500 text-sm font-black text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] xl:hidden"
             >
               N
             </Link>
 
-            <span
-              className={`hidden h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border xl:flex ${headerTheme.iconClasses}`}
-            >
-              <SparkIcon className="h-5 w-5" />
-            </span>
-
             <div className="min-w-0">
-              <p
-                className={`truncate text-[10px] font-bold uppercase tracking-[0.18em] sm:text-[11px] ${headerTheme.eyebrowClasses}`}
-              >
+              <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-300/65 sm:text-[11px]">
                 {greeting}, {firstName}
               </p>
 
-              <div className="mt-1 flex min-w-0 items-center gap-3">
-                <h1 className="min-w-0 truncate text-base font-black tracking-[-0.04em] text-white sm:text-xl">
-                  {title}
-                </h1>
+              <h1 className="mt-1 truncate text-base font-bold tracking-[-0.035em] text-white sm:text-xl">
+                {title}
+              </h1>
 
-                <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 md:block" />
-
-                <p className="hidden min-w-0 truncate text-xs text-white/30 md:block">
-                  {subtitle}
-                </p>
-              </div>
+              <p className="mt-1 hidden truncate text-xs text-white/30 md:block">
+                {subtitle}
+              </p>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <div className="hidden items-center gap-2 rounded-[13px] border border-emerald-300/15 bg-emerald-300/[0.07] px-3.5 py-2.5 lg:flex">
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-40" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              </span>
-
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.13em] text-emerald-200/70">
-                  Nestrova AI
-                </p>
-
-                <p className="mt-0.5 text-[10px] font-semibold text-white/40">
-                  Online · Read Only
-                </p>
-              </div>
+            <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-semibold text-white/45 lg:flex">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.75)]" />
+              AI Systems Online
             </div>
 
             <NotificationBell />
 
             <Link
-              href={headerTheme.actionHref}
-              className={`hidden items-center gap-2 rounded-[13px] border px-4 py-2.5 text-xs font-bold transition hover:-translate-y-0.5 md:inline-flex ${headerTheme.actionClasses}`}
+              href="/analyze"
+              className="hidden rounded-[14px] bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-xs font-bold text-white shadow-[0_14px_40px_rgba(139,92,246,0.25)] transition hover:brightness-110 md:inline-flex"
             >
-              {headerTheme.actionLabel}
-              <ArrowRightIcon className="h-4 w-4" />
+              New Analysis
             </Link>
 
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05]">
               <UserButton />
             </div>
           </div>
@@ -436,16 +324,16 @@ export default function NestrovaHeader({
                                   false,
                                 )
                               }
-                              className={`flex items-center gap-3 rounded-[15px] border px-3 py-2.5 text-sm font-semibold transition ${
+                              className={`flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-semibold transition ${
                                 active
-                                  ? mobileActiveClasses
-                                  : "border-transparent text-white/45 hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
+                                  ? "bg-violet-400/15 text-white ring-1 ring-violet-300/20"
+                                  : "text-white/45 hover:bg-white/[0.06] hover:text-white"
                               }`}
                             >
                               <span
                                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] border text-[11px] font-black ${
                                   active
-                                    ? mobileActiveIconClasses
+                                    ? "border-violet-300/20 bg-violet-300/15 text-violet-200"
                                     : "border-white/10 bg-white/[0.04] text-white/35"
                                 }`}
                               >

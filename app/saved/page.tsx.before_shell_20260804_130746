@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
+import SiteFooter from "@/components/site/SiteFooter";
 import { useEffect, useState } from "react";
 
 import {
   SignInButton,
+  UserButton,
   useUser,
 } from "@/components/auth/ClerkCompat";
 
@@ -233,12 +234,38 @@ export default function SavedDealsPage() {
   }
 
   return (
-    <UserAwareNestrovaShell
-      title="Saved Properties"
-      subtitle="Review, compare, and manage your saved property opportunities."
-    >
-      <div className="mx-auto w-full max-w-[1380px] px-5 py-8 md:px-8 md:py-10">
-        <section className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05] p-7 shadow-[0_35px_120px_rgba(0,0,0,0.35)] md:p-9">
+    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
+        <div className="absolute -left-48 -top-52 h-[760px] w-[760px] rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute right-[-280px] top-20 h-[820px] w-[820px] rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute bottom-[-340px] left-[25%] h-[760px] w-[760px] rounded-full bg-violet-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto max-w-[1300px] px-5 py-6 md:px-8 md:py-8">
+        <header className="flex items-center justify-between gap-4">
+          <Link
+            href="/dashboard"
+            className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
+          >
+            ← Dashboard
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/analyze"
+              className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+            >
+              Analyze Property
+            </Link>
+
+            <div className="rounded-full border border-white/10 bg-white/[0.06] p-1">
+              <UserButton />
+            </div>
+          </div>
+        </header>
+
+        <section className="mt-10 overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.06] p-7 shadow-[0_42px_140px_rgba(0,0,0,0.48)] backdrop-blur-2xl md:p-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
@@ -442,7 +469,8 @@ export default function SavedDealsPage() {
           )}
         </section>
 
+        <SiteFooter className="mt-10 px-0" />
       </div>
-    </UserAwareNestrovaShell>
+    </main>
   );
 }

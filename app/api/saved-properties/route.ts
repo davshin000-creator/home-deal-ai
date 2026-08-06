@@ -67,8 +67,10 @@ export async function POST(request: Request) {
       recommendation: property.recommendation,
 
       summary: property.summary,
-      strengths: property.strengths,
-      risks: property.risks,
+image_url: property.imageUrl ?? null,
+
+strengths: property.strengths,
+risks: property.risks,
     });
 
   if (error) {

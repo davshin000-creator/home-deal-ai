@@ -1,11 +1,27 @@
 import Link from "next/link";
-import SiteFooter from "@/components/site/SiteFooter";
 import ExecutiveBrief from "@/components/trading/ExecutiveBrief";
 import MarketOverview from "@/components/trading/MarketOverview";
-import LiveTopOpportunities from "@/components/trading/LiveTopOpportunities";
+import TopOpportunities from "@/components/trading/TopOpportunities";
 import TradingAI from "@/components/trading/TradingAI";
 import WatchlistPanel from "@/components/trading/WatchlistPanel";
+
+
 import PortfolioAI from "@/components/trading/PortfolioAI";
+
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
+import {
+  ArrowRightIcon,
+  BrainIcon,
+  GaugeIcon,
+  PulseIcon,
+  ShieldIcon,
+  SparkIcon,
+} from "@/components/ui/NestrovaIcons";
+import {
+  GlassPanel,
+  MetricTile,
+  StatusChip,
+} from "@/components/ui/nestrova";
 export const dynamic = "force-dynamic";
 
 const API_BASE_URL =
@@ -24,17 +40,11 @@ type MarketState = {
 
 type Opportunity = {
   symbol?: string;
-  asset_name?: string;
-  asset_type?: "crypto" | "stock" | string;
   opportunity_score?: number;
-  confidence?: number;
   regime?: string;
   risk?: string;
   research_style?: string;
   score_basis?: string;
-  research_version?: string;
-  research_reasons?: string[];
-  score_components?: Record<string, number>;
 };
 
 type OpportunitiesState = {
@@ -170,7 +180,6 @@ async function getTradingState(): Promise<{
 function cleanLabel(value?: string | null) {
   const normalized = String(value ?? "")
     .replaceAll("_", " ")
-    .replaceAll("-", " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -179,14 +188,17 @@ function cleanLabel(value?: string | null) {
   }
 
   const replacementCharacterCount =
-    (normalized.match(/\uFFFD/g) ?? []).length;
+    (normalized.match(/�/g) ?? []).length;
 
   const questionMarkCount =
     (normalized.match(/\?/g) ?? []).length;
 
   const looksCorrupted =
     replacementCharacterCount > 0 ||
-    questionMarkCount >= 3;
+    questionMarkCount >= 3 ||
+    normalized.includes("ì") ||
+    normalized.includes("ë") ||
+    normalized.includes("í");
 
   if (looksCorrupted) {
     return "AI Research Strategy";
@@ -194,21 +206,11 @@ function cleanLabel(value?: string | null) {
 
   return normalized
     .toLowerCase()
-    .replace(
-      /\b\w/g,
-      (letter) => letter.toUpperCase(),
-    );
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatNumber(
-  value?: number | null,
-  digits = 2,
-) {
-  if (
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
+function formatNumber(value?: number | null, digits = 2) {
+  if (value === null || value === undefined) {
     return "—";
   }
 
@@ -217,14 +219,8 @@ function formatNumber(
   });
 }
 
-function formatPercent(
-  value?: number | null,
-) {
-  if (
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
+function formatPercent(value?: number | null) {
+  if (value === null || value === undefined) {
     return "—";
   }
 
@@ -321,757 +317,343 @@ export default async function TradingPage() {
   const strategies = verification?.strategies ?? [];
   const votes = council?.votes ?? [];
 
+  const topOpportunity = [...opportunities]
+    .sort(
+      (first, second) =>
+        (second.opportunity_score ?? 0) -
+        (first.opportunity_score ?? 0),
+    )[0] ?? null;
+
+  const marketConfidence = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        market?.confidence ??
+          council?.confidence ??
+          0,
+      ),
+    ),
+  );
+
+  const publicMode =
+    data?.system?.public_mode ?? "READ_ONLY";
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
+    <UserAwareNestrovaShell
+  title="Trading Intelligence"
+  subtitle="Public AI research for crypto and U.S. stocks."
+>
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.14]" />
-        <div className="absolute -left-52 top-[-260px] h-[760px] w-[760px] rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="absolute right-[-280px] top-20 h-[820px] w-[820px] rounded-full bg-violet-400/10 blur-3xl" />
-        <div className="absolute bottom-[-380px] left-[25%] h-[760px] w-[760px] rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.12]" />
+        <div className="absolute -left-52 top-[-260px] h-[720px] w-[720px] rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute right-[-280px] top-16 h-[760px] w-[760px] rounded-full bg-violet-400/10 blur-3xl" />
+        <div className="absolute bottom-[-360px] left-[24%] h-[720px] w-[720px] rounded-full bg-emerald-400/[0.08] blur-3xl" />
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/75 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-[1480px] items-center justify-between px-5 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
-              N
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Nestrova</p>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">
-                AI Markets
-                </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-7 text-sm font-medium text-white/50 md:flex">
-            <Link href="/trading" className="text-white">
-              Overview
-            </Link>
-            <Link
-              href="/trading/markets"
-              className="transition hover:text-white"
-            >
-              Markets
-            </Link>
-            <Link
-              href="/trading/strategies"
-              className="transition hover:text-white"
-            >
-              Strategies
-            </Link>
-            <Link
-              href="/trading/verified"
-              className="transition hover:text-white"
-            >
-              Verified
-            </Link>
-            <Link
-              href="/trading/council"
-              className="transition hover:text-white"
-            >
-              Council
-            </Link>
-            <Link
-              href="/trading/briefing"
-              className="transition hover:text-white"
-            >
-              Briefing
-            </Link>
-            <Link href="/" className="transition hover:text-white">
-              Platform
-            </Link>
-          </nav>
-
-          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">
-            Read Only
-          </div>
-        </div>
-      </header>
-
-      <section className="relative mx-auto max-w-[1480px] px-5 pb-12 pt-16 md:px-8 md:pt-24">
-  <div className="grid gap-10 xl:grid-cols-[1fr_360px] xl:items-end">
-    <div>
-      <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-100/70">
-        <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.85)]" />
-        Nestrova AI Markets
-      </div>
-
-      <h1 className="mt-7 max-w-5xl text-5xl font-semibold leading-[0.94] tracking-[-0.07em] md:text-7xl">
-        AI investment intelligence
-        <br />
-        for crypto and U.S. stocks.
-      </h1>
-
-      <p className="mt-7 text-sm font-semibold uppercase tracking-[0.25em] text-white/30">
-        Research. Verify. Decide.
-      </p>
-
-      <p className="mt-6 max-w-3xl text-lg leading-8 text-white/52">
-        Nestrova continuously scans market conditions, evaluates
-        opportunities, measures risk, and explains the intelligence behind
-        every idea. Use AI research, verified strategy data, Watchlists, and
-        Alerts to make more informed decisions.
-      </p>
-
-      <div className="mt-6 max-w-3xl rounded-[24px] border border-emerald-300/15 bg-emerald-300/[0.055] p-5">
-        <p className="text-sm leading-7 text-emerald-50/65">
-          Nestrova does not execute trades or connect to brokerage accounts.
-          You always stay in control and make the final investment decision.
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          href="/trading/markets"
-          className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-        >
-          Explore Markets
-        </Link>
-
-        <Link
-          href="/trading/briefing"
-          className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-6 py-3.5 text-sm font-semibold text-cyan-100 transition hover:-translate-y-0.5 hover:bg-cyan-300/[0.14]"
-        >
-          Today&apos;s AI Briefing
-        </Link>
-
-        <Link
-          href="/trading/council"
-          className="rounded-full border border-white/10 bg-white/[0.055] px-6 py-3.5 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-        >
-          View AI Council
-        </Link>
-
-        <Link
-          href="/trading/verified"
-          className="rounded-full border border-white/10 bg-white/[0.055] px-6 py-3.5 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-        >
-          Verified Strategies
-        </Link>
-      </div>
-    </div>
-
-    <div className="rounded-[32px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-xl">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30">
-        Live Intelligence Status
-      </p>
-
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-white/75">
-            Last public update
-          </p>
-
-          <p className="mt-2 text-sm text-white/40">
-            {formatDate(data?.generated_at)}
-          </p>
-        </div>
-
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-300">
-          Read Only
-        </div>
-      </div>
-
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-[20px] border border-white/8 bg-black/25 p-4">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/25">
-            Markets
-          </p>
-
-          <p className="mt-2 text-lg font-semibold text-white">
-            Crypto
-          </p>
-        </div>
-
-        <div className="rounded-[20px] border border-white/8 bg-black/25 p-4">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/25">
-            Expanding
-          </p>
-
-          <p className="mt-2 text-lg font-semibold text-white">
-            U.S. Stocks
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {error ? (
-    <div className="mt-10 rounded-[32px] border border-red-400/20 bg-red-400/10 p-6">
-      <p className="font-semibold text-red-200">
-        AI Markets intelligence unavailable
-      </p>
-
-      <p className="mt-2 text-sm leading-6 text-red-100/65">
-        {error} The page remains safely available without exposing private
-        system information.
-      </p>
-    </div>
-  ) : null}
-</section>
-
-<section className="relative mx-auto max-w-[1480px] px-5 py-8 md:px-8">
-  <div className="rounded-[40px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl md:p-8">
-    <div className="max-w-3xl">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/65">
-        How AI Markets Works
-      </p>
-
-      <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-5xl">
-        From market noise to a clear decision process.
-      </h2>
-
-      <p className="mt-5 text-sm leading-7 text-white/42 md:text-base">
-        Nestrova converts public market data and AI research into a structured
-        workflow that users can review, save, monitor, and independently act
-        on.
-      </p>
-    </div>
-
-    <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-      {[
-        {
-          number: "01",
-          title: "AI scans markets",
-          description:
-            "Public market signals, momentum, risk, and regime data are continuously reviewed.",
-        },
-        {
-          number: "02",
-          title: "Council evaluates",
-          description:
-            "Multiple AI agents examine each opportunity from different perspectives.",
-        },
-        {
-          number: "03",
-          title: "Strategies verify",
-          description:
-            "Shadow research and verified strategy records add historical context.",
-        },
-        {
-          number: "04",
-          title: "Alerts monitor",
-          description:
-            "Save assets and create alerts for the conditions that matter to you.",
-        },
-        {
-          number: "05",
-          title: "You decide",
-          description:
-            "Review the evidence and make your own final investment decision.",
-        },
-      ].map((step) => (
-        <article
-          key={step.number}
-          className="rounded-[26px] border border-white/10 bg-black/25 p-5"
-        >
-          <p className="text-xs font-semibold text-cyan-200/60">
-            {step.number}
-          </p>
-
-          <h3 className="mt-5 text-lg font-semibold text-white">
-            {step.title}
-          </h3>
-
-          <p className="mt-3 text-sm leading-6 text-white/38">
-            {step.description}
-          </p>
-        </article>
-      ))}
-    </div>
-
-    <div className="mt-6 rounded-[24px] border border-white/8 bg-black/20 p-5">
-      <p className="text-sm leading-7 text-white/45">
-        Typical workflow: explore the market, open an asset analysis, save it
-        to your Watchlist, create an Alert, review the AI Council and verified
-        research, then make your own decision outside Nestrova.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section className="relative mx-auto max-w-[1480px] px-5 py-8 md:px-8">
-  <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-    <div className="max-w-3xl">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-200/65">
-        Choose Your Market
-      </p>
-
-      <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-5xl">
-        Explore intelligence across multiple asset classes.
-      </h2>
-
-      <p className="mt-5 text-sm leading-7 text-white/42 md:text-base">
-        Begin with live cryptocurrency research and explore the expanding
-        U.S. stock intelligence workspace. Each asset opens a dedicated
-        analysis page with scores, risks, Watchlist tools, and Alerts.
-      </p>
-    </div>
-
-    <Link
-      href="/trading/markets"
-      className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.055] px-6 py-3.5 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-    >
-      View All Markets →
-    </Link>
-  </div>
-
-  <div className="mt-8 grid gap-5 xl:grid-cols-2">
-    <article className="relative overflow-hidden rounded-[36px] border border-cyan-300/15 bg-cyan-300/[0.045] p-6 md:p-8">
-      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-cyan-300/10 blur-3xl" />
-
-      <div className="relative">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200/65">
-              Crypto Intelligence
-            </p>
-
-            <h3 className="mt-3 text-3xl font-semibold tracking-[-0.045em]">
-              Digital asset research
-            </h3>
-          </div>
-
-          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-            Live
-          </div>
-        </div>
-
-        <p className="mt-4 max-w-xl text-sm leading-7 text-white/42">
-          Review opportunity scores, market regime, risk, AI confidence,
-          strategy evidence, and Council analysis for major cryptocurrencies.
-        </p>
-
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { symbol: "BTC", name: "Bitcoin" },
-            { symbol: "ETH", name: "Ethereum" },
-            { symbol: "SOL", name: "Solana" },
-            { symbol: "XRP", name: "XRP" },
-          ].map((asset) => (
-            <Link
-              key={asset.symbol}
-              href={`/trading/assets/${asset.symbol}`}
-              className="rounded-[22px] border border-white/10 bg-black/25 p-4 transition hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-cyan-300/[0.07]"
-            >
-              <p className="text-lg font-semibold text-white">
-                {asset.symbol}
-              </p>
-
-              <p className="mt-2 text-xs text-white/32">
-                {asset.name}
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        <Link
-          href="/trading/markets"
-          className="mt-7 inline-flex rounded-full bg-cyan-200 px-5 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-cyan-100"
-        >
-          Explore Crypto Markets
-        </Link>
-      </div>
-    </article>
-
-    <article className="relative overflow-hidden rounded-[36px] border border-violet-300/15 bg-violet-300/[0.045] p-6 md:p-8">
-      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-300/10 blur-3xl" />
-
-      <div className="relative">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-200/65">
-              U.S. Stock Intelligence
-            </p>
-
-            <h3 className="mt-3 text-3xl font-semibold tracking-[-0.045em]">
-              Equity research workspace
-            </h3>
-          </div>
-
-          <div className="rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-200">
-            Expanding
-          </div>
-        </div>
-
-        <p className="mt-4 max-w-xl text-sm leading-7 text-white/42">
-          Explore leading U.S. companies through the same structured
-          intelligence workflow used across Nestrova Markets.
-        </p>
-
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { symbol: "NVDA", name: "NVIDIA" },
-            { symbol: "AAPL", name: "Apple" },
-            { symbol: "MSFT", name: "Microsoft" },
-            { symbol: "AMZN", name: "Amazon" },
-          ].map((asset) => (
-            <Link
-              key={asset.symbol}
-              href={`/trading/assets/${asset.symbol}`}
-              className="rounded-[22px] border border-white/10 bg-black/25 p-4 transition hover:-translate-y-1 hover:border-violet-300/25 hover:bg-violet-300/[0.07]"
-            >
-              <p className="text-lg font-semibold text-white">
-                {asset.symbol}
-              </p>
-
-              <p className="mt-2 text-xs text-white/32">
-                {asset.name}
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        <Link
-          href="/trading/markets"
-          className="mt-7 inline-flex rounded-full border border-violet-200/20 bg-violet-200/[0.10] px-5 py-3 text-sm font-semibold text-violet-100 transition hover:-translate-y-0.5 hover:bg-violet-200/[0.16]"
-        >
-          Explore U.S. Stocks
-        </Link>
-      </div>
-    </article>
-  </div>
-
-  <div className="mt-5 grid gap-4 md:grid-cols-3">
-    {[
-      {
-        title: "Open an asset",
-        description:
-          "Review the opportunity score, market regime, confidence, and risk.",
-      },
-      {
-        title: "Save and monitor",
-        description:
-          "Add assets to your Watchlist and return to them from your dashboard.",
-      },
-      {
-        title: "Create an Alert",
-        description:
-          "Choose conditions and receive notifications when intelligence changes.",
-      },
-    ].map((item) => (
-      <div
-        key={item.title}
-        className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5"
-      >
-        <p className="font-semibold text-white">
-          {item.title}
-        </p>
-
-        <p className="mt-3 text-sm leading-6 text-white/38">
-          {item.description}
-        </p>
-      </div>
-    ))}
-  </div>
-</section>
-
-<section className="relative mx-auto max-w-[1480px] px-5 py-8 md:px-8">
-  <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-6 md:p-8">
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-      <div className="max-w-3xl">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-200/65">
-          Free and Pro Access
-        </p>
-
-        <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-5xl">
-          Start free. Upgrade when deeper intelligence matters.
-        </h2>
-
-        <p className="mt-5 text-sm leading-7 text-white/42 md:text-base">
-          Free users can explore public market intelligence and save a limited
-          Watchlist. Pro unlocks deeper research, custom monitoring, and the
-          full Nestrova decision-support workflow.
-        </p>
-      </div>
-
-      <Link
-        href="/pricing#plans"
-        className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-      >
-        Compare Plans
-      </Link>
-    </div>
-
-    <div className="mt-8 grid gap-5 lg:grid-cols-2">
-      <article className="rounded-[34px] border border-white/10 bg-black/25 p-6 md:p-7">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-              Free
-            </p>
-
-            <h3 className="mt-3 text-3xl font-semibold">
-              Explore the market
-            </h3>
-          </div>
-
-          <div className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
-            Included
-          </div>
-        </div>
-
-        <div className="mt-7 grid gap-3">
-          {[
-            "Public market dashboard",
-            "Basic opportunity scores",
-            "Market regime and risk overview",
-            "Up to 5 Watchlist assets",
-            "Read-only strategy and Council previews",
-          ].map((feature) => (
-            <div
-              key={feature}
-              className="flex items-start gap-3 rounded-[20px] border border-white/8 bg-white/[0.025] p-4"
-            >
-              <span className="mt-0.5 text-emerald-300">
-                ✓
-              </span>
-
-              <p className="text-sm leading-6 text-white/55">
-                {feature}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <Link
-          href="/trading/markets"
-          className="mt-7 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-5 py-3 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white"
-        >
-          Explore Free Markets
-        </Link>
-      </article>
-
-      <article className="relative overflow-hidden rounded-[34px] border border-cyan-300/20 bg-cyan-300/[0.055] p-6 md:p-7">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-cyan-300/10 blur-3xl" />
-
-        <div className="relative">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200/65">
-                Trading Pro
-              </p>
-
-              <h3 className="mt-3 text-3xl font-semibold">
-                Unlock deeper intelligence
-              </h3>
-            </div>
-
-            <div className="rounded-full border border-cyan-200/20 bg-cyan-200/[0.10] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100">
-              Pro
-            </div>
-          </div>
-
-          <div className="mt-7 grid gap-3">
-            {[
-              "Unlimited Watchlist assets",
-              "Custom opportunity and risk Alerts",
-              "Full Executive Council analysis",
-              "Verified strategy research",
-              "Daily AI Briefing",
-              "Portfolio Intelligence",
-              "Historical AI Replay as it becomes available",
-            ].map((feature) => (
-              <div
-                key={feature}
-                className="flex items-start gap-3 rounded-[20px] border border-cyan-200/10 bg-black/20 p-4"
-              >
-                <span className="mt-0.5 text-cyan-200">
-                  ✓
-                </span>
-
-                <p className="text-sm leading-6 text-cyan-50/65">
-                  {feature}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <Link
-            href="/pricing#plans"
-            className="mt-7 inline-flex rounded-full bg-cyan-200 px-5 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-cyan-100"
+      <div className="relative mx-auto w-full max-w-[1580px] px-5 py-6 md:px-8 md:py-8">
+        <section className="grid min-w-0 gap-6 pb-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <GlassPanel
+            tone="cyan"
+            contentClassName="min-w-0 p-6 md:p-8"
           >
-            View Trading Pro
-          </Link>
-        </div>
-      </article>
-    </div>
+            <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-cyan-300/20 bg-cyan-300/10 text-cyan-200">
+                    <BrainIcon className="h-5 w-5" />
+                  </span>
 
-    <p className="mt-6 text-center text-xs leading-6 text-white/28">
-      Nestrova provides research and informational decision-support tools
-      only. Subscription access does not include brokerage services or trade
-      execution.
-    </p>
-  </div>
-</section>
-      
-
-    <ExecutiveBrief
-      market={market}
-      council={council}
-      opportunities={opportunities}
-      system={data?.system}
-      />
-
-      <section className="relative mx-auto max-w-[1480px] px-5 py-8 md:px-8">
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Market Regime"
-            value={cleanLabel(market?.regime)}
-            detail={`${market?.base_asset ?? "Market"} reference · ${
-              market?.research_style ?? "Research mode unavailable"
-            }`}
-          />
-
-          <MetricCard
-            label="Confidence"
-            value={`${market?.confidence ?? 0}%`}
-            detail="Public World Model confidence for the current market state."
-          />
-
-          <MetricCard
-            label="Risk"
-            value={cleanLabel(market?.risk)}
-            detail="Aggregated market risk classification, not a guarantee."
-          />
-
-          <MetricCard
-            label="Shadow Evidence"
-            value={formatNumber(shadow?.total_shadow_results, 0)}
-            detail="Simulated research results tracked without live execution."
-          />
-        </div>
-      </section>
-
-      <section className="relative mx-auto grid max-w-[1480px] gap-6 px-5 py-8 md:px-8 xl:grid-cols-[1.15fr_0.85fr]">
-        <article className="overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.055] p-7 md:p-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan-300/70">
-                Market Intelligence
-              </p>
-              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.055em]">
-                {cleanLabel(market?.regime)}
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-white/45">
-                Base asset: {market?.base_asset ?? "Unavailable"} · Research
-                style: {market?.research_style ?? "Unavailable"}
-              </p>
-            </div>
-
-            <span
-              className={`inline-flex rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] ${riskClasses(
-                market?.risk,
-              )}`}
-            >
-              {cleanLabel(market?.risk)} Risk
-            </span>
-          </div>
-
-          <div className="mt-8 rounded-[30px] border border-white/10 bg-black/25 p-6">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-semibold">
-                Regime confidence
-              </p>
-              <p className="text-2xl font-semibold">
-                {market?.confidence ?? 0}%
-              </p>
-            </div>
-
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-cyan-400 shadow-[0_0_24px_rgba(34,211,238,0.65)]"
-                style={{
-                  width: confidenceWidth(market?.confidence),
-                }}
-              />
-            </div>
-
-            <p className="mt-5 text-sm leading-7 text-white/42">
-              Source time: {formatDate(market?.data_time)}
-            </p>
-          </div>
-        </article>
-
-        <article className="rounded-[42px] border border-white/10 bg-white/[0.055] p-7 md:p-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-violet-300/75">
-            AI Council
-          </p>
-
-          <div className="mt-5 flex items-end justify-between gap-5">
-            <div>
-              <h2 className="text-4xl font-semibold tracking-[-0.055em]">
-                {cleanLabel(council?.consensus)}
-              </h2>
-              <p className="mt-3 text-sm text-white/42">
-                {council?.agent_count ?? 0} public research views
-              </p>
-            </div>
-
-            <p className="text-4xl font-semibold tracking-[-0.055em]">
-              {council?.confidence ?? 0}%
-            </p>
-          </div>
-
-          <div className="mt-7 grid gap-3">
-            {votes.length > 0 ? (
-              votes.slice(0, 7).map((vote, index) => (
-                <div
-                  key={`${vote.agent}-${index}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-3"
-                >
                   <div>
-                    <p className="text-sm font-semibold">
-                      {vote.agent ?? "Research Agent"}
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200/65">
+                      Today&apos;s Executive Summary
                     </p>
-                    <p className="mt-1 text-xs text-white/35">
-                      {cleanLabel(vote.view)}
+
+                    <p className="mt-1 text-xs text-white/30">
+                      Updated {formatDate(data?.generated_at)}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-white/60">
-                    {vote.confidence ?? 0}%
-                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/42">
-                Council vote details are not currently available.
-              </p>
-            )}
+
+                <h1 className="mt-6 max-w-4xl break-words text-[clamp(2rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.065em] [overflow-wrap:anywhere]">
+                  {cleanLabel(market?.regime)} market.
+                  <span className="block text-white/38">
+                    Focus on selective opportunities.
+                  </span>
+                </h1>
+
+                <p className="mt-5 max-w-3xl text-sm leading-7 text-white/45 md:text-base">
+                  Review current market conditions, portfolio intelligence,
+                  AI-ranked opportunities, and risk before making an
+                  independent decision.
+                </p>
+
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Link
+                    href="/trading/markets"
+                    className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+                  >
+                    Explore Markets
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </Link>
+
+                  <Link
+                    href="/trading/watchlist"
+                    className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/[0.1] hover:text-white"
+                  >
+                    My Watchlist
+                  </Link>
+
+                  <Link
+                    href="/trading/briefing"
+                    className="inline-flex items-center gap-2 rounded-[14px] border border-violet-300/20 bg-violet-300/10 px-5 py-3 text-sm font-semibold text-violet-100 transition hover:-translate-y-0.5 hover:bg-violet-300/[0.16]"
+                  >
+                    AI Briefing
+                  </Link>
+
+                  <Link
+                    href="/trading/council"
+                    className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/[0.1] hover:text-white"
+                  >
+                    AI Council
+                  </Link>
+                </div>
+              </div>
+
+              <StatusChip
+                tone={
+                  data?.system?.core_health === "AVAILABLE" ||
+                  data?.system?.core_health === "HEALTHY"
+                    ? "emerald"
+                    : "amber"
+                }
+                icon={<PulseIcon className="h-3.5 w-3.5" />}
+                className="shrink-0 px-4 py-2 text-[11px]"
+              >
+                AI Online
+              </StatusChip>
+            </div>
+
+            {error ? (
+              <div className="mt-6 rounded-[20px] border border-red-400/20 bg-red-400/10 p-4">
+                <p className="font-semibold text-red-200">
+                  Public intelligence is temporarily unavailable.
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-red-100/55">
+                  {error}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+              <MetricTile
+                label="Market Regime"
+                value={cleanLabel(market?.regime)}
+                detail={market?.base_asset ?? "Public market reference"}
+                icon={<PulseIcon className="h-5 w-5" />}
+                tone="emerald"
+              />
+
+              <MetricTile
+                label="AI Confidence"
+                value={`${marketConfidence}%`}
+                detail="Current public research conviction"
+                icon={<GaugeIcon className="h-5 w-5" />}
+                tone="cyan"
+              />
+
+              <MetricTile
+                label="Risk Outlook"
+                value={cleanLabel(market?.risk)}
+                detail="Current market risk classification"
+                icon={<ShieldIcon className="h-5 w-5" />}
+                tone={
+                  String(market?.risk ?? "").toUpperCase() === "LOW"
+                    ? "emerald"
+                    : String(market?.risk ?? "").toUpperCase() === "MEDIUM"
+                      ? "amber"
+                      : "red"
+                }
+              />
+
+              <MetricTile
+                label="Top Opportunity"
+                value={topOpportunity?.symbol ?? "—"}
+                detail={
+                  topOpportunity
+                    ? `AI Score ${Math.round(
+                        topOpportunity.opportunity_score ?? 0,
+                      )}`
+                    : "No ranked opportunity available"
+                }
+                icon={<SparkIcon className="h-5 w-5" />}
+                tone="violet"
+              />
+            </div>
+          </GlassPanel>
+
+          <GlassPanel
+            tone="violet"
+            className="h-full"
+            contentClassName="flex h-full min-w-0 flex-col p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-200/65">
+                  Nestrova AI Status
+                </p>
+
+                <h2 className="mt-3 text-2xl font-black tracking-[-0.045em]">
+                  Research systems online.
+                </h2>
+              </div>
+
+              <span className="relative mt-1 flex h-3 w-3 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-55" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-300" />
+              </span>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                <span className="text-sm text-white/40">
+                  Public mode
+                </span>
+
+                <StatusChip tone="emerald">
+                  {publicMode.replaceAll("_", " ")}
+                </StatusChip>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                <span className="text-sm text-white/40">
+                  Execution access
+                </span>
+
+                <StatusChip tone="cyan">
+                  Disabled
+                </StatusChip>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                <span className="text-sm text-white/40">
+                  Research state
+                </span>
+
+                <StatusChip tone="violet">
+                  Shadow Research
+                </StatusChip>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                <span className="text-sm text-white/40">
+                  Coverage
+                </span>
+
+                <span className="text-right text-sm font-semibold text-white/75">
+                  Crypto + U.S. Stocks
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-6">
+              <div className="rounded-[20px] border border-emerald-300/15 bg-emerald-300/[0.055] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/60">
+                  Safety Boundary
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-emerald-50/55">
+                  Private credentials, balances, positions, and orders are
+                  never exposed through this dashboard.
+                </p>
+              </div>
+            </div>
+          </GlassPanel>
+        </section>
+
+      <section className="grid min-w-0 items-stretch gap-6 py-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(420px,0.88fr)]">
+        <div className="h-full min-w-0">
+          <PortfolioAI />
+        </div>
+
+        <div className="h-full min-w-0">
+          <ExecutiveBrief
+            market={market}
+            council={council}
+            opportunities={opportunities}
+            system={data?.system}
+          />
+        </div>
+      </section>
+
+      <section className="grid min-w-0 items-stretch gap-6 py-4 xl:grid-cols-[minmax(0,1.2fr)_420px]">
+        <div className="h-full min-w-0">
+          <MarketOverview
+            market={market}
+            opportunities={opportunities}
+            council={council}
+          />
+        </div>
+
+        <div className="h-full min-w-0">
+          <WatchlistPanel />
+        </div>
+      </section>
+
+      <section className="min-w-0 py-4">
+        <TopOpportunities
+          opportunities={opportunities}
+        />
+      </section>
+
+      <section className="grid min-w-0 items-stretch gap-6 py-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="rounded-[32px] border border-white/10 bg-white/[0.04] p-6 md:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-300/65">
+            AI Research Workspace
+          </p>
+
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em]">
+            Intelligence, risk, and current action.
+          </h2>
+
+          <p className="mt-3 text-sm leading-7 text-white/40">
+            Nestrova combines public market context, Council research,
+            opportunity rankings, and safety constraints.
+          </p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <MetricCard
+              label="Market Regime"
+              value={cleanLabel(market?.regime)}
+              detail={
+                market?.research_style ??
+                "Research mode unavailable"
+              }
+            />
+
+            <MetricCard
+              label="Shadow Evidence"
+              value={formatNumber(
+                shadow?.total_shadow_results,
+                0,
+              )}
+              detail="Simulated research results without live execution."
+            />
           </div>
-        </article>
+        </div>
+
+        <div className="h-full min-w-0">
+          <TradingAI
+            market={market}
+            council={council}
+            opportunities={opportunities}
+            system={data?.system}
+          />
+        </div>
       </section>
 
-      
-      <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
-        <PortfolioAI />
-      </section>
-
-      <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
-  <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.35fr)_420px]">
-    <div>
-      <LiveTopOpportunities
-        initialOpportunities={opportunities}
-        initialGeneratedAt={data?.generated_at}
-        apiBaseUrl={API_BASE_URL}
-      />
-    </div>
-
-    <div className="min-w-0 space-y-8 self-start">
-      <WatchlistPanel />
-
-      <TradingAI
-        market={market}
-        council={council}
-        opportunities={opportunities}
-        system={data?.system}
-      />
-    </div>
-  </div>
-</section>
-
-      <section className="relative mx-auto mt-4 grid max-w-[1480px] gap-6 px-5 py-10 md:px-8 xl:grid-cols-[1fr_1fr]">
+      <section className="grid min-w-0 items-stretch gap-6 py-4 xl:grid-cols-2">
         <article className="rounded-[42px] border border-white/10 bg-white/[0.055] p-7 md:p-8">
           <div className="flex items-start justify-between gap-5">
             <div>
@@ -1252,7 +834,7 @@ export default async function TradingPage() {
         </div>
       </section>
 
-      <section className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8">
+      <section className="min-w-0 py-8">
         <div className="rounded-[44px] border border-white/10 bg-white/[0.055] p-8 md:p-10">
           <div className="grid gap-8 xl:grid-cols-[1fr_420px] xl:items-end">
             <div>
@@ -1293,8 +875,8 @@ export default async function TradingPage() {
         </p>
       </section>
 
-      <SiteFooter />
-    </main>
+      </div>
+      </UserAwareNestrovaShell>
   );
 }
 

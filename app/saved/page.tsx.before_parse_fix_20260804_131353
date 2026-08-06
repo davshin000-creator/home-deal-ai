@@ -238,7 +238,7 @@ export default function SavedDealsPage() {
       subtitle="Review, compare, and manage your saved property opportunities."
     >
       <div className="mx-auto w-full max-w-[1380px] px-5 py-8 md:px-8 md:py-10">
-        <section className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05] p-7 shadow-[0_35px_120px_rgba(0,0,0,0.35)] md:p-9">
+        <section className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05] p-7 shadow-[0_35px_120px_rgba(0,0,0,0.35)] md:p-9"> border border-white/10 bg-white/[0.06] p-7 shadow-[0_42px_140px_rgba(0,0,0,0.48)] backdrop-blur-2xl md:p-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
