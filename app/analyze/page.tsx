@@ -9,6 +9,7 @@ import PropertyMap from "@/components/PropertyMap";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import RealEstateAnalyzeShell from "@/components/shell/RealEstateAnalyzeShell";
 import {
+  ComparableProperties,
   PriceValueComparison,
   PropertyHeroCard,
   ScoreProgressCard,
@@ -19,6 +20,30 @@ import {
   LocationIcon,
   TrendUpIcon,
 } from "@/components/ui/NestrovaIcons";
+
+type ComparableProperty = {
+  id?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+  property_type?: string | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  square_footage?: number | null;
+  lot_size?: number | null;
+  year_built?: number | null;
+  status?: string | null;
+  price?: number | null;
+  listing_type?: string | null;
+  listed_date?: string | null;
+  removed_date?: string | null;
+  days_on_market?: number | null;
+  distance_miles?: number | null;
+  days_old?: number | null;
+  rentcast_correlation?: number | null;
+  similarity_score?: number | null;
+};
 
 type AnalysisResult = {
   address: string;
@@ -45,6 +70,8 @@ type AnalysisResult = {
   expected_appreciation?: number;
   confidence_score?: number;
   overall_score?: number;
+  comparables?: ComparableProperty[];
+  comparable_count?: number;
   home_report?: {
     recommended_action?: string;
     recommendation_label?: string;
@@ -627,6 +654,14 @@ const resultLocation = result
                 fairValue={result.fair_value}
               />
             </section>
+
+            {result.comparables?.length ? (
+              <section className="mt-8">
+                <ComparableProperties
+                  comparables={result.comparables}
+                />
+              </section>
+            ) : null}
 
             <section className="mt-8 grid gap-6">
               {(() => {
