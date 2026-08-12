@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import PayPalSubscriptionButton from "@/components/payments/PayPalSubscriptionButton";
 import {
@@ -40,6 +40,15 @@ const platformFeatures = [
     icon: "↗",
     accent:
       "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
+  },
+  {
+    label: "Research Intelligence",
+    title: "Investigate signals from multiple AI perspectives.",
+    description:
+      "Run Deep Research, Research Council, comparisons, saved research, watchlists, history, and change alerts from one evidence-driven workspace.",
+    icon: "◎",
+    accent:
+      "border-violet-400/20 bg-violet-400/10 text-violet-200",
   },
   {
     label: "AI Decision Engine",
@@ -133,6 +142,25 @@ const allAccessFeatures: PlanFeature[] = [
     emphasized: true,
   },
   {
+    text: "Deep Research — 30 reports per month",
+    emphasized: true,
+  },
+  {
+    text: "Research Council — 20 analyses per month",
+  },
+  {
+    text: "Research Compare — 20 comparisons per month",
+  },
+  {
+    text: "Saved Research and PDF reports",
+  },
+  {
+    text: "Research Watch for up to 20 subjects",
+  },
+  {
+    text: "Research History and change alerts",
+  },
+  {
     text: "Eligible future AI products",
   },
   {
@@ -218,6 +246,55 @@ const comparisonRows: ComparisonRow[] = [
     allAccess: true,
   },
   {
+    feature: "Public Research Feed",
+    free: true,
+    realEstate: true,
+    trading: true,
+    allAccess: true,
+  },
+  {
+    feature: "Deep Research",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: "30 / month",
+  },
+  {
+    feature: "Research Council",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: "20 / month",
+  },
+  {
+    feature: "Research Compare",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: "20 / month",
+  },
+  {
+    feature: "Saved Research + PDF",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: true,
+  },
+  {
+    feature: "Research Watch",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: "20 subjects",
+  },
+  {
+    feature: "Research History + Alerts",
+    free: false,
+    realEstate: false,
+    trading: false,
+    allAccess: true,
+  },
+  {
     feature: "Future Nestrova products",
     free: false,
     realEstate: false,
@@ -247,7 +324,7 @@ const faqs = [
   {
     question: "Why does Nestrova AI Pro cost $17.99?",
     answer:
-      "Real Estate Pro and Trading Pro cost $9.99 each. Nestrova AI Pro combines both for $17.99, saving $2 each month compared with subscribing separately.",
+      "Real Estate Pro and Trading Pro cost $9.99 each. Nestrova AI Pro combines both and also unlocks Nestrova Research Intelligence, including Deep Research, Research Council, Research Compare, Research Watch, alerts, saved research, and PDF reports.",
   },
   {
     question: "Will Nestrova AI Pro include future products?",
@@ -399,9 +476,9 @@ export default function PricingPage() {
 
             <p className="mt-8 max-w-3xl text-lg leading-8 text-white/52 md:text-xl md:leading-9">
               Analyze real estate, discover trading
-              opportunities, create intelligent alerts, and
-              access future Nestrova products from one
-              decision platform.
+              opportunities, run multi-perspective AI research,
+              create intelligent alerts, and manage decisions
+              from one unified Nestrova platform.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">

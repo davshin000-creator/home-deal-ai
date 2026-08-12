@@ -111,9 +111,12 @@ export default async function ReportPage({
           ← Back to Analyze
         </Link>
 
-        <span className="rounded bg-white px-4 py-2 font-semibold text-black">
-          Use Browser Print → Save PDF
-        </span>
+        <a
+      href={`/api/reports/${id}/pdf`}
+      className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200"
+    >
+      Download Premium PDF
+    </a>
 
       </div>
 

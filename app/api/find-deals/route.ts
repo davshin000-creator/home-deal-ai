@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getCurrentUserProfile } from "@/lib/supabase/server";
 
 const HOME_DEAL_API_URL =
@@ -124,3 +124,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

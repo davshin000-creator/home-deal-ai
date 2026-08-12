@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import {
   createSupabaseAdminClient,
   getCurrentUserProfile,
@@ -372,3 +372,5 @@ const hasUnlimitedAnalysis =
     );
   }
 }
+
+

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SiteFooter from "@/components/site/SiteFooter";
 
@@ -42,7 +42,7 @@ const products = [
       "Follow safe, aggregated discoveries produced by Nestrova research systems across markets and future intelligence products.",
     href: "/research",
     action: "Explore Research",
-    status: "Coming Soon",
+    status: "Live",
     accent: "violet",
     features: [
       "Research feed",
@@ -489,9 +489,8 @@ export default async function HomePage() {
               </h2>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">
-                Real Estate Intelligence is available now. Trading
-                Intelligence is entering preview, with Research Intelligence
-                following as the platform expands.
+                Real Estate, Trading, and Research Intelligence are now available
+                across the Nestrova platform.
               </p>
             </div>
 
@@ -508,8 +507,8 @@ export default async function HomePage() {
               </div>
 
               <p className="mt-4 text-sm leading-6 text-white/45">
-                Current Real Estate Pro access. Platform pricing will expand as
-                Trading and Research become generally available.
+                Nestrova Pro provides expanded access across the platform as
+                Real Estate, Trading, and Research Intelligence continue to evolve.
               </p>
 
               <Link

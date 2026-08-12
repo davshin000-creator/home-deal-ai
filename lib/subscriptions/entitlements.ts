@@ -34,7 +34,11 @@ const SUBSCRIPTION_ENTITLEMENTS: Record<
   free: [],
   real_estate: ["real_estate"],
   trading: ["trading"],
-  all_access: ["real_estate", "trading"],
+  all_access: [
+    "real_estate",
+    "trading",
+    "research",
+  ],
 };
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set([

@@ -9,7 +9,10 @@ import PropertyMap from "@/components/PropertyMap";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import RealEstateAnalyzeShell from "@/components/shell/RealEstateAnalyzeShell";
 import {
+  AIHeadToHead,
   ComparableProperties,
+  FiveYearForecast,
+  NegotiationAI,
   PriceValueComparison,
   PropertyHeroCard,
   ScoreProgressCard,
@@ -45,6 +48,20 @@ type ComparableProperty = {
   similarity_score?: number | null;
 };
 
+type NegotiationResult = {
+  suggested_offer?: number;
+  recommended_target?: number;
+  maximum_offer?: number;
+  walk_away_price?: number;
+  estimated_savings?: number;
+  comparable_median?: number | null;
+  best_match_price?: number | null;
+  market_reference?: number | null;
+  comparable_count?: number;
+  strategy?: string;
+  strategy_reasons?: string[];
+};
+
 type AnalysisResult = {
   address: string;
   listing_price: number;
@@ -54,6 +71,13 @@ type AnalysisResult = {
   image_url?: string | null;
   thumbnail?: string | null;
   photo_url?: string | null;
+  property_type?: string | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  square_footage?: number | null;
+  year_built?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   estimated_monthly_rent: number;
   discount_percent: number;
   gross_rent_yield: number;
@@ -79,12 +103,7 @@ type AnalysisResult = {
     key_strengths?: string[];
     key_risks?: string[];
   };
-  negotiation?: {
-  suggested_offer?: number;
-  maximum_offer?: number;
-  estimated_savings?: number;
-  strategy?: string;
-  };
+  negotiation?: NegotiationResult;
   down_payment?: number;
   loan_amount?: number;
   monthly_mortgage?: number;
@@ -656,11 +675,36 @@ const resultLocation = result
             </section>
 
             {result.comparables?.length ? (
-              <section className="mt-8">
-                <ComparableProperties
-                  comparables={result.comparables}
-                />
-              </section>
+              <>
+                <section className="mt-8">
+                  <ComparableProperties
+                    comparables={result.comparables}
+                  />
+                </section>
+
+                <section className="mt-6">
+                  <AIHeadToHead
+                    current={{
+                      address: result.address,
+                      listingPrice:
+                        result.listing_price,
+                      fairValue:
+                        result.fair_value,
+                      bedrooms:
+                        result.bedrooms,
+                      bathrooms:
+                        result.bathrooms,
+                      squareFootage:
+                        result.square_footage,
+                      yearBuilt:
+                        result.year_built,
+                    }}
+                    bestComparable={
+                      result.comparables[0]
+                    }
+                  />
+                </section>
+              </>
             ) : null}
 
             <section className="mt-8 grid gap-6">
