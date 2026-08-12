@@ -1,4 +1,4 @@
-﻿import {
+import {
   createSupabaseAdminClient,
 } from "@/lib/supabase/server";
 
@@ -95,6 +95,24 @@ export async function getResearchUsage(
         0,
         limit - used,
       ),
+  };
+}
+
+export async function checkResearchUsage(
+  userId: string,
+  feature: ResearchFeature,
+) {
+  const usage =
+    await getResearchUsage(
+      userId,
+      feature,
+    );
+
+  return {
+    allowed:
+      usage.used <
+      usage.limit,
+    ...usage,
   };
 }
 

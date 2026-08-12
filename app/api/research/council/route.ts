@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase/server";
 
 import {
+  checkResearchUsage,
   consumeResearchUsage,
 } from "@/lib/research/usage";
 
@@ -139,34 +140,6 @@ export async function POST(
       );
     }
 
-    const usage =
-      await consumeResearchUsage(
-        user.id,
-        "council",
-      );
-
-    if (!usage.allowed) {
-      return NextResponse.json(
-        {
-          error:
-            "Research Council monthly limit reached.",
-          code:
-            "RESEARCH_USAGE_LIMIT",
-          feature:
-            "council",
-          used:
-            usage.used,
-          limit:
-            usage.limit,
-          remaining:
-            usage.remaining,
-        },
-        {
-          status: 429,
-        },
-      );
-    }
-
     if (!OPENAI_API_KEY) {
       return NextResponse.json(
         {
@@ -248,6 +221,35 @@ export async function POST(
           "Nestrova does not currently have enough public research evidence for this symbol.",
       });
     }
+
+    const usage =
+      await checkResearchUsage(
+        user.id,
+        "council",
+      );
+
+    if (!usage.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Research Council monthly limit reached.",
+          code:
+            "RESEARCH_USAGE_LIMIT",
+          feature:
+            "council",
+          used:
+            usage.used,
+          limit:
+            usage.limit,
+          remaining:
+            usage.remaining,
+        },
+        {
+          status: 429,
+        },
+      );
+    }
+
 
     const gatewayConfidence =
       clamp(
@@ -436,6 +438,34 @@ ${JSON.stringify(
       JSON.parse(
         extractJson(content),
       );
+
+    const consumedUsage =
+      await consumeResearchUsage(
+        user.id,
+        "council",
+      );
+
+    if (!consumedUsage.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Research monthly limit reached.",
+          code:
+            "RESEARCH_USAGE_LIMIT",
+          feature:
+            "council",
+          used:
+            consumedUsage.used,
+          limit:
+            consumedUsage.limit,
+          remaining:
+            consumedUsage.remaining,
+        },
+        {
+          status: 429,
+        },
+      );
+    }
 
     return NextResponse.json({
       ok: true,

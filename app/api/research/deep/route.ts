@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase/server";
 
 import {
+  checkResearchUsage,
   consumeResearchUsage,
 } from "@/lib/research/usage";
 
@@ -368,34 +369,6 @@ export async function POST(
       );
     }
 
-    const usage =
-      await consumeResearchUsage(
-        user.id,
-        "deep",
-      );
-
-    if (!usage.allowed) {
-      return NextResponse.json(
-        {
-          error:
-            "Deep Research monthly limit reached.",
-          code:
-            "RESEARCH_USAGE_LIMIT",
-          feature:
-            "deep",
-          used:
-            usage.used,
-          limit:
-            usage.limit,
-          remaining:
-            usage.remaining,
-        },
-        {
-          status: 429,
-        },
-      );
-    }
-
     if (!OPENAI_API_KEY) {
       return NextResponse.json(
         {
@@ -492,6 +465,35 @@ export async function POST(
           null,
       });
     }
+
+    const usage =
+      await checkResearchUsage(
+        user.id,
+        "deep",
+      );
+
+    if (!usage.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Deep Research monthly limit reached.",
+          code:
+            "RESEARCH_USAGE_LIMIT",
+          feature:
+            "deep",
+          used:
+            usage.used,
+          limit:
+            usage.limit,
+          remaining:
+            usage.remaining,
+        },
+        {
+          status: 429,
+        },
+      );
+    }
+
 
     const gatewayConfidence =
       clampConfidence(
@@ -712,6 +714,34 @@ ${JSON.stringify(
         parsed,
         gatewayConfidence,
       );
+
+    const consumedUsage =
+      await consumeResearchUsage(
+        user.id,
+        "deep",
+      );
+
+    if (!consumedUsage.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Research monthly limit reached.",
+          code:
+            "RESEARCH_USAGE_LIMIT",
+          feature:
+            "deep",
+          used:
+            consumedUsage.used,
+          limit:
+            consumedUsage.limit,
+          remaining:
+            consumedUsage.remaining,
+        },
+        {
+          status: 429,
+        },
+      );
+    }
 
     return NextResponse.json({
       ok: true,

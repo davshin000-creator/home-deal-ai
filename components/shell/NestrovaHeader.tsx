@@ -319,7 +319,7 @@ export default function NestrovaHeader({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2.5 sm:gap-4 lg:gap-5">
             <div className="hidden items-center gap-2 rounded-[13px] border border-emerald-300/15 bg-emerald-300/[0.07] px-3.5 py-2.5 lg:flex">
               <span className="relative flex h-2.5 w-2.5 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-40" />
@@ -347,7 +347,7 @@ export default function NestrovaHeader({
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
 
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:ml-2">
               <UserButton />
             </div>
           </div>
