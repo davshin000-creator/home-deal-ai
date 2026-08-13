@@ -1,4 +1,4 @@
-﻿import SiteFooter from "@/components/site/SiteFooter";
+import SiteFooter from "@/components/site/SiteFooter";
 
 export default function PrivacyPage() {
   return (
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900">8. Contact</h2>
-            <p className="mt-2">Questions about this Privacy Policy can be sent to support@nestrovaai.com.</p>
+            <p className="mt-2">Questions about this Privacy Policy can be sent to <a href="mailto:support@nestrovaai.com" className="font-semibold text-blue-600 hover:underline">support@nestrovaai.com</a>.</p>
           </section>
           </div>
       </div>

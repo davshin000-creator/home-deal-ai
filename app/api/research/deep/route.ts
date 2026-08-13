@@ -114,6 +114,8 @@ function normalizeOpportunityList(
       value as Record<string, unknown>;
 
     for (const key of [
+      "research_universe",
+      "top_opportunities",
       "items",
       "candidates",
       "opportunities",

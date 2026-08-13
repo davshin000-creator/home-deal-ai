@@ -38,6 +38,32 @@ export function normalizePublicOpportunities(
   const objectValue =
     value as Record<string, unknown>;
 
+  // Research should use the broad safe public universe first.
+  // Trading can continue using top_opportunities separately.
+  for (const preferredKey of [
+    "research_universe",
+    "top_opportunities",
+  ]) {
+    const preferred =
+      objectValue[preferredKey];
+
+    if (Array.isArray(preferred)) {
+      const items =
+        preferred.filter(
+          (item): item is PublicOpportunity =>
+            Boolean(
+              item &&
+                typeof item === "object" &&
+                !Array.isArray(item),
+            ),
+        );
+
+      if (items.length > 0) {
+        return items;
+      }
+    }
+  }
+
   const nestedKeys = [
     "items",
     "candidates",
@@ -103,16 +129,16 @@ export function getPublicOpportunities(
     return [];
   }
 
-  const top =
+  const researchUniverse =
     normalizePublicOpportunities(
-      state.top_opportunities,
+      state.opportunities,
     );
 
-  if (top.length > 0) {
-    return top;
+  if (researchUniverse.length > 0) {
+    return researchUniverse;
   }
 
   return normalizePublicOpportunities(
-    state.opportunities,
+    state.top_opportunities,
   );
 }

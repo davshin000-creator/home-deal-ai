@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NestrovaMark from "@/components/brand/NestrovaMark";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -374,11 +375,7 @@ export default function NestrovaHeader({
                 }
                 className="flex items-center gap-3"
               >
-                <div className="relative flex h-11 w-11 items-center justify-center rounded-[16px] bg-gradient-to-br from-violet-400 to-fuchsia-500 text-lg font-black">
-                  N
-
-                  <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-[#09090d] bg-emerald-400" />
-                </div>
+                <NestrovaMark className="h-11 w-11 rounded-[14px] text-[14px]" />
 
                 <div>
                   <p className="text-lg font-black tracking-[-0.04em]">

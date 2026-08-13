@@ -1,11 +1,11 @@
-﻿const navItems = [
+const navItems = [
   ["Dashboard", "/dashboard"],
   ["Analyze", "/analyze"],
   ["Decision", "/intelligence"],
   ["Portfolio", "/portfolio"],
   ["Watchlist", "/watchlist"],
   ["Reports", "/reports"],
-  ["Settings", "/pro"],
+  ["Settings", "/pricing"],
 ];
 
 export default function OSSidebar() {

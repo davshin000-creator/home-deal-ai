@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NestrovaMark from "@/components/brand/NestrovaMark";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SiteFooter from "@/components/site/SiteFooter";
 
@@ -132,9 +133,7 @@ export default async function HomePage() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/75 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between px-5 py-4 md:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black shadow-[0_0_44px_rgba(255,255,255,0.25)]">
-              N
-            </div>
+            <NestrovaMark className="h-10 w-10 rounded-[12px] text-[13px]" />
 
             <div>
               <p className="text-sm font-semibold tracking-[-0.03em]">

@@ -38,7 +38,7 @@ export default function ContactPage() {
               </p>
 
               <p className="mt-1">
-                support@nestrovaai.com
+                <a href="mailto:support@nestrovaai.com" className="font-semibold text-blue-600 hover:underline">support@nestrovaai.com</a>
               </p>
 
               <p className="mt-6">

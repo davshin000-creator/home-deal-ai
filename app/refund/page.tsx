@@ -1,4 +1,4 @@
-﻿import SiteFooter from "@/components/site/SiteFooter";
+import SiteFooter from "@/components/site/SiteFooter";
 
 export default function RefundPage() {
   return (
@@ -31,7 +31,7 @@ export default function RefundPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900">5. How to Request a Refund</h2>
-            <p className="mt-2">To request a refund, email support@nestrovaai.com with your account email, payment email, and reason for the request.</p>
+            <p className="mt-2">To request a refund, email <a href="mailto:support@nestrovaai.com" className="font-semibold text-blue-600 hover:underline">support@nestrovaai.com</a> with your account email, payment email, and reason for the request.</p>
           </section>
         </div>
       </div>

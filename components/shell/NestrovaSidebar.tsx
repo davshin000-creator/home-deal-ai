@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import NestrovaMark from "@/components/brand/NestrovaMark";
 import { usePathname } from "next/navigation";
 
 import {
@@ -217,11 +218,7 @@ export default function NestrovaSidebar() {
         href="/dashboard"
         className="group flex items-center gap-3 rounded-[20px] border border-transparent px-3 py-3 transition hover:border-white/10 hover:bg-white/[0.04]"
       >
-        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-gradient-to-br from-violet-400 via-fuchsia-500 to-indigo-500 text-lg font-black text-white shadow-[0_0_38px_rgba(168,85,247,0.34)]">
-          N
-
-          <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-[#07070a] bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.75)]" />
-        </div>
+        <NestrovaMark className="h-11 w-11 rounded-[14px] text-[14px]" />
 
         <div className="min-w-0">
           <p className="truncate text-lg font-black tracking-[-0.045em]">
