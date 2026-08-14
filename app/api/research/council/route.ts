@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { resolvePublicResearchAsset } from "@/lib/research/resolvePublicResearchAsset";
+
 
 import {
   hasResearchAccess,
@@ -195,21 +197,11 @@ export async function POST(
     const state =
       (await stateResponse.json()) as PublicState;
 
-    const opportunities = [
-      ...normalizePublicOpportunities(
-        state.top_opportunities,
-      ),
-      ...normalizePublicOpportunities(
-        state.opportunities,
-      ),
-    ];
-
     const evidence =
-      opportunities.find(
-        (item) =>
-          normalizeSymbol(
-            item.symbol,
-          ) === symbol,
+      await resolvePublicResearchAsset(
+        API_BASE_URL,
+        state,
+        symbol,
       );
 
     if (!evidence) {

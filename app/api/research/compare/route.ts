@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { resolvePublicResearchAsset } from "@/lib/research/resolvePublicResearchAsset";
+
 
 import {
   hasResearchAccess,
@@ -268,30 +270,21 @@ export async function POST(
     const state =
       (await gatewayResponse.json()) as PublicState;
 
-    const opportunities = [
-      ...normalizePublicOpportunities(
-        state.top_opportunities,
+    const [
+      itemA,
+      itemB,
+    ] = await Promise.all([
+      resolvePublicResearchAsset(
+        API_BASE_URL,
+        state,
+        symbolA,
       ),
-      ...normalizePublicOpportunities(
-        state.opportunities,
+      resolvePublicResearchAsset(
+        API_BASE_URL,
+        state,
+        symbolB,
       ),
-    ];
-
-    const itemA =
-      opportunities.find(
-        (item) =>
-          symbolOf(
-            item.symbol,
-          ) === symbolA,
-      );
-
-    const itemB =
-      opportunities.find(
-        (item) =>
-          symbolOf(
-            item.symbol,
-          ) === symbolB,
-      );
+    ]);
 
     const missing: string[] = [];
 

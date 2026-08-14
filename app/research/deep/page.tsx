@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import SaveResearchButton from "@/components/research/SaveResearchButton";
+import ResearchSymbolSearch from "@/components/research/ResearchSymbolSearch";
+import { useResearchUniverse } from "@/components/research/useResearchUniverse";
 
 import {
   FormEvent,
@@ -123,6 +125,11 @@ function EmptyState() {
 }
 
 export default function DeepResearchPage() {
+  const {
+    assets: researchAssets,
+    loading: universeLoading,
+  } = useResearchUniverse();
+
   const [
     symbol,
     setSymbol,

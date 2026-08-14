@@ -14,6 +14,110 @@ export type PublicOpportunity = {
   [key: string]: unknown;
 };
 
+export type PublicSearchAsset = {
+  symbol: string;
+  name?: string;
+  asset_type?: string;
+  market?: string;
+  exchange?: string;
+  is_etf?: boolean;
+};
+
+export function normalizePublicSearchUniverse(
+  value: unknown,
+): PublicSearchAsset[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const items: PublicSearchAsset[] = [];
+
+  for (const raw of value) {
+    if (
+      !raw ||
+      typeof raw !== "object" ||
+      Array.isArray(raw)
+    ) {
+      continue;
+    }
+
+    const item =
+      raw as Record<string, unknown>;
+
+    const symbol =
+      String(item.symbol ?? "")
+        .trim()
+        .toUpperCase();
+
+    if (!symbol || seen.has(symbol)) {
+      continue;
+    }
+
+    seen.add(symbol);
+
+    items.push({
+      symbol,
+      name:
+        typeof item.name === "string"
+          ? item.name
+          : undefined,
+      asset_type:
+        typeof item.asset_type === "string"
+          ? item.asset_type
+          : undefined,
+      market:
+        typeof item.market === "string"
+          ? item.market
+          : undefined,
+      exchange:
+        typeof item.exchange === "string"
+          ? item.exchange
+          : undefined,
+      is_etf:
+        typeof item.is_etf === "boolean"
+          ? item.is_etf
+          : undefined,
+    });
+  }
+
+  return items;
+}
+
+export function getPublicSearchUniverse(
+  state:
+    | {
+        opportunities?: unknown;
+      }
+    | null
+    | undefined,
+): PublicSearchAsset[] {
+  if (!state?.opportunities) {
+    return [];
+  }
+
+  const opportunities =
+    state.opportunities;
+
+  if (
+    typeof opportunities !== "object" ||
+    Array.isArray(opportunities)
+  ) {
+    return [];
+  }
+
+  const objectValue =
+    opportunities as Record<
+      string,
+      unknown
+    >;
+
+  return normalizePublicSearchUniverse(
+    objectValue.search_universe,
+  );
+}
+
+
 export function normalizePublicOpportunities(
   value: unknown,
 ): PublicOpportunity[] {
