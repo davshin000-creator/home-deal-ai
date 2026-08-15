@@ -45,7 +45,8 @@ export default function StatusChip({
         "inline-flex max-w-full items-center gap-1.5",
         "rounded-full border px-3 py-1.5",
         "text-[10px] font-bold uppercase",
-        "leading-none tracking-[0.12em]",
+        "leading-none tracking-[0.1em]",
+        "whitespace-nowrap",
         toneClasses[tone],
         className,
       ]
@@ -58,9 +59,7 @@ export default function StatusChip({
         </span>
       ) : null}
 
-      <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-        {children}
-      </span>
+      <span>{children}</span>
     </span>
   );
 }

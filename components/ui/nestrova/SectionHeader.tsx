@@ -41,19 +41,19 @@ export default function SectionHeader({
     <div
       className={[
         "flex min-w-0 flex-col gap-5",
-        "sm:flex-row sm:items-start sm:justify-between",
+        "lg:flex-row lg:items-start lg:justify-between",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         {eyebrow ? (
           <div
             className={[
               "flex items-center gap-2",
               "text-[10px] font-bold uppercase",
-              "tracking-[0.2em]",
+              "tracking-[0.16em]",
               toneClasses[tone],
             ].join(" ")}
           >
@@ -67,7 +67,7 @@ export default function SectionHeader({
           </div>
         ) : null}
 
-        <h2 className="mt-3 max-w-full break-words text-[clamp(1.7rem,3.2vw,2.45rem)] font-black leading-[1.02] tracking-[-0.055em] text-white [overflow-wrap:anywhere]">
+        <h2 className="mt-3 max-w-4xl text-[clamp(1.75rem,6vw,2.6rem)] font-black leading-[1.02] tracking-[-0.05em] text-white">
           {title}
         </h2>
 

@@ -529,6 +529,23 @@ export default function AssetDetailPage() {
 
     async function checkWatchlist() {
       if (!symbol) {
+        if (isMounted) {
+          setIsCheckingWatchlist(false);
+        }
+        return;
+      }
+
+      if (!isLoaded) {
+        return;
+      }
+
+      if (!isSignedIn) {
+        if (isMounted) {
+          setIsInWatchlist(false);
+          setIsCheckingWatchlist(false);
+          setStatusType(null);
+          setStatusMessage(null);
+        }
         return;
       }
 
@@ -542,8 +559,18 @@ export default function AssetDetailPage() {
 
         const data = (await response.json()) as WatchlistResponse;
 
+        if (response.status === 401) {
+          if (isMounted) {
+            setIsInWatchlist(false);
+          }
+          return;
+        }
+
         if (!response.ok || !data.success) {
-          throw new Error(data.error ?? "Unable to load the watchlist.");
+          throw new Error(
+            data.error ??
+              "Unable to load the watchlist.",
+          );
         }
 
         const matchingAsset = data.watchlist?.some(
@@ -575,7 +602,12 @@ export default function AssetDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [asset.assetType, symbol]);
+  }, [
+    asset.assetType,
+    symbol,
+    isLoaded,
+    isSignedIn,
+  ]);
 
     function handleAddAlertClick() {
     if (!isLoaded || isSubscriptionLoading) {

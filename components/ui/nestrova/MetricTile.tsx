@@ -58,7 +58,7 @@ export default function MetricTile({
   return (
     <article
       className={[
-        "min-w-0 overflow-hidden",
+        "min-w-0",
         "rounded-[22px] border border-white/10",
         "bg-black/20 p-5",
         "shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]",
@@ -67,18 +67,19 @@ export default function MetricTile({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex min-w-0 items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="break-words text-[9px] font-bold uppercase tracking-[0.16em] text-white/30 [overflow-wrap:anywhere]">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase leading-4 tracking-[0.12em] text-white/30">
             {label}
           </p>
 
           <div
             className={[
-              "mt-3 max-w-full break-words",
-              "text-[clamp(1.65rem,3.2vw,2.35rem)]",
-              "font-black leading-none tracking-[-0.05em]",
-              "[overflow-wrap:anywhere]",
+              "mt-3",
+              "text-[clamp(1.6rem,6vw,2.35rem)]",
+              "font-black leading-[1.05]",
+              "tracking-[-0.045em]",
+              "break-normal whitespace-normal",
               valueClasses[tone],
             ].join(" ")}
           >
@@ -101,7 +102,7 @@ export default function MetricTile({
       </div>
 
       {detail ? (
-        <div className="mt-3 break-words text-xs leading-5 text-white/30 [overflow-wrap:anywhere]">
+        <div className="mt-3 text-xs leading-5 text-white/30">
           {detail}
         </div>
       ) : null}

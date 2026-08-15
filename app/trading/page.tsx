@@ -188,7 +188,7 @@ function cleanLabel(value?: string | null) {
   }
 
   const replacementCharacterCount =
-    (normalized.match(/�/g) ?? []).length;
+    (normalized.match(/\uFFFD/g) ?? []).length;
 
   const questionMarkCount =
     (normalized.match(/\?/g) ?? []).length;
@@ -196,9 +196,9 @@ function cleanLabel(value?: string | null) {
   const looksCorrupted =
     replacementCharacterCount > 0 ||
     questionMarkCount >= 3 ||
-    normalized.includes("ì") ||
-    normalized.includes("ë") ||
-    normalized.includes("í");
+    normalized.includes("챙") ||
+    normalized.includes("챘") ||
+    normalized.includes("챠");
 
   if (looksCorrupted) {
     return "AI Research Strategy";
@@ -446,7 +446,7 @@ export default async function TradingPage() {
               </div>
             ) : null}
 
-            <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+            <div className="mt-8 grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
               <MetricTile
                 label="Market Regime"
                 value={cleanLabel(market?.regime)}
@@ -760,7 +760,7 @@ export default async function TradingPage() {
             href="/trading/verified"
             className="text-sm font-semibold text-white/55 transition hover:text-white"
           >
-            Open Verified Registry →
+            Open Verified Registry ??
           </Link>
         </div>
 
@@ -879,4 +879,5 @@ export default async function TradingPage() {
       </UserAwareNestrovaShell>
   );
 }
+
 

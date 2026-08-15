@@ -3,6 +3,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 import MarketsOpportunityExplorer, {
   type MarketOpportunity,
 } from "@/components/trading/MarketsOpportunityExplorer";
+import MarketUniverseExplorer from "@/components/trading/MarketUniverseExplorer";
 
 export const dynamic = "force-dynamic";
 
@@ -428,6 +429,26 @@ export default async function TradingMarketsPage() {
             </div>
           </div>
         </article>
+      </section>
+
+      <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300/70">
+            Explore Markets
+          </p>
+
+          <h2 className="mt-3 max-w-4xl text-4xl font-semibold tracking-[-0.055em] md:text-5xl">
+            Search the Nestrova research universe.
+          </h2>
+
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/45">
+            Explore U.S. stocks and crypto supported by Nestrova public research.
+            Selecting an asset opens its public research profile and can trigger
+            on-demand analysis when available.
+          </p>
+        </div>
+
+        <MarketUniverseExplorer />
       </section>
 
       <section className="relative mx-auto max-w-[1480px] px-5 py-10 md:px-8">

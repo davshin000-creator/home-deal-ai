@@ -1,4 +1,4 @@
-import {
+﻿import {
   AlertIcon,
   BrainIcon,
   GaugeIcon,
@@ -306,7 +306,7 @@ export default function ExecutiveBrief({
               Simple Market Summary
             </p>
 
-            <div className="mt-6 grid min-w-0 gap-4 md:grid-cols-3">
+            <div className="mt-6 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
               <MetricTile
                 label="Market Pulse"
                 value={marketSummary.label}
@@ -405,7 +405,7 @@ export default function ExecutiveBrief({
             <div className="mt-5 space-y-3">
               <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                 <span className="mt-0.5 text-emerald-300">
-                  ✓
+                  ??
                 </span>
                 <p className="text-sm leading-6 text-white/52">
                   Research assets showing strong public opportunity
