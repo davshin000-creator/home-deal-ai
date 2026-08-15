@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/ClerkCompat";
 import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
+import RealEstateQuickAnalyze from "@/components/real-estate/RealEstateQuickAnalyze";
 import {
   ArrowRightIcon,
   BrainIcon,
@@ -361,195 +362,60 @@ export default function RealEstateDashboardPage() {
 
   return (
     <UserAwareNestrovaShell
-      title="Real Estate Intelligence"
-      subtitle="Your property portfolio, saved opportunities, and AI recommendations."
+      title="Real Estate"
+      subtitle="Understand properties with clear AI research."
     >
       <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10">
-        <section className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <GlassPanel
-            tone="emerald"
-            contentClassName="min-w-0 p-6 md:p-8"
-          >
-            <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
-                    <PropertyIcon className="h-5 w-5" />
-                  </span>
+        <section className="rounded-[36px] border border-white/10 bg-white/[0.045] p-6 md:p-9">
+          <div className="max-w-4xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/65">
+              Real Estate
+            </p>
 
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200/65">
-                      My Property Portfolio
-                    </p>
-
-                    <p className="mt-1 text-xs text-white/30">
-                      AI property intelligence workspace
-                    </p>
-                  </div>
-                </div>
-
-                <h1 className="mt-6 max-w-4xl break-words text-[clamp(2rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.065em] [overflow-wrap:anywhere]">
-                  Property intelligence
-                  <span className="block text-white/38">
-                    in one workspace.
-                  </span>
-                </h1>
-
-                <p className="mt-5 max-w-3xl text-sm leading-7 text-white/45 md:text-base">
-                  Review saved opportunities, AI Deal Scores, fair values,
-                  rent estimates, and recommended next actions.
-                </p>
-
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Link
-                    href="/analyze"
-                    className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-                  >
-                    <SearchPropertyIcon className="h-4 w-4" />
-                    Analyze Property
-                  </Link>
-
-                  <Link
-                    href="/saved"
-                    className="inline-flex items-center gap-2 rounded-[14px] border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:-translate-y-0.5 hover:bg-emerald-300/[0.16]"
-                  >
-                    View Saved Properties
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </Link>
-
-                  <Link
-                    href="/compare"
-                    className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/[0.1] hover:text-white"
-                  >
-                    Compare Deals
-                  </Link>
-                </div>
-              </div>
-
-              <StatusChip
-                tone="emerald"
-                icon={<SparkIcon className="h-3.5 w-3.5" />}
-                className="shrink-0 px-4 py-2 text-[11px]"
-              >
-                Property AI Online
-              </StatusChip>
-            </div>
-
-            <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
-              <MetricTile
-                label="Saved Properties"
-                value={properties.length}
-                detail="Properties in your AI portfolio"
-                icon={<PropertyIcon className="h-5 w-5" />}
-                tone="violet"
-              />
-
-              <MetricTile
-                label="Average Deal Score"
-                value={averageScore(properties)}
-                detail="Average across saved properties"
-                icon={<GaugeIcon className="h-5 w-5" />}
-                tone="emerald"
-              />
-
-              <MetricTile
-                label="Estimated Value"
-                value={money(totalValue)}
-                detail="Combined estimated fair value"
-                icon={<DollarIcon className="h-5 w-5" />}
-                tone="cyan"
-              />
-
-              <MetricTile
-                label="Monthly Rent"
-                value={money(totalRent)}
-                detail="Combined estimated monthly rent"
-                icon={<RentIcon className="h-5 w-5" />}
-                tone="amber"
-              />
-            </div>
-          </GlassPanel>
-
-          <GlassPanel
-            tone="emerald"
-            className="h-full"
-            contentClassName="flex h-full min-w-0 flex-col p-6"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200/65">
-                  Property AI Status
-                </p>
-
-                <h2 className="mt-3 text-2xl font-black tracking-[-0.045em]">
-                  Valuation systems online.
-                </h2>
-              </div>
-
-              <span className="relative mt-1 flex h-3 w-3 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-45" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-300" />
+            <h1 className="mt-4 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.94] tracking-[-0.065em]">
+              Understand any property
+              <span className="block text-white/35">
+                before you make a decision.
               </span>
+            </h1>
+
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/45 md:text-base">
+              Enter an address to explore estimated value,
+              rental potential, Deal Score, risks, and
+              negotiation context in one place.
+            </p>
+
+            <RealEstateQuickAnalyze />
+          </div>
+
+          <div className="mt-8 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-3">
+            <div>
+              <p className="text-sm font-semibold">
+                Property Value
+              </p>
+              <p className="mt-1 text-xs leading-5 text-white/30">
+                Compare listing price with estimated fair value.
+              </p>
             </div>
 
-            <div className="mt-6 space-y-3">
-              {[
-                {
-                  label: "Deal scoring",
-                  value: "Available",
-                  tone: "emerald" as const,
-                },
-                {
-                  label: "Fair value",
-                  value: "Research",
-                  tone: "cyan" as const,
-                },
-                {
-                  label: "Rent estimates",
-                  value: "Available",
-                  tone: "amber" as const,
-                },
-                {
-                  label: "Execution",
-                  value: "Read Only",
-                  tone: "violet" as const,
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex min-w-0 items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3"
-                >
-                  <span className="min-w-0 truncate text-sm text-white/40">
-                    {item.label}
-                  </span>
-
-                  <StatusChip
-                    tone={item.tone}
-                    className="shrink-0"
-                  >
-                    {item.value}
-                  </StatusChip>
-                </div>
-              ))}
+            <div>
+              <p className="text-sm font-semibold">
+                Rental Potential
+              </p>
+              <p className="mt-1 text-xs leading-5 text-white/30">
+                Understand rent estimates and investment yield.
+              </p>
             </div>
 
-            <div className="mt-auto pt-6">
-              <div className="rounded-[20px] border border-emerald-300/15 bg-emerald-300/[0.055] p-4">
-                <div className="flex items-center gap-2 text-emerald-200/65">
-                  <BrainIcon className="h-4 w-4 shrink-0" />
-
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em]">
-                    Decision Support
-                  </p>
-                </div>
-
-                <p className="mt-2 text-sm leading-6 text-emerald-50/55">
-                  Property valuations and scores are informational research,
-                  not guarantees of market value or investment performance.
-                </p>
-              </div>
+            <div>
+              <p className="text-sm font-semibold">
+                Deal Quality
+              </p>
+              <p className="mt-1 text-xs leading-5 text-white/30">
+                See opportunity, risk, and negotiation context.
+              </p>
             </div>
-          </GlassPanel>
+          </div>
         </section>
 
         {error ? (
@@ -601,246 +467,200 @@ export default function RealEstateDashboardPage() {
         ) : (
           <>
             {bestProperty ? (
-              <section className="mt-6 grid min-w-0 items-stretch gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-                <GlassPanel
-                  tone="emerald"
-                  className="h-full"
-                  contentClassName="flex h-full min-w-0 flex-col p-6 md:p-7"
-                >
-                  <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
-                          <SparkIcon className="h-5 w-5" />
-                        </span>
+              <>
+                <section className="mt-8">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/60">
+                        Your Best Property
+                      </p>
 
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/65">
-                            Best Property Opportunity
-                          </p>
-
-                          <p className="mt-1 text-xs text-white/30">
-                            Highest current AI Deal Score
-                          </p>
-                        </div>
-                      </div>
-
-                      <h2 className="mt-5 max-w-full break-words text-[clamp(1.8rem,3.4vw,2.6rem)] font-black leading-tight tracking-[-0.055em] [overflow-wrap:anywhere]">
-                        {bestProperty.address ||
-                          "Saved Property"}
+                      <h2 className="mt-3 text-3xl font-black tracking-[-0.05em]">
+                        Your strongest saved opportunity.
                       </h2>
-
-                      <div className="mt-3 flex min-w-0 items-center gap-2 text-sm text-white/38">
-                        <LocationIcon className="h-4 w-4 shrink-0 text-emerald-200/55" />
-
-                        <span className="min-w-0 truncate">
-                          {[bestProperty.city, bestProperty.state]
-                            .filter(Boolean)
-                            .join(", ") ||
-                            "Location unavailable"}
-                        </span>
-                      </div>
                     </div>
 
-                    <StatusChip
-                      tone={recommendationTone(
-                        bestProperty.recommendation,
-                      )}
-                      icon={<ShieldIcon className="h-3.5 w-3.5" />}
-                      className="shrink-0 px-4 py-2 text-[11px]"
-                    >
-                      {bestProperty.recommendation ||
-                        "Review"}
-                    </StatusChip>
-                  </div>
-
-                  <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
-                    <MetricTile
-                      label="Deal Score"
-                      value={
-                        bestProperty.brain_score ?? "—"
-                      }
-                      detail="Current AI property score"
-                      icon={<GaugeIcon className="h-5 w-5" />}
-                      tone="emerald"
-                    />
-
-                    <MetricTile
-                      label="Listing Price"
-                      value={money(
-                        bestProperty.listing_price,
-                      )}
-                      detail="Current entered listing value"
-                      icon={<DollarIcon className="h-5 w-5" />}
-                      tone="neutral"
-                    />
-
-                    <MetricTile
-                      label="Fair Value"
-                      value={money(
-                        bestProperty.fair_value,
-                      )}
-                      detail="AI estimated fair value"
-                      icon={<BrainIcon className="h-5 w-5" />}
-                      tone="cyan"
-                    />
-
-                    <MetricTile
-                      label="Estimated Rent"
-                      value={money(
-                        bestProperty.estimated_rent,
-                      )}
-                      detail="Estimated monthly rent"
-                      icon={<RentIcon className="h-5 w-5" />}
-                      tone="amber"
-                    />
-                  </div>
-
-                  <p className="mt-6 flex-1 break-words text-sm leading-7 text-white/43 [overflow-wrap:anywhere]">
-                    {bestProperty.summary ||
-                      "Review the full property analysis for valuation, risk, rent potential, and negotiation details."}
-                  </p>
-
-                  <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                       href={`/analyze?address=${encodeURIComponent(
                         bestProperty.address || "",
                       )}&price=${
                         bestProperty.listing_price || ""
                       }`}
-                      className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
+                      className="text-sm font-semibold text-emerald-200/70 transition hover:text-emerald-200"
                     >
-                      Open Full Analysis
-                      <ArrowRightIcon className="h-4 w-4" />
-                    </Link>
-
-                    <Link
-                      href="/compare"
-                      className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white/60 transition hover:bg-white/[0.1] hover:text-white"
-                    >
-                      Compare Deal
+                      View full analysis →
                     </Link>
                   </div>
-                </GlassPanel>
 
-                <GlassPanel
-                  tone="emerald"
-                  className="h-full"
-                  contentClassName="h-full min-w-0 p-5"
-                >
-                  <div className="h-full min-h-[390px]">
-                    <PropertyVisual
-                      property={bestProperty}
-                    />
-
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
-                          Recommendation
-                        </p>
-
-                        <p className="mt-2 truncate text-sm font-bold text-emerald-100">
-                          {bestProperty.recommendation ||
-                            "Review"}
-                        </p>
-                      </div>
-
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
-                          Portfolio Rank
-                        </p>
-
-                        <p className="mt-2 text-sm font-bold text-white/75">
-                          #1 Opportunity
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </GlassPanel>
-              </section>
-            ) : null}
-
-            <section className="mt-8">
-              <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border border-emerald-300/15 bg-emerald-300/10 text-emerald-200">
-                      <PropertyIcon className="h-4 w-4" />
-                    </span>
-
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/60">
-                      Recent Properties
-                    </p>
-                  </div>
-
-                  <h2 className="mt-4 max-w-full break-words text-3xl font-black tracking-[-0.05em] [overflow-wrap:anywhere]">
-                    Your latest saved opportunities.
-                  </h2>
-                </div>
-
-                <Link
-                  href="/saved"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-[13px] border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white/45 transition hover:border-white/20 hover:bg-white/[0.09] hover:text-white"
-                >
-                  View all
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </div>
-
-              <div className="mt-5 grid auto-rows-fr gap-5 lg:grid-cols-2 2xl:grid-cols-3">
-                {rankedProperties
-                  .slice(0, 6)
-                  .map((property) => (
-                    <Link
-                      key={property.id}
-                      href={`/analyze?address=${encodeURIComponent(
-                        property.address || "",
-                      )}&price=${property.listing_price || ""}`}
-                      className="group flex min-w-0 flex-col rounded-[28px] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.055),rgba(255,255,255,0.025))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:border-emerald-300/20 hover:bg-emerald-300/[0.055]"
-                    >
-                      <PropertyVisual property={property} />
-
-                      <div className="mt-5 flex min-w-0 items-start justify-between gap-4">
+                  <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+                    <div className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6">
+                      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
-                          <p className="truncate text-lg font-bold">
-                            {property.address || "Saved Property"}
+                          <p className="text-2xl font-black tracking-[-0.045em]">
+                            {bestProperty.address ||
+                              "Saved Property"}
                           </p>
 
-                          <p className="mt-1 truncate text-xs text-white/35">
-                            {[property.city, property.state]
+                          <p className="mt-2 text-sm text-white/35">
+                            {[bestProperty.city, bestProperty.state]
                               .filter(Boolean)
-                              .join(", ")}
+                              .join(", ") ||
+                              "Location unavailable"}
                           </p>
                         </div>
 
-                        <p className="shrink-0 text-3xl font-black text-emerald-200">
-                          {property.brain_score ?? "—"}
-                        </p>
+                        <div className="shrink-0 rounded-[20px] border border-emerald-300/15 bg-emerald-300/[0.07] px-5 py-4 text-center">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-200/55">
+                            Deal Score
+                          </p>
+
+                          <p className="mt-1 text-4xl font-black text-emerald-200">
+                            {bestProperty.brain_score ?? "—"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="mt-5 grid grid-cols-2 gap-3">
-                        <div className="rounded-[18px] border border-white/10 bg-black/20 p-3">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/25">
                             Fair Value
                           </p>
-                          <p className="mt-2 text-sm font-bold">
-                            {money(property.fair_value)}
+
+                          <p className="mt-2 text-xl font-bold">
+                            {money(
+                              bestProperty.fair_value,
+                            )}
                           </p>
                         </div>
 
-                        <div className="rounded-[18px] border border-white/10 bg-black/20 p-3">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-                            Est. Rent
+                        <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/25">
+                            Estimated Rent
                           </p>
-                          <p className="mt-2 text-sm font-bold">
-                            {money(property.estimated_rent)}
+
+                          <p className="mt-2 text-xl font-bold">
+                            {money(
+                              bestProperty.estimated_rent,
+                            )}
+                            <span className="ml-1 text-xs font-medium text-white/30">
+                              / mo
+                            </span>
                           </p>
                         </div>
                       </div>
+
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <Link
+                          href={`/analyze?address=${encodeURIComponent(
+                            bestProperty.address || "",
+                          )}&price=${
+                            bestProperty.listing_price || ""
+                          }`}
+                          className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:bg-neutral-200"
+                        >
+                          View Analysis
+                          <ArrowRightIcon className="h-4 w-4" />
+                        </Link>
+
+                        <Link
+                          href="/compare"
+                          className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-semibold text-white/55 transition hover:bg-white/[0.09] hover:text-white"
+                        >
+                          Compare
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[30px] border border-white/10 bg-white/[0.035] p-5">
+                      <PropertyVisual
+                        property={bestProperty}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section className="mt-10">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+                        Your Properties
+                      </p>
+
+                      <h2 className="mt-3 text-3xl font-black tracking-[-0.05em]">
+                        Recent saved properties.
+                      </h2>
+                    </div>
+
+                    <Link
+                      href="/saved"
+                      className="text-sm font-semibold text-emerald-200/70 transition hover:text-emerald-200"
+                    >
+                      View all →
                     </Link>
-                  ))}
-              </div>
-            </section>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {rankedProperties
+                      .slice(0, 3)
+                      .map((property) => (
+                        <Link
+                          key={property.id}
+                          href={`/analyze?address=${encodeURIComponent(
+                            property.address || "",
+                          )}&price=${
+                            property.listing_price || ""
+                          }`}
+                          className="group rounded-[26px] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-emerald-300/20 hover:bg-white/[0.065]"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              <p className="truncate text-base font-bold">
+                                {property.address ||
+                                  "Saved Property"}
+                              </p>
+
+                              <p className="mt-1 truncate text-xs text-white/30">
+                                {[property.city, property.state]
+                                  .filter(Boolean)
+                                  .join(", ")}
+                              </p>
+                            </div>
+
+                            <div className="shrink-0 text-right">
+                              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                                Score
+                              </p>
+
+                              <p className="mt-1 text-2xl font-black text-emerald-200">
+                                {property.brain_score ??
+                                  "—"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                            <div>
+                              <p className="text-[9px] uppercase tracking-[0.12em] text-white/25">
+                                Fair Value
+                              </p>
+
+                              <p className="mt-1 text-sm font-semibold">
+                                {money(
+                                  property.fair_value,
+                                )}
+                              </p>
+                            </div>
+
+                            <span className="text-sm font-semibold text-emerald-200/60 transition group-hover:text-emerald-200">
+                              Open →
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                  </div>
+                </section>
+              </>
+            ) : null}
           </>
         )}
 
