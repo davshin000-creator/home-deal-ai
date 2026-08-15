@@ -41,19 +41,44 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing user_id." }, { status: 400 });
     }
 
-    const [profileRes, savedDealsRes, watchlistRes, reportsRes, coachRes] =
-      await Promise.all([
-        supabase.from("user_profiles").select("*").eq("user_id", userId).maybeSingle(),
-        supabase.from("saved_deals").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-        supabase.from("watchlist_items").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-        supabase.from("ai_reports").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-        supabase.from("coach_plans").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-      ]);
+    const [
+      profileRes,
+      authUserRes,
+      savedDealsRes,
+      watchlistRes,
+      reportsRes,
+      coachRes,
+    ] = await Promise.all([
+      supabase.from("user_profiles").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.auth.admin.getUserById(userId),
+      supabase.from("saved_deals").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase.from("watchlist_items").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase.from("ai_reports").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase.from("coach_plans").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+    ]);
 
     const savedDeals = savedDealsRes.data || [];
     const watchlist = watchlistRes.data || [];
     const reports = reportsRes.data || [];
     const coachPlans = coachRes.data || [];
+
+    const profileName =
+      typeof profileRes.data?.name === "string"
+        ? profileRes.data.name.trim()
+        : "";
+
+    const authEmail =
+      authUserRes.data?.user?.email?.trim() || "";
+
+    const emailPrefix =
+      authEmail
+        ? authEmail.split("@")[0]
+        : "";
+
+    const userName =
+      profileName ||
+      emailPrefix ||
+      "there";
 
     const avgDealScore = avg(savedDeals.map((deal) => Number(deal.deal_score || 0)));
     const avgYield =
@@ -205,7 +230,7 @@ export async function GET(request: Request) {
     ].slice(0, 6);
 
     const payload = {
-      user_name: profileRes.data?.name || "there",
+      user_name: userName,
       intelligence_score: portfolioHealth,
       intelligence_label: scoreLabel(portfolioHealth),
       daily_brief: dailyBrief,

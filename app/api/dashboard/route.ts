@@ -35,6 +35,7 @@ export async function GET(request: Request) {
 
     const [
       profileRes,
+      authUserRes,
       savedDealsRes,
       reportsRes,
       coachPlansRes,
@@ -42,6 +43,7 @@ export async function GET(request: Request) {
       weeklyReportsRes,
     ] = await Promise.all([
       supabase.from("user_profiles").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.auth.admin.getUserById(userId),
       supabase.from("saved_deals").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
       supabase.from("ai_reports").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
       supabase.from("coach_plans").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
@@ -78,13 +80,31 @@ export async function GET(request: Request) {
     const strongestMarket =
       savedDeals[0]?.address?.split(",").slice(-2).join(",").trim() || "Dallas";
 
+    const profileName =
+      typeof profileRes.data?.name === "string"
+        ? profileRes.data.name.trim()
+        : "";
+
+    const authEmail =
+      authUserRes.data?.user?.email?.trim() || "";
+
+    const emailPrefix =
+      authEmail
+        ? authEmail.split("@")[0]
+        : "";
+
+    const userName =
+      profileName ||
+      emailPrefix ||
+      "there";
+
     const aiBrief =
       savedDeals.length > 0
         ? `Your portfolio has ${savedDeals.length} saved ${savedDeals.length === 1 ? "property" : "properties"} with an average deal score of ${avgDealScore}/100. Consider comparing your strongest saved deals and reviewing your next AI report.`
         : `Start by analyzing one property or searching deals in ${strongestMarket}. Nestrova will build a personalized dashboard as you save properties and create reports.`;
 
     return NextResponse.json({
-      user_name: profileRes.data?.name || "there",
+      user_name: userName,
       portfolio_count: savedDeals.length,
       avg_deal_score: avgDealScore,
       saved_deals: savedDeals.length,
