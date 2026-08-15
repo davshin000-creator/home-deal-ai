@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import ResearchUsagePanel from "@/components/research/ResearchUsagePanel";
+import ResearchQuickSearch from "@/components/research/ResearchQuickSearch";
 import Link from "next/link";
 
 type PublicOpportunity = {
@@ -181,7 +182,7 @@ export default async function ResearchPage() {
               0,
           ),
       )
-      .slice(0, 12);
+      .slice(0, 6);
 
   const averageConfidence =
     discoveries.length > 0
@@ -234,12 +235,13 @@ export default async function ResearchPage() {
                 Nestrova Research
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-white/48">
-                Follow public, aggregated discoveries
-                produced by Nestrova research systems.
-                Patterns, evidence, confidence, and
-                evolving intelligence in one layer.
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/48">
+                Research stocks and crypto with Nestrova AI.
+                Start with any symbol and get the important
+                information without the complexity.
               </p>
+
+              <ResearchQuickSearch />
             </div>
 
             <div className="rounded-[26px] border border-white/10 bg-white/[0.045] p-5">
@@ -296,36 +298,27 @@ export default async function ResearchPage() {
       </section>
 
       <section className="mx-auto max-w-[1480px] px-5 py-12 md:px-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-200/65">
-              Research Feed
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200/60">
+              Latest Research
             </p>
 
             <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] md:text-4xl">
-              Latest discoveries.
+              What Nestrova is seeing now.
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {[
-              "All",
-              "Trading",
-              "Patterns",
-              "Evidence",
-            ].map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/38"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
+          <Link
+            href="/trading/markets"
+            className="text-sm font-semibold text-violet-200/65 transition hover:text-violet-200"
+          >
+            Explore all markets →
+          </Link>
         </div>
 
         {discoveries.length > 0 ? (
-          <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {discoveries.map(
               (item, index) => {
                 const confidence =
@@ -343,118 +336,75 @@ export default async function ResearchPage() {
                     confidence,
                   );
 
-                const reasons =
-                  item.research_reasons ??
-                  [];
-
                 return (
-                  <article
+                  <Link
                     key={`${item.symbol ?? "research"}-${index}`}
-                    className="group flex min-w-0 flex-col rounded-[30px] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.055),rgba(255,255,255,0.025))] p-6 transition duration-300 hover:-translate-y-1 hover:border-violet-300/20"
+                    href={
+                      item.symbol
+                        ? `/trading/assets/${encodeURIComponent(
+                            item.symbol,
+                          )}`
+                        : "/trading/markets"
+                    }
+                    className="group rounded-[26px] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-violet-200/55">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/25">
                           {cleanLabel(
                             item.asset_type,
                           )}
                         </p>
 
-                        <h3 className="mt-3 truncate text-2xl font-black tracking-[-0.04em]">
+                        <h3 className="mt-2 truncate text-2xl font-black tracking-[-0.04em]">
                           {item.symbol ||
                             item.name ||
-                            "Market Discovery"}
+                            "Research"}
                         </h3>
                       </div>
 
                       <span
-                        className={`shrink-0 rounded-full border px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] ${tone.className}`}
+                        className={`shrink-0 rounded-full border px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.1em] ${tone.className}`}
                       >
-                        {tone.label}
+                        {confidence}%
                       </span>
                     </div>
 
-                    <div className="mt-6 rounded-[20px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
-                        Research Pattern
+                    <div className="mt-5">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                        Research View
                       </p>
 
-                      <p className="mt-2 text-sm font-semibold leading-6 text-white/66">
+                      <p className="mt-2 text-sm font-semibold text-white/60">
                         {cleanLabel(
                           item.research_style,
                         )}
                       </p>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
-                          Confidence
-                        </p>
+                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                      <span className="text-xs text-white/30">
+                        {tone.label}
+                      </span>
 
-                        <p className="mt-2 text-xl font-black text-cyan-100">
-                          {confidence}%
-                        </p>
-                      </div>
-
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
-                          Evidence
-                        </p>
-
-                        <p className="mt-2 text-xl font-black text-violet-100">
-                          {reasons.length}
-                        </p>
-                      </div>
+                      <span className="text-sm font-semibold text-violet-200/60 transition group-hover:text-violet-200">
+                        View →
+                      </span>
                     </div>
-
-                    <div className="mt-5 space-y-2">
-                      {reasons
-                        .slice(0, 3)
-                        .map((reason) => (
-                          <div
-                            key={reason}
-                            className="flex gap-3 text-sm leading-6 text-white/42"
-                          >
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300" />
-                            <span>
-                              {reason}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-auto pt-6">
-                      <Link
-                        href={
-                          item.symbol
-                            ? `/trading/assets/${encodeURIComponent(
-                                item.symbol,
-                              )}`
-                            : "/trading/markets"
-                        }
-                        className="flex items-center justify-between border-t border-white/10 pt-5 text-sm font-semibold text-white/65 transition group-hover:text-white"
-                      >
-                        View intelligence
-                        <span>→</span>
-                      </Link>
-                    </div>
-                  </article>
+                  </Link>
                 );
               },
             )}
           </div>
         ) : (
-          <div className="mt-8 rounded-[30px] border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+          <div className="mt-7 rounded-[28px] border border-dashed border-white/10 bg-white/[0.03] p-9 text-center">
             <p className="font-semibold text-white/65">
-              No public discoveries are available
-              right now.
+              No research is available right now.
             </p>
 
             <p className="mt-2 text-sm text-white/32">
-              The Research feed will populate when
-              the public gateway publishes new
-              research intelligence.
+              New market research will appear here
+              when Nestrova publishes it.
             </p>
           </div>
         )}
@@ -462,114 +412,57 @@ export default async function ResearchPage() {
 
       <section className="mx-auto max-w-[1480px] px-5 pb-16 md:px-8">
         <div className="mb-8">
-            <ResearchUsagePanel />
-          </div>
+          <ResearchUsagePanel />
+        </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200/60">
+            Research Tools
+          </p>
+
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.05em]">
+            Choose how deep you want to go.
+          </h2>
+
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/40">
+            Start simple, then use advanced tools only when you need more detail.
+          </p>
+        </div>
+
+        <div className="mt-7 grid gap-5 lg:grid-cols-3">
           {[
             {
-              title:
-                "Deep Research",
+              title: "Deep Research",
               description:
-                "Generate structured Pro research reports grounded only in Nestrova public evidence.",
-              href:
-                "/research/deep",
-              badge:
-                "PRO",
+                "Generate a structured AI research report for one stock or crypto asset.",
+              href: "/research/deep",
+              action: "Start Research",
             },
             {
-              title:
-                "Research Council",
+              title: "AI Council",
               description:
-                "Convene five evidence-grounded AI research perspectives and inspect their final consensus.",
-              href:
-                "/research/council",
-              badge:
-                "PRO",
+                "See multiple AI perspectives and a combined research view.",
+              href: "/research/council",
+              action: "Open Council",
             },
             {
-              title:
-                "Research Compare",
+              title: "Compare",
               description:
-                "Compare two research subjects side by side using Nestrova public evidence, confidence, and risk signals.",
-              href:
-                "/research/compare",
-              badge:
-                "PRO",
-            },
-            {
-              title:
-                "Saved Research",
-              description:
-                "Return to your saved Deep Research, Council, and Compare results from one private research library.",
-              href:
-                "/research/saved",
-              badge:
-                "PRO",
-            },
-            {
-              title:
-                "Research Watch",
-              description:
-                "Track confidence, risk, research style, and engine changes across up to 20 research subjects.",
-              href:
-                "/research/watch",
-              badge:
-                "PRO",
-            },
-            {
-              title:
-                "Research Alerts",
-              description:
-                "Review meaningful confidence, risk, research-style, and research-engine changes detected across your watchlist.",
-              href:
-                "/research/alerts",
-              badge:
-                "PRO",
-            },
-            {
-              title:
-                "Pattern Discovery",
-              description:
-                "Surface recurring market structures, regime changes, and research signals.",
-              href:
-                "/research/patterns",
-            },
-            {
-              title:
-                "Evidence Tracking",
-              description:
-                "Trace the public reasons and confidence supporting each surfaced discovery.",
-              href:
-                "/research/evidence",
-            },
-            {
-              title:
-                "Model Evolution",
-              description:
-                "Follow how Nestrova research engines, strategy modes, and verification states evolve.",
-              href:
-                "/research/models",
+                "Compare two assets side by side using the same research framework.",
+              href: "/research/compare",
+              action: "Compare Assets",
             },
           ].map((item) => (
             <Link
               key={item.title}
               href={item.href}
-              className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 transition hover:border-violet-300/20 hover:bg-violet-300/[0.04]"
+              className="group rounded-[30px] border border-white/10 bg-white/[0.045] p-6 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
             >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200/55">
-                  Research System
-                </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-200/55">
+                Research
+              </p>
 
-                {"badge" in item && item.badge ? (
-                  <span className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-cyan-100">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </div>
-
-              <h3 className="mt-3 text-2xl font-black tracking-[-0.04em]">
+              <h3 className="mt-4 text-2xl font-black tracking-[-0.045em]">
                 {item.title}
               </h3>
 
@@ -577,12 +470,57 @@ export default async function ResearchPage() {
                 {item.description}
               </p>
 
-              <p className="mt-6 text-sm font-semibold text-white/65">
-                Explore →
+              <p className="mt-6 text-sm font-semibold text-violet-200/70 transition group-hover:text-violet-200">
+                {item.action} →
               </p>
             </Link>
           ))}
         </div>
+
+        <details className="mt-7 rounded-[28px] border border-white/10 bg-white/[0.03]">
+          <summary className="cursor-pointer px-6 py-5 text-sm font-semibold text-white/55">
+            Advanced Research
+          </summary>
+
+          <div className="border-t border-white/10 p-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  title: "Saved Research",
+                  href: "/research/saved",
+                },
+                {
+                  title: "Research Watch",
+                  href: "/research/watch",
+                },
+                {
+                  title: "Research Alerts",
+                  href: "/research/alerts",
+                },
+                {
+                  title: "Patterns",
+                  href: "/research/patterns",
+                },
+                {
+                  title: "Evidence",
+                  href: "/research/evidence",
+                },
+                {
+                  title: "Models",
+                  href: "/research/models",
+                },
+              ].map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-4 text-sm font-semibold text-white/55 transition hover:bg-white/[0.05] hover:text-white"
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </details>
 
         <div className="mt-8 rounded-[24px] border border-cyan-300/15 bg-cyan-300/[0.05] p-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/65">

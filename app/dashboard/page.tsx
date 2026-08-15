@@ -3,16 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import AIHomeFeed from "@/components/dashboard/AIHomeFeed";
-import UniversalSearch from "@/components/search/UniversalSearch";
 
 import {
   SignInButton,
   useUser,
 } from "@/components/auth/ClerkCompat";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
-import DashboardNotifications from "@/components/notifications/DashboardNotifications";
-import UnifiedDashboardHero from "@/components/dashboard/UnifiedDashboardHero";
 import NestrovaAppShell from "@/components/shell/NestrovaAppShell";
 
 type DashboardActivity = {
@@ -41,99 +37,6 @@ type SubscriptionData = {
   trial_ends_at: string | null;
 };
 
-type ProductCard = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  href: string;
-  action: string;
-  accent: "emerald" | "cyan" | "violet";
-  links: Array<{
-    label: string;
-    href: string;
-  }>;
-};
-
-const products: ProductCard[] = [
-  {
-    eyebrow: "Property Intelligence",
-    title: "Real Estate",
-    description:
-      "Analyze fair value, rent, risk, negotiation leverage, and investment quality.",
-    href: "/real-estate",
-    action: "Open Real Estate",
-    accent: "emerald",
-    links: [
-      { label: "Analyze Property", href: "/analyze" },
-      { label: "Compare", href: "/compare" },
-      { label: "Brain Console", href: "/brain-console" },
-      { label: "Investor Memo", href: "/memo" },
-    ],
-  },
-  {
-    eyebrow: "Market Intelligence",
-    title: "Trading",
-    description:
-      "Review market regime, AI Council research, opportunities, strategies, and your Watchlist.",
-    href: "/trading",
-    action: "Open Trading",
-    accent: "cyan",
-    links: [
-      { label: "Daily Briefing", href: "/trading/briefing" },
-      { label: "Markets", href: "/trading/markets" },
-      { label: "Watchlist", href: "/trading/watchlist" },
-      { label: "AI Council", href: "/trading/council" },
-    ],
-  },
-  {
-    eyebrow: "Continuous Discovery",
-    title: "Research",
-    description:
-      "Follow aggregated discoveries, patterns, evidence, and future intelligence products.",
-    href: "/research",
-    action: "Open Research",
-    accent: "violet",
-    links: [
-      { label: "Research Home", href: "/research" },
-      { label: "Trading Strategies", href: "/trading/strategies" },
-      { label: "Verified Registry", href: "/trading/verified" },
-      { label: "Platform Home", href: "/" },
-    ],
-  },
-];
-
-
-
-function accentClasses(accent: ProductCard["accent"]) {
-  if (accent === "emerald") {
-    return {
-      label: "text-emerald-300/80",
-      glow: "bg-emerald-400/10",
-      button:
-        "border-emerald-400/20 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/15",
-      dot: "bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.8)]",
-    };
-  }
-
-  if (accent === "cyan") {
-    return {
-      label: "text-cyan-300/80",
-      glow: "bg-cyan-400/10",
-      button:
-        "border-cyan-400/20 bg-cyan-400/10 text-cyan-200 hover:bg-cyan-400/15",
-      dot: "bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.8)]",
-    };
-  }
-
-  return {
-    label: "text-violet-300/80",
-    glow: "bg-violet-400/10",
-    button:
-      "border-violet-400/20 bg-violet-400/10 text-violet-200 hover:bg-violet-400/15",
-    dot: "bg-violet-400 shadow-[0_0_18px_rgba(167,139,250,0.8)]",
-  };
-}
-
 function formatNumber(value?: number | null) {
   if (value === null || value === undefined) {
     return "0";
@@ -142,32 +45,6 @@ function formatNumber(value?: number | null) {
   return value.toLocaleString("en-US", {
     maximumFractionDigits: 1,
   });
-}
-
-function MetricCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <article className="rounded-[28px] border border-white/10 bg-white/[0.05] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-        {label}
-      </p>
-
-      <p className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
-        {value}
-      </p>
-
-      <p className="mt-3 text-sm leading-6 text-white/38">
-        {detail}
-      </p>
-    </article>
-  );
 }
 
 function DashboardSkeleton() {
@@ -512,395 +389,238 @@ const intelligenceItems = [
   return (
     <NestrovaAppShell
       userName={data?.user_name || displayName}
-      title="Unified Intelligence"
-      subtitle="Trading and real estate intelligence in one workspace."
+      title="Home"
+      subtitle="Your Nestrova workspace."
     >
       <FloatingAIAssistant />
 
-      <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10 xl:px-10">
-        <div className="relative z-30 mb-7">
-          <UniversalSearch />
-        </div>
+      <div className="mx-auto w-full max-w-[1400px] px-5 py-8 md:px-8 md:py-10">
+        {message ? (
+          <div className="mb-6 flex flex-col gap-4 rounded-[24px] border border-red-400/20 bg-red-400/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-red-200">
+                Dashboard data unavailable
+              </p>
 
-  {message ? (
-              <div className="mb-7 flex flex-col gap-4 rounded-[28px] border border-red-400/20 bg-red-400/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-semibold text-red-200">
-                    Dashboard data unavailable
+              <p className="mt-1 text-sm text-red-100/60">
+                {message}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                void loadDashboard()
+              }
+              className="rounded-[12px] border border-red-300/20 bg-red-300/10 px-4 py-2 text-xs font-semibold text-red-100"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : null}
+
+        {loading ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
+            <section className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.045] p-7 md:p-10">
+              <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-violet-400/[0.08] blur-3xl" />
+
+              <div className="relative max-w-4xl">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200/60">
+                  Nestrova
+                </p>
+
+                <h1 className="mt-4 text-[clamp(2.7rem,7vw,5.5rem)] font-black leading-[0.94] tracking-[-0.065em]">
+                  Your Nestrova
+                  <span className="block text-white/35">
+                    workspace.
+                  </span>
+                </h1>
+
+                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/45 md:text-base">
+                  Research properties, markets,
+                  and opportunities from one simple
+                  workspace.
+                </p>
+              </div>
+            </section>
+
+            <section className="mt-8">
+              <div className="grid gap-5 lg:grid-cols-3">
+                <Link
+                  href="/real-estate"
+                  className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-emerald-300/25 hover:bg-emerald-300/[0.045]"
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/60">
+                    Real Estate
                   </p>
-                  <p className="mt-1 text-sm text-red-100/60">
-                    {message}
+
+                  <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
+                    Understand a property.
+                  </h2>
+
+                  <p className="mt-3 text-sm leading-7 text-white/40">
+                    Analyze value, rental potential,
+                    Deal Score, and risk.
                   </p>
+
+                  <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
+                    <span className="text-sm font-semibold">
+                      Open Real Estate
+                    </span>
+
+                    <span className="text-lg text-emerald-200/65 transition group-hover:translate-x-1">
+                      →
+                    </span>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/trading"
+                  className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-cyan-300/[0.045]"
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/60">
+                    Trading
+                  </p>
+
+                  <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
+                    Explore the market.
+                  </h2>
+
+                  <p className="mt-3 text-sm leading-7 text-white/40">
+                    Find stocks and crypto worth
+                    researching right now.
+                  </p>
+
+                  <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
+                    <span className="text-sm font-semibold">
+                      Open Trading
+                    </span>
+
+                    <span className="text-lg text-cyan-200/65 transition group-hover:translate-x-1">
+                      →
+                    </span>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/research"
+                  className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-violet-300/25 hover:bg-violet-300/[0.045]"
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-200/60">
+                    Research
+                  </p>
+
+                  <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
+                    Go deeper with AI.
+                  </h2>
+
+                  <p className="mt-3 text-sm leading-7 text-white/40">
+                    Research stocks and crypto with
+                    deeper evidence and AI analysis.
+                  </p>
+
+                  <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
+                    <span className="text-sm font-semibold">
+                      Open Research
+                    </span>
+
+                    <span className="text-lg text-violet-200/65 transition group-hover:translate-x-1">
+                      →
+                    </span>
+                  </div>
+                </Link>
+              </div>
+            </section>
+
+            <section className="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <article className="rounded-[30px] border border-white/10 bg-white/[0.04] p-6 md:p-7">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/28">
+                      Recent Activity
+                    </p>
+
+                    <h2 className="mt-3 text-2xl font-black tracking-[-0.045em]">
+                      Continue where you left off.
+                    </h2>
+                  </div>
+
+                  <span className="text-xs text-white/25">
+                    {data?.recent_activity?.length ?? 0} items
+                  </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => void loadDashboard()}
-                  className="rounded-full border border-red-300/20 bg-red-300/10 px-4 py-2 text-xs font-semibold text-red-100"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : null}
-
-            {loading ? (
-              <DashboardSkeleton />
-            ) : (
-              <>
-                <UnifiedDashboardHero
-                  userName={data?.user_name || displayName}
-                  realEstateScore={data?.avg_deal_score}
-                  savedProperties={
-                    data?.saved_deals ??
-                    data?.portfolio_count ??
-                    0
-                  }
-                  tradingWatchlist={watchlistCount}
-                  aiReports={data?.ai_reports}
-                  aiBrief={data?.ai_brief}
-                />
-
-                <section className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                  <MetricCard
-                    label="Property Portfolio"
-                    value={formatNumber(data?.portfolio_count)}
-                    detail="Properties currently tracked in your workspace."
-                  />
-
-                  <MetricCard
-                    label="Average Deal Score"
-                    value={formatNumber(data?.avg_deal_score)}
-                    detail="Average investment quality across analyzed deals."
-                  />
-
-                  <MetricCard
-                    label="Saved Deals"
-                    value={formatNumber(data?.saved_deals)}
-                    detail="Property opportunities saved for later review."
-                  />
-
-                  <MetricCard
-                    label="Watchlist Assets"
-                    value={formatNumber(data?.watchlist_count)}
-                    detail="Markets saved to your private Trading Watchlist."
-                  />
-                </section>
-
-                <section className="mt-8">
-  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/30">
-        Plan Usage
-      </p>
-
-      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
-        Your current access and usage.
-      </h2>
-    </div>
-
-    <Link
-      href="/settings/billing"
-      className="text-sm font-semibold text-white/42 transition hover:text-white"
-    >
-      Manage membership →
-    </Link>
-  </div>
-
-  <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-    <MetricCard
-      label="Current Plan"
-      value={subscriptionDisplayName}
-      detail={`Status: ${subscriptionStatus}`}
-    />
-
-    <MetricCard
-      label="Property Analyses"
-      value={
-        canUseRealEstate
-          ? "Unlimited"
-          : analysisRemaining === null
-            ? "— / 5"
-            : `${Math.max(0, 5 - analysisRemaining)} / 5`
-      }
-      detail={
-        canUseRealEstate
-          ? "Unlimited analysis access is active."
-          : analysisRemaining === null
-            ? "Usage information is loading."
-            : `${analysisRemaining} analyses remaining this month.`
-      }
-    />
-
-    <MetricCard
-      label="Trading Watchlist"
-      value={
-        canUseTrading
-          ? `${watchlistCount} / Unlimited`
-          : `${watchlistCount} / 5`
-      }
-      detail={
-        canUseTrading
-          ? "Unlimited watchlist access is active."
-          : `${Math.max(0, 5 - watchlistCount)} free watchlist slots remaining.`
-      }
-    />
-
-    <MetricCard
-      label="Trading Alerts"
-      value={
-        canUseTrading
-          ? `${alertCount} Active`
-          : "Locked"
-      }
-      detail={
-        canUseTrading
-          ? "Custom trading alerts are enabled."
-          : "Upgrade to Trading Pro or All Access to create alerts."
-      }
-    />
-  </div>
-</section>
-
-<AIHomeFeed
-  aiBrief={data?.ai_brief}
-  recentActivity={data?.recent_activity}
-  watchlistCount={watchlistCount}
-  alertCount={alertCount}
-  analysisRemaining={analysisRemaining}
-  canUseRealEstate={canUseRealEstate}
-  canUseTrading={canUseTrading}
-/>
-
-                <section className="mt-12">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/30">
-                        My Intelligence
-                      </p>
-
-                      <h2 className="mt-3 text-4xl font-semibold tracking-[-0.055em]">
-                        One account. Multiple decision systems.
-                      </h2>
-                    </div>
-
-                    <Link
-                      href="/"
-                      className="text-sm font-semibold text-white/42 transition hover:text-white"
-                    >
-                      View platform home →
-                    </Link>
-                  </div>
-
-                  <div className="mt-7 grid gap-6 xl:grid-cols-3">
-                    {products.map((product) => {
-                      const accent = accentClasses(product.accent);
-
-                      return (
-                        <article
-                          key={product.title}
-                          className="group relative overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.07] hover:shadow-[0_30px_100px_rgba(0,0,0,0.4)]"
+                <div className="mt-6 grid gap-3">
+                  {data?.recent_activity &&
+                  data.recent_activity.length > 0 ? (
+                    data.recent_activity
+                      .slice(0, 3)
+                      .map((item, index) => (
+                        <Link
+                          key={`${item.href}-${index}`}
+                          href={
+                            item.href ||
+                            "/dashboard"
+                          }
+                          className="group flex items-center justify-between gap-5 rounded-[20px] border border-white/10 bg-black/20 p-4 transition hover:bg-white/[0.05]"
                         >
-                          <div
-                            className={`absolute -right-24 -top-24 h-64 w-64 rounded-full blur-3xl ${accent.glow}`}
-                          />
-
-                          <div className="relative">
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={`h-2 w-2 rounded-full ${accent.dot}`}
-                              />
-
-                              <p
-                                className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${accent.label}`}
-                              >
-                                {product.eyebrow}
-                              </p>
-                            </div>
-
-                            <h3 className="mt-6 text-4xl font-semibold tracking-[-0.055em]">
-                              {product.title}
-                            </h3>
-
-                            <p className="mt-4 min-h-24 text-sm leading-7 text-white/43">
-                              {product.description}
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold">
+                              {item.title}
                             </p>
 
-                            <div className="mt-7 grid grid-cols-2 gap-3">
-                              {product.links.map((item) => (
-                                <Link
-                                  key={item.href}
-                                  href={item.href}
-                                  className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs font-semibold text-white/45 transition hover:bg-white/[0.06] hover:text-white"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-
-                            <Link
-                              href={product.href}
-                              className={`mt-7 inline-flex w-full justify-center rounded-full border px-5 py-3.5 text-sm font-semibold transition ${accent.button}`}
-                            >
-                              {product.action}
-                            </Link>
+                            <p className="mt-1 truncate text-xs text-white/32">
+                              {item.description}
+                            </p>
                           </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
 
-                <section className="mt-12 grid gap-6 xl:grid-cols-[1fr_420px]">
-                  <article className="rounded-[40px] border border-white/10 bg-white/[0.05] p-7 md:p-8">
-                    <div className="flex items-end justify-between gap-5">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/30">
-                          Recent Activity
-                        </p>
+                          <span className="shrink-0 text-white/30 transition group-hover:translate-x-1 group-hover:text-white">
+                            →
+                          </span>
+                        </Link>
+                      ))
+                  ) : (
+                    <div className="rounded-[20px] border border-white/10 bg-black/20 p-5">
+                      <p className="font-semibold">
+                        No recent activity yet.
+                      </p>
 
-                        <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
-                          Continue where you left off.
-                        </h2>
-                      </div>
-
-                      <p className="text-sm text-white/30">
-                        {data?.recent_activity?.length ?? 0} items
+                      <p className="mt-2 text-sm leading-6 text-white/35">
+                        Your recent research and
+                        property activity will appear
+                        here.
                       </p>
                     </div>
+                  )}
+                </div>
+              </article>
 
-                    <div className="mt-7 grid gap-3">
-                      {data?.recent_activity &&
-                      data.recent_activity.length > 0 ? (
-                        data.recent_activity.slice(0, 6).map((item, index) => (
-                          <Link
-                            key={`${item.href}-${index}`}
-                            href={item.href || "/dashboard"}
-                            className="group flex items-center justify-between gap-5 rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:bg-white/[0.055]"
-                          >
-                            <div>
-                              <p className="font-semibold">
-                                {item.title}
-                              </p>
+              <aside className="rounded-[30px] border border-white/10 bg-white/[0.04] p-6">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/28">
+                  Account
+                </p>
 
-                              <p className="mt-2 text-sm leading-6 text-white/38">
-                                {item.description}
-                              </p>
-                            </div>
+                <h2 className="mt-3 text-2xl font-black tracking-[-0.045em]">
+                  {subscriptionDisplayName}
+                </h2>
 
-                            <span className="text-xl text-white/28 transition group-hover:translate-x-1 group-hover:text-white">
-                              →
-                            </span>
-                          </Link>
-                        ))
-                      ) : (
-                        <div className="rounded-[26px] border border-white/10 bg-black/20 p-6">
-                          <p className="font-semibold">
-                            No recent activity yet.
-                          </p>
+                <p className="mt-2 text-sm text-white/35">
+                  Status: {subscriptionStatus}
+                </p>
 
-                          <p className="mt-3 text-sm leading-7 text-white/40">
-                            Analyze a property or add an asset to your Watchlist
-                            to begin building your intelligence history.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </article>
-
-                  <aside className="grid gap-6">
-                    <article className="rounded-[38px] border border-white/10 bg-white/[0.05] p-7">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/30">
-                        Usage
-                      </p>
-
-                      <div className="mt-6 grid grid-cols-2 gap-3">
-                        <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-                            AI Reports
-                          </p>
-                          <p className="mt-2 text-2xl font-semibold">
-                            {formatNumber(data?.ai_reports)}
-                          </p>
-                        </div>
-
-                        <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-                            Weekly Reports
-                          </p>
-                          <p className="mt-2 text-2xl font-semibold">
-                            {formatNumber(data?.weekly_reports)}
-                          </p>
-                        </div>
-
-                        <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-                            Coach Plans
-                          </p>
-                          <p className="mt-2 text-2xl font-semibold">
-                            {formatNumber(data?.coach_plans)}
-                          </p>
-                        </div>
-
-                        <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
-                          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-                            Saved Deals
-                          </p>
-                          <p className="mt-2 text-2xl font-semibold">
-                            {formatNumber(data?.saved_deals)}
-                          </p>
-                        </div>
-                      </div>
-                    </article>
-
-                    <article className="rounded-[38px] border border-cyan-400/20 bg-cyan-400/[0.07] p-7">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/70">
-                        Quick Launch
-                      </p>
-
-                      <div className="mt-6 grid gap-3">
-                        <Link
-                          href="/analyze"
-                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
-                        >
-                          Analyze a property →
-                        </Link>
-
-                        <Link
-                          href="/saved"
-                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
-                        >
-                          Saved Deals →
-                        </Link>
-
-                        <Link
-                          href="/reports"
-                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
-                        >
-                          My AI Reports →
-                        </Link>
-
-                        <Link
-                          href="/trading/watchlist"
-                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
-                        >
-                          Manage Watchlist →
-                        </Link>
-
-                        <Link
-                          href="/trading/council"
-                          className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
-                        >
-                          Review AI Council →
-                        </Link>
-                      </div>
-                    </article>
-                  </aside>
-                </section>
-                <section className="mt-12">
-  <DashboardNotifications />
-</section>
-              </>
-            )}
+                <Link
+                  href="/settings/billing"
+                  className="mt-7 flex items-center justify-between border-t border-white/10 pt-5 text-sm font-semibold text-white/55 transition hover:text-white"
+                >
+                  Manage settings
+                  <span>→</span>
+                </Link>
+              </aside>
+            </section>
+          </>
+        )}
       </div>
     </NestrovaAppShell>
   );

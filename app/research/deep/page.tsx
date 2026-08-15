@@ -7,6 +7,7 @@ import { useResearchUniverse } from "@/components/research/useResearchUniverse";
 
 import {
   FormEvent,
+  useEffect,
   useState,
 } from "react";
 
@@ -134,6 +135,21 @@ export default function DeepResearchPage() {
     symbol,
     setSymbol,
   ] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(
+      window.location.search,
+    );
+
+    const querySymbol = params
+      .get("symbol")
+      ?.trim()
+      .toUpperCase();
+
+    if (querySymbol) {
+      setSymbol(querySymbol);
+    }
+  }, []);
 
   const [
     loading,

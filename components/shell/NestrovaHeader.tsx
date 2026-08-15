@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import NestrovaMark from "@/components/brand/NestrovaMark";
@@ -39,92 +39,41 @@ const mobileNavigation: MobileNavigationGroup[] = [
     ],
   },
   {
-    label: "Trading Intelligence",
+    label: "Explore",
     items: [
       {
-        label: "Trading Dashboard",
+        label: "Trading",
         href: "/trading",
         marker: "T",
       },
       {
-        label: "AI Portfolio",
-        href: "/trading/portfolio",
-        marker: "P",
-      },
-      {
-        label: "Markets",
-        href: "/trading/markets",
-        marker: "M",
-      },
-      {
-        label: "Watchlist",
-        href: "/trading/watchlist",
-        marker: "W",
-      },
-      {
-        label: "Executive Brief",
-        href: "/trading/briefing",
-        marker: "E",
-      },
-      {
-        label: "AI Council",
-        href: "/trading/council",
-        marker: "C",
-      },
-    ],
-  },
-  {
-    label: "Real Estate Intelligence",
-    items: [
-      {
-        label: "Property Dashboard",
+        label: "Real Estate",
         href: "/real-estate",
         marker: "R",
       },
       {
-        label: "Analyze Property",
-        href: "/analyze",
-        marker: "A",
-      },
-      {
-        label: "Saved Properties",
-        href: "/saved",
-        marker: "S",
-      },
-      {
-        label: "Compare Deals",
-        href: "/compare",
-        marker: "D",
-      },
-      {
-        label: "Reports",
-        href: "/reports",
-        marker: "R",
+        label: "Research",
+        href: "/research",
+        marker: "AI",
       },
     ],
   },
   {
-    label: "Nestrova",
+    label: "Account",
     items: [
-      {
-        label: "AI Brain",
-        href: "/brain-console",
-        marker: "B",
-      },
       {
         label: "Notifications",
         href: "/notifications",
         marker: "N",
       },
       {
-        label: "Billing",
+        label: "Settings",
         href: "/settings/billing",
-        marker: "$",
+        marker: "S",
       },
     ],
   },
 ];
-
 function getGreeting() {
   const hour = new Date().getHours();
 
@@ -157,12 +106,32 @@ function isCurrentPath(
     return pathname === href;
   }
 
+  if (href === "/trading") {
+    return pathname.startsWith("/trading");
+  }
+
+  if (href === "/real-estate") {
+    return (
+      pathname.startsWith("/real-estate") ||
+      pathname.startsWith("/analyze") ||
+      pathname.startsWith("/saved") ||
+      pathname.startsWith("/compare") ||
+      pathname.startsWith("/reports")
+    );
+  }
+
+  if (href === "/research") {
+    return (
+      pathname.startsWith("/research") ||
+      pathname.startsWith("/brain-console")
+    );
+  }
+
   return (
     pathname === href ||
     pathname.startsWith(`${href}/`)
   );
 }
-
 type HeaderTheme = {
   eyebrowClasses: string;
   iconClasses: string;
@@ -266,7 +235,7 @@ export default function NestrovaHeader({
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080b]/82 backdrop-blur-2xl">
-        <div className="flex min-h-[84px] min-w-0 items-center justify-between gap-4 px-4 py-4 md:px-7 xl:px-8">
+        <div className="flex min-h-[72px] min-w-0 items-center justify-between gap-4 px-4 py-3 md:px-7 xl:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
@@ -300,9 +269,7 @@ export default function NestrovaHeader({
             </span>
 
             <div className="min-w-0">
-              <p
-                className={`truncate text-[10px] font-bold uppercase tracking-[0.18em] sm:text-[11px] ${headerTheme.eyebrowClasses}`}
-              >
+              <p className="hidden text-[10px] font-medium text-white/28 sm:block">
                 {greeting}, {firstName}
               </p>
 
@@ -321,23 +288,6 @@ export default function NestrovaHeader({
           </div>
 
           <div className="flex shrink-0 items-center gap-2.5 sm:gap-4 lg:gap-5">
-            <div className="hidden items-center gap-2 rounded-[13px] border border-emerald-300/15 bg-emerald-300/[0.07] px-3.5 py-2.5 lg:flex">
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-40" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              </span>
-
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.13em] text-emerald-200/70">
-                  Nestrova AI
-                </p>
-
-                <p className="mt-0.5 text-[10px] font-semibold text-white/40">
-                  Online · Read Only
-                </p>
-              </div>
-            </div>
-
             <NotificationBell />
 
             <Link
@@ -460,22 +410,11 @@ export default function NestrovaHeader({
               )}
             </div>
 
-            <div className="mt-8 rounded-[22px] border border-violet-300/15 bg-violet-300/[0.07] p-4">
-              <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.85)]" />
-
-                <p className="text-xs font-semibold text-white/65">
-                  Nestrova AI Online
-                </p>
-              </div>
-
-              <p className="mt-2 text-[11px] leading-5 text-white/30">
-                Trading and property intelligence are available.
-              </p>
-            </div>
           </aside>
         </div>
       ) : null}
     </>
   );
 }
+
+
