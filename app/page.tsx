@@ -162,6 +162,14 @@ export default async function HomePage() {
             overload.
           </p>
 
+          <div className="mt-9 flex justify-center">
+            <a
+              href="/login"
+              className="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/[0.09]"
+            >
+              Explore Nestrova
+            </a>
+          </div>
         </div>
       </section>
 
@@ -219,7 +227,7 @@ export default async function HomePage() {
                     <span
                       className={`text-xl transition group-hover:translate-x-1 ${styles.button}`}
                     >
-                      ??
+                      &rarr;
                     </span>
                   </div>
                 </div>
@@ -297,14 +305,6 @@ export default async function HomePage() {
           a simpler view you can understand.
         </p>
 
-        <div className="mt-8 flex justify-center">
-          <a
-            href="/login"
-            className="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.09]"
-          >
-            Explore Nestrova
-          </a>
-        </div>
       </section>
 
       <SiteFooter
@@ -313,5 +313,8 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
+
 
 
