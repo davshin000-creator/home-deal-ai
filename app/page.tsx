@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import NestrovaMark from "@/components/brand/NestrovaMark";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -162,14 +162,6 @@ export default async function HomePage() {
             overload.
           </p>
 
-          <div className="mt-9 flex justify-center">
-            <a
-              href="#explore"
-              className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-            >
-              Start Exploring
-            </a>
-          </div>
         </div>
       </section>
 
@@ -227,7 +219,7 @@ export default async function HomePage() {
                     <span
                       className={`text-xl transition group-hover:translate-x-1 ${styles.button}`}
                     >
-                      →
+                      ??
                     </span>
                   </div>
                 </div>
@@ -307,7 +299,7 @@ export default async function HomePage() {
 
         <div className="mt-8 flex justify-center">
           <a
-            href="#explore"
+            href="/login"
             className="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.09]"
           >
             Explore Nestrova
@@ -321,3 +313,5 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
