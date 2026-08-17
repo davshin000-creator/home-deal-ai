@@ -2,10 +2,9 @@
   NextResponse,
 } from "next/server";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  process.env.NEXT_PUBLIC_NESTROVA_TRADING_API_URL ||
-  "";
+import {
+  loadResearchPublicState,
+} from "@/lib/research/public-gateway";
 
 type SearchAsset = {
   symbol: string;
@@ -83,39 +82,16 @@ function normalizeSearchUniverse(
 }
 
 export async function GET() {
-  if (!API_BASE_URL) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          "Trading gateway is not configured.",
-        assets: [],
-        count: 0,
-      },
-      {
-        status: 503,
-      },
-    );
-  }
-
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
+    const state =
+      await loadResearchPublicState();
 
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) {
+    if (!state) {
       return NextResponse.json(
         {
           ok: false,
           error:
-            "Trading gateway returned an error.",
+            "Research universe is temporarily unavailable.",
           assets: [],
           count: 0,
         },
@@ -124,11 +100,6 @@ export async function GET() {
         },
       );
     }
-
-    const state =
-      (await response.json()) as {
-        opportunities?: unknown;
-      };
 
     const opportunities =
       state.opportunities;

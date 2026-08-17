@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import {
@@ -114,8 +114,23 @@ export default function NotificationBell() {
   const previousUnreadRef =
     useRef(0);
 
+  const notificationRequestInFlightRef =
+    useRef(false);
+
+  const notificationMountedRef =
+    useRef(true);
+
   const loadNotifications =
     useCallback(async () => {
+      if (
+        notificationRequestInFlightRef.current
+      ) {
+        return;
+      }
+
+      notificationRequestInFlightRef.current =
+        true;
+
       try {
         const response = await fetch(
           "/api/notifications/summary",
@@ -125,6 +140,10 @@ export default function NotificationBell() {
           },
         );
 
+        if (!notificationMountedRef.current) {
+          return;
+        }
+
         if (response.status === 401) {
           setUnreadCount(0);
           setNotifications([]);
@@ -132,11 +151,20 @@ export default function NotificationBell() {
         }
 
         if (!response.ok) {
+          console.warn(
+            "notification_bell_http_error",
+            response.status,
+          );
+
           return;
         }
 
         const result =
           (await response.json()) as NotificationResponse;
+
+        if (!notificationMountedRef.current) {
+          return;
+        }
 
         const nextUnread =
           result.unread_count ?? 0;
@@ -148,7 +176,11 @@ export default function NotificationBell() {
           setHasNewAlert(true);
 
           window.setTimeout(() => {
-            setHasNewAlert(false);
+            if (
+              notificationMountedRef.current
+            ) {
+              setHasNewAlert(false);
+            }
           }, 4000);
         }
 
@@ -156,20 +188,42 @@ export default function NotificationBell() {
           nextUnread;
 
         setUnreadCount(nextUnread);
+
         setNotifications(
           result.notifications ?? [],
         );
       } catch (error) {
-        console.error(
-          "notification_bell_load_error",
-          error,
-        );
+        /*
+         * Browser fetch can briefly fail during
+         * Next.js HMR, tab focus changes, or a
+         * development-server restart.
+         *
+         * Since the polling request is retried
+         * automatically, avoid turning this into
+         * a noisy runtime error.
+         */
+        if (
+          !(error instanceof TypeError)
+        ) {
+          console.warn(
+            "notification_bell_load_warning",
+            error,
+          );
+        }
       } finally {
-        setLoading(false);
+        notificationRequestInFlightRef.current =
+          false;
+
+        if (
+          notificationMountedRef.current
+        ) {
+          setLoading(false);
+        }
       }
     }, []);
 
-      const markNotificationRead = useCallback(
+  const markNotificationRead = useCallback(
+
     async (id: string) => {
       const target = notifications.find(
         (notification) => notification.id === id,
@@ -272,15 +326,31 @@ export default function NotificationBell() {
     }, [loadNotifications, unreadCount]);
 
   useEffect(() => {
+    notificationMountedRef.current = true;
+
     void loadNotifications();
 
     const interval =
       window.setInterval(() => {
-        void loadNotifications();
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+          void loadNotifications();
+        }
       }, 30_000);
 
     const handleFocus = () => {
       void loadNotifications();
+    };
+
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        void loadNotifications();
+      }
     };
 
     window.addEventListener(
@@ -288,12 +358,25 @@ export default function NotificationBell() {
       handleFocus,
     );
 
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange,
+    );
+
     return () => {
+      notificationMountedRef.current =
+        false;
+
       window.clearInterval(interval);
 
       window.removeEventListener(
         "focus",
         handleFocus,
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange,
       );
     };
   }, [loadNotifications]);

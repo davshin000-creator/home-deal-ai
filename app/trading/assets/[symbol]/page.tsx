@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -9,11 +9,6 @@ import useSubscription from "@/hooks/useSubscription";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import AssetAITimeline from "@/components/trading/AssetAITimeline";
 import AIDecisionBreakdown from "@/components/trading/AIDecisionBreakdown";
-
-const TRADING_API_URL =
-  process.env.NEXT_PUBLIC_NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
-
 
 type PublicOpportunity = {
   symbol?: string;
@@ -28,11 +23,59 @@ type PublicOpportunity = {
   research_version?: string;
   research_reasons?: string[];
   score_components?: Record<string, number>;
+
+  direction?: string;
+  direction_label?: string;
+  outlook?: string;
+  outlook_label?: string;
+  outlook_summary?: string;
+  time_horizon?: string;
+  positive_factors?: string[];
+  watch_factors?: string[];
+
   source_available?: boolean;
   generated_at?: string;
   public_mode?: string;
   execution_exposed?: boolean;
   disclaimer?: string;
+
+  access?: {
+    tier?: "free" | "pro";
+    unlimited?: boolean;
+    usage?: {
+      used: number;
+      limit: number;
+      remaining: number;
+      usageMonth: string;
+    } | null;
+    charged?: boolean;
+    deduped?: boolean;
+  };
+};
+
+type TradingResearchAccess = {
+  tier: "free" | "pro";
+  unlimited: boolean;
+  usage: {
+    used: number;
+    limit: number;
+    remaining: number;
+    usageMonth: string;
+  } | null;
+  charged: boolean;
+  deduped: boolean;
+};
+
+type TradingResearchErrorResponse = {
+  success?: false;
+  code?: string;
+  error?: string;
+  usage?: {
+    used: number;
+    limit: number;
+    remaining: number;
+    usageMonth: string;
+  };
 };
 
 
@@ -65,6 +108,16 @@ type AssetData = {
   confidence: number;
   risk: string;
   regime: string;
+
+  direction?: string;
+  directionLabel?: string;
+  outlook?: string;
+  outlookLabel?: string;
+  outlookSummary?: string;
+  timeHorizon?: string;
+  positiveFactors?: string[];
+  watchFactors?: string[];
+
   summary: string[];
   technicals: {
     label: string;
@@ -95,183 +148,40 @@ function normalizeAssetType(value: string) {
   return "stock";
 }
 
-function getMockAsset(symbol: string): AssetData {
-  const assets: Record<string, AssetData> = {
-    BTC: {
-      name: "Bitcoin",
-      assetType: "Crypto",
-      score: 92,
-      confidence: 88,
-      risk: "LOW",
-      regime: "Bullish",
-      summary: [
-        "Momentum remains constructive across multiple timeframes.",
-        "Volume participation is improving without a major volatility spike.",
-        "Trend structure remains healthy while short-term pullbacks stay contained.",
-      ],
-      technicals: [
-        {
-          label: "RSI",
-          value: "61.8",
-          interpretation:
-            "Positive momentum without an overbought extreme.",
-        },
-        {
-          label: "MACD",
-          value: "Bullish",
-          interpretation:
-            "Momentum trend remains above its signal line.",
-        },
-        {
-          label: "EMA Trend",
-          value: "Above",
-          interpretation:
-            "Price remains above the primary trend averages.",
-        },
-        {
-          label: "ATR",
-          value: "Moderate",
-          interpretation:
-            "Volatility is elevated but still controlled.",
-        },
-        {
-          label: "Volume",
-          value: "Expanding",
-          interpretation:
-            "Recent moves are receiving stronger participation.",
-        },
-      ],
-      signals: [
-        {
-          label: "BUY",
-          time: "Latest signal",
-        },
-        {
-          label: "HOLD",
-          time: "Previous signal",
-        },
-        {
-          label: "BUY",
-          time: "3 signals ago",
-        },
-      ],
-    },
+function getUnratedAsset(
+  symbol: string,
+): AssetData {
+  return {
+    name: symbol,
+    assetType: "Stock",
+    score: 0,
+    confidence: 0,
+    risk: "UNRATED",
+    regime: "Not analyzed",
 
-    ETH: {
-      name: "Ethereum",
-      assetType: "Crypto",
-      score: 86,
-      confidence: 81,
-      risk: "MEDIUM",
-      regime: "Bullish",
-      summary: [
-        "Ethereum remains in a constructive higher-timeframe trend.",
-        "Momentum is positive, although relative strength remains below Bitcoin.",
-        "Volatility conditions warrant controlled position sizing.",
-      ],
-      technicals: [
-        {
-          label: "RSI",
-          value: "58.4",
-          interpretation:
-            "Momentum remains positive without reaching an extreme.",
-        },
-        {
-          label: "MACD",
-          value: "Bullish",
-          interpretation:
-            "Momentum remains above the signal line.",
-        },
-        {
-          label: "EMA Trend",
-          value: "Above",
-          interpretation:
-            "Price remains above key trend averages.",
-        },
-        {
-          label: "ATR",
-          value: "Elevated",
-          interpretation:
-            "Price movement remains more volatile than normal.",
-        },
-        {
-          label: "Volume",
-          value: "Stable",
-          interpretation:
-            "Participation remains consistent with recent sessions.",
-        },
-      ],
-      signals: [
-        {
-          label: "BUY",
-          time: "Latest signal",
-        },
-        {
-          label: "WATCH",
-          time: "Previous signal",
-        },
-      ],
-    },
+    direction: "UNRATED",
+    directionLabel: "Not analyzed",
+
+    outlook: "UNRATED",
+    outlookLabel: "Not analyzed",
+
+    outlookSummary:
+      "Nestrova has not generated current public research for this asset yet.",
+
+    timeHorizon: "",
+
+    positiveFactors: [],
+    watchFactors: [],
+
+    summary: [
+      "This asset is searchable, but current Nestrova public research is not available yet.",
+    ],
+
+    technicals: [],
+    signals: [],
   };
-
-  return (
-    assets[symbol] ?? {
-      name: symbol,
-      assetType: "Stock",
-      score: 78,
-      confidence: 72,
-      risk: "MEDIUM",
-      regime: "Neutral",
-      summary: [
-        "The asset is currently being monitored by Nestrova.",
-        "Signal strength is positive but confirmation remains limited.",
-        "Risk conditions should be reviewed before taking action.",
-      ],
-      technicals: [
-        {
-          label: "RSI",
-          value: "Neutral",
-          interpretation:
-            "Momentum is not showing an extreme condition.",
-        },
-        {
-          label: "MACD",
-          value: "Mixed",
-          interpretation:
-            "Momentum direction is not fully confirmed.",
-        },
-        {
-          label: "EMA Trend",
-          value: "Testing",
-          interpretation:
-            "Price is interacting with key trend levels.",
-        },
-        {
-          label: "ATR",
-          value: "Moderate",
-          interpretation:
-            "Volatility remains within a normal range.",
-        },
-        {
-          label: "Volume",
-          value: "Stable",
-          interpretation:
-            "Participation is broadly unchanged.",
-        },
-      ],
-      signals: [
-        {
-          label: "HOLD",
-          time: "Latest signal",
-        },
-        {
-          label: "WATCH",
-          time: "Previous signal",
-        },
-      ],
-    }
-  );
 }
+
 
 function buildAssetFromPublicOpportunity(
   fallback: AssetData,
@@ -326,10 +236,52 @@ function buildAssetFromPublicOpportunity(
     regime:
       opportunity.regime ??
       fallback.regime,
+
+    direction:
+      opportunity.direction?.trim() ||
+      fallback.direction ||
+      "NEUTRAL",
+
+    directionLabel:
+      opportunity.direction_label?.trim() ||
+      fallback.directionLabel ||
+      "Mixed",
+
+    outlook:
+      opportunity.outlook?.trim() ||
+      fallback.outlook ||
+      "NEUTRAL",
+
+    outlookLabel:
+      opportunity.outlook_label?.trim() ||
+      fallback.outlookLabel ||
+      "Neutral",
+
+    outlookSummary:
+      opportunity.outlook_summary?.trim() ||
+      fallback.outlookSummary ||
+      "",
+
+    timeHorizon:
+      opportunity.time_horizon?.trim() ||
+      fallback.timeHorizon ||
+      "1-4 weeks",
+
+    positiveFactors:
+      opportunity.positive_factors?.length
+        ? opportunity.positive_factors
+        : reasons.slice(0, 4),
+
+    watchFactors:
+      opportunity.watch_factors?.length
+        ? opportunity.watch_factors
+        : [],
+
     summary:
       reasons.length > 0
         ? reasons
         : fallback.summary,
+
     technicals:
       componentTechnicals.length > 0
         ? componentTechnicals
@@ -337,21 +289,21 @@ function buildAssetFromPublicOpportunity(
     signals: [
       {
         label:
-          (opportunity.opportunity_score ?? 0) >= 80
-            ? "BUY"
-            : (opportunity.opportunity_score ?? 0) >= 65
-              ? "HOLD"
-              : "WATCH",
+          opportunity.outlook_label?.trim() ||
+          opportunity.direction_label?.trim() ||
+          "Mixed",
         time: "Current public research",
       },
       {
         label:
-          opportunity.research_style?.trim() ||
-          fallback.signals[0]?.label ||
-          "WATCH",
+          opportunity.direction?.trim() === "UP"
+            ? "Positive Setup"
+            : opportunity.direction?.trim() === "DOWN"
+              ? "Negative Setup"
+              : "Mixed Setup",
         time:
-          opportunity.research_version?.trim() ||
-          "Public opportunity engine",
+          opportunity.time_horizon?.trim() ||
+          "Current horizon",
       },
     ],
   };
@@ -402,7 +354,7 @@ export default function AssetDetailPage() {
   }, [params]);
 
   const fallbackAsset = useMemo(
-    () => getMockAsset(symbol),
+    () => getUnratedAsset(symbol),
     [symbol],
   );
 
@@ -415,17 +367,44 @@ export default function AssetDetailPage() {
   const [publicResearchError, setPublicResearchError] =
     useState<string | null>(null);
 
+  const [
+    researchAccess,
+    setResearchAccess,
+  ] = useState<TradingResearchAccess | null>(
+    null,
+  );
+
+  const [
+    researchLimitReached,
+    setResearchLimitReached,
+  ] = useState(false);
+
+  const [
+    researchLimitUsage,
+    setResearchLimitUsage,
+  ] = useState<
+    TradingResearchErrorResponse["usage"] | null
+  >(null);
+
+  const [
+    isResearchUpgradeGateOpen,
+    setIsResearchUpgradeGateOpen,
+  ] = useState(false);
+
   useEffect(() => {
     let active = true;
 
     setAsset(fallbackAsset);
     setIsPublicResearchLoading(true);
     setPublicResearchError(null);
+    setResearchAccess(null);
+    setResearchLimitReached(false);
+    setResearchLimitUsage(null);
 
     async function loadPublicResearch() {
       try {
         const response = await fetch(
-          `${TRADING_API_URL}/api/v1/assets/${encodeURIComponent(
+          `/api/trading/research/${encodeURIComponent(
             symbol,
           )}`,
           {
@@ -437,6 +416,35 @@ export default function AssetDetailPage() {
           },
         );
 
+        const responseData =
+          (await response.json()) as
+            | PublicOpportunity
+            | TradingResearchErrorResponse;
+
+        if (
+          response.status === 403 &&
+          "code" in responseData &&
+          responseData.code ===
+            "TRADING_RESEARCH_LIMIT_REACHED"
+        ) {
+          if (active) {
+            setResearchLimitReached(true);
+            setResearchLimitUsage(
+              responseData.usage ?? null,
+            );
+            setResearchAccess(null);
+            setPublicResearchError(null);
+          }
+
+          return;
+        }
+
+        if (response.status === 401) {
+          throw new Error(
+            "Sign in to access Trading Research.",
+          );
+        }
+
         if (response.status === 404) {
           throw new Error(
             "Public research is not currently available for this asset.",
@@ -445,12 +453,12 @@ export default function AssetDetailPage() {
 
         if (!response.ok) {
           throw new Error(
-            `Public API returned ${response.status}.`,
+            "Trading Research is temporarily unavailable.",
           );
         }
 
         const opportunity =
-          (await response.json()) as PublicOpportunity;
+          responseData as PublicOpportunity;
 
         if (
           opportunity.public_mode !== "READ_ONLY" ||
@@ -480,6 +488,31 @@ export default function AssetDetailPage() {
           ),
         );
 
+        if (opportunity.access) {
+          setResearchAccess({
+            tier:
+              opportunity.access.tier === "pro"
+                ? "pro"
+                : "free",
+
+            unlimited:
+              opportunity.access.unlimited === true,
+
+            usage:
+              opportunity.access.usage ?? null,
+
+            charged:
+              opportunity.access.charged === true,
+
+            deduped:
+              opportunity.access.deduped === true,
+          });
+        } else {
+          setResearchAccess(null);
+        }
+
+        setResearchLimitReached(false);
+        setResearchLimitUsage(null);
         setPublicResearchError(null);
       } catch (error) {
         if (!active) {
@@ -799,9 +832,11 @@ if (!response.ok || !data.success) {
                   <p className="text-xs text-white/35">
                     {isPublicResearchLoading
                       ? "Loading current public research..."
-                      : publicResearchError
-                        ? "Showing fallback research data"
-                        : "Connected to current Public Gateway research"}
+                      : researchLimitReached
+                        ? "Monthly research limit reached"
+                        : publicResearchError
+                          ? "Research is currently unavailable"
+                          : "Connected to current Nestrova research"}
                   </p>
                 </div>
 
@@ -869,15 +904,19 @@ if (!response.ok || !data.success) {
           <div className="grid gap-px bg-white/10 md:grid-cols-3">
             <div className="bg-[#090909] p-6 md:p-8">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/30">
-                Opportunity Score
+                AI Score
               </p>
 
               <p className="mt-4 text-5xl font-black tracking-[-0.05em]">
-                {asset.score}
+                {asset.risk === "UNRATED"
+                  ? "Pending"
+                  : asset.score}
               </p>
 
               <p className="mt-2 text-sm text-white/40">
-                Out of 100
+                {asset.risk === "UNRATED"
+                  ? "Not analyzed yet"
+                  : "Out of 100"}
               </p>
             </div>
 
@@ -887,11 +926,15 @@ if (!response.ok || !data.success) {
               </p>
 
               <p className="mt-4 text-5xl font-black tracking-[-0.05em]">
-                {asset.confidence}%
+                {asset.risk === "UNRATED"
+                  ? "Pending"
+                  : `${asset.confidence}%`}
               </p>
 
               <p className="mt-2 text-sm text-white/40">
-                AI signal confidence
+                {asset.risk === "UNRATED"
+                  ? "Research pending"
+                  : "AI signal confidence"}
               </p>
             </div>
 
@@ -911,76 +954,333 @@ if (!response.ok || !data.success) {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-          <section className="rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-100/70">
-              AI Summary
-            </p>
+        {researchLimitReached ? (
+          <section className="mt-8 overflow-hidden rounded-[28px] border border-amber-300/20 bg-amber-300/[0.055] p-7 md:p-9">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/60">
+                  Free Trading Research
+                </p>
 
-            <h2 className="mt-3 text-2xl font-bold tracking-[-0.04em]">
-              Why Nestrova is watching {symbol}
-            </h2>
+                <h2 className="mt-3 text-3xl font-black tracking-[-0.045em]">
+                  Monthly research limit reached
+                </h2>
 
-            <div className="mt-6 space-y-4">
-              {asset.summary.map((item) => (
-                <div
-                  key={item}
-                  className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4"
-                >
-                  <span className="mt-1 text-amber-200">•</span>
+                <p className="mt-3 text-sm leading-7 text-white/50">
+                  You have used all free Trading Research analyses available for this month.
+                </p>
 
-                  <p className="leading-7 text-white/60">{item}</p>
-                </div>
-              ))}
+                {researchLimitUsage ? (
+                  <p className="mt-3 text-sm font-semibold text-amber-100/70">
+                    {researchLimitUsage.used} / {researchLimitUsage.limit} analyses used
+                    {" · "}
+                    {researchLimitUsage.remaining} remaining
+                  </p>
+                ) : null}
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setIsResearchUpgradeGateOpen(true)
+                }
+                className="inline-flex h-12 shrink-0 items-center justify-center rounded-xl bg-white px-6 text-sm font-black text-black transition hover:bg-white/90"
+              >
+                Upgrade to Trading Pro
+              </button>
             </div>
           </section>
+        ) : researchAccess ? (
+          <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
+                  {researchAccess.unlimited
+                    ? "Trading Pro"
+                    : "Free Trading Research"}
+                </p>
 
-          <section className="rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/30">
-              Recent AI Signals
-            </p>
+                <p className="mt-3 text-xl font-black tracking-[-0.035em]">
+                  {researchAccess.unlimited
+                    ? "Unlimited Trading Research"
+                    : researchAccess.usage
+                      ? `${researchAccess.usage.remaining} / ${researchAccess.usage.limit} analyses remaining this month`
+                      : "Trading Research"}
+                </p>
 
-            <div className="mt-6 space-y-3">
-              {asset.signals.map((signal) => (
-                <div
-                  key={`${signal.label}-${signal.time}`}
-                  className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-4"
+                {!researchAccess.unlimited &&
+                researchAccess.usage ? (
+                  <div className="mt-4 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-white/65 transition-all"
+                      style={{
+                        width: `${
+                          researchAccess.usage.limit > 0
+                            ? Math.max(
+                                0,
+                                Math.min(
+                                  100,
+                                  (
+                                    researchAccess.usage.remaining /
+                                    researchAccess.usage.limit
+                                  ) * 100,
+                                ),
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                ) : null}
+
+                <p className="mt-3 text-sm text-white/40">
+                  {researchAccess.unlimited
+                    ? "No monthly Trading Research limit."
+                    : researchAccess.deduped
+                      ? "Recently analyzed - No additional research usage charged."
+                      : researchAccess.charged
+                        ? "This research counted toward your monthly usage."
+                        : "Current monthly Trading Research usage."}
+                </p>
+              </div>
+
+              {!researchAccess.unlimited ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsResearchUpgradeGateOpen(true)
+                  }
+                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.055] px-5 text-sm font-bold transition hover:border-white/20 hover:bg-white/[0.09]"
                 >
-                  <span
-                    className={`rounded-full border px-3 py-1 text-xs font-black ${getSignalClasses(
-                      signal.label,
-                    )}`}
-                  >
-                    {signal.label}
-                  </span>
-
-                  <span className="text-sm text-white/35">
-                    {signal.time}
-                  </span>
-                </div>
-              ))}
+                  Get Unlimited Research
+                </button>
+              ) : null}
             </div>
           </section>
-        </div>
+        ) : null}
 
-        <AIDecisionBreakdown
-          score={asset.score}
-          confidence={asset.confidence}
-          risk={asset.risk}
-          regime={asset.regime}
-          components={asset.technicals}
-        />
+        {asset.risk === "UNRATED" ? (
+          <section className="mt-8 overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.045),rgba(255,255,255,0.018))]">
+            <div className="p-7 md:p-10 lg:p-12">
+              <div className="max-w-3xl">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
+                  Nestrova Research
+                </p>
 
-        <AssetAITimeline
-          symbol={symbol}
-        />
+                <h2 className="mt-4 text-4xl font-black tracking-[-0.055em] text-white md:text-5xl">
+                  Not analyzed yet
+                </h2>
 
-        <TradingViewChart
-          symbol={symbol}
-          assetType={normalizeAssetType(
-            asset.assetType,
-          )}
-        />
+                <p className="mt-5 max-w-2xl text-base leading-8 text-white/48">
+                  {symbol} is available in the Nestrova market universe,
+                  but current AI research has not been generated for this
+                  asset yet.
+                </p>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-[20px] border border-white/10 bg-black/20 p-5">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30">
+                      AI Score
+                    </p>
+
+                    <p className="mt-3 text-xl font-black text-white/65">
+                      ?
+                    </p>
+                  </div>
+
+                  <div className="rounded-[20px] border border-white/10 bg-black/20 p-5">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30">
+                      Confidence
+                    </p>
+
+                    <p className="mt-3 text-xl font-black text-white/65">
+                      ?
+                    </p>
+                  </div>
+
+                  <div className="rounded-[20px] border border-white/10 bg-black/20 p-5">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30">
+                      Research Status
+                    </p>
+
+                    <p className="mt-3 text-xl font-black text-white/65">
+                      Pending
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-7 rounded-[22px] border border-cyan-300/10 bg-cyan-300/[0.035] p-5">
+                  <p className="text-sm leading-7 text-white/45">
+                    Nestrova only displays a directional outlook when
+                    sufficient public research evidence is available.
+                    No score, direction, or confidence estimate is shown
+                    before that analysis exists.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <>
+        <section className="mt-8 overflow-hidden rounded-[32px] border border-cyan-300/15 bg-[linear-gradient(145deg,rgba(34,211,238,0.075),rgba(255,255,255,0.025))]">
+          <div className="p-6 md:p-8 lg:p-10">
+            <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0 max-w-3xl">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200/65">
+                  Nestrova AI Outlook
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <h2 className="text-4xl font-black tracking-[-0.055em] text-white md:text-6xl">
+                    {asset.directionLabel || "Mixed"}
+                  </h2>
+
+                  <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100">
+                    {asset.outlookLabel || "Neutral"}
+                  </span>
+                </div>
+
+                <p className="mt-5 max-w-2xl text-base leading-8 text-white/52">
+                  {asset.outlookSummary ||
+                    `Nestrova currently sees a mixed setup for ${symbol}.`}
+                </p>
+
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-4 py-2">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/30">
+                    Research horizon
+                  </span>
+
+                  <span className="text-sm font-bold text-white/75">
+                    {asset.timeHorizon || "1-4 weeks"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid w-full gap-3 sm:grid-cols-3 xl:w-[440px]">
+                <div className="rounded-[22px] border border-cyan-300/15 bg-black/25 p-5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/30">
+                    AI Confidence
+                  </p>
+
+                  <p className="mt-3 text-3xl font-black text-cyan-100">
+                    {asset.confidence}%
+                  </p>
+                </div>
+
+                <div className="rounded-[22px] border border-white/10 bg-black/25 p-5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/30">
+                    Risk
+                  </p>
+
+                  <p className="mt-3 text-xl font-black text-white/80">
+                    {asset.risk}
+                  </p>
+                </div>
+
+                <div className="rounded-[22px] border border-white/10 bg-black/25 p-5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/30">
+                    AI Score
+                  </p>
+
+                  <p className="mt-3 text-xl font-black text-white/80">
+                    {asset.score}/100
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-9 grid gap-5 lg:grid-cols-2">
+              <div className="rounded-[26px] border border-emerald-300/10 bg-black/20 p-5 md:p-6">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/65">
+                  Why Nestrova leans {asset.direction === "UP" ? "up" : asset.direction === "DOWN" ? "down" : "this way"}
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {(asset.positiveFactors?.length
+                    ? asset.positiveFactors
+                    : asset.summary.slice(0, 4)
+                  ).map((item) => (
+                    <div
+                      key={item}
+                      className="flex gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"
+                    >
+                      <span className="mt-0.5 text-emerald-200">
+                        +
+                      </span>
+
+                      <p className="text-sm leading-6 text-white/58">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[26px] border border-amber-300/10 bg-black/20 p-5 md:p-6">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/65">
+                  What could change the outlook
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {(asset.watchFactors?.length
+                    ? asset.watchFactors
+                    : [
+                        `Current risk is ${asset.risk}.`,
+                        `The current market regime is ${asset.regime}.`,
+                      ]
+                  ).map((item) => (
+                    <div
+                      key={item}
+                      className="flex gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"
+                    >
+                      <span className="mt-0.5 text-amber-200">
+                        !
+                      </span>
+
+                      <p className="text-sm leading-6 text-white/58">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-5 text-xs leading-5 text-white/25">
+            This outlook is automated market research, not a prediction,
+            personalized investment recommendation, or instruction to buy or
+            sell.
+          </p>
+        </section>
+
+          </>
+        )}
+
+        {asset.risk !== "UNRATED" ? (
+          <AIDecisionBreakdown
+            score={asset.score}
+            confidence={asset.confidence}
+            risk={asset.risk}
+            regime={asset.regime}
+            components={asset.technicals}
+          />
+        ) : null}
+
+        {asset.risk !== "UNRATED" ? (
+          <AssetAITimeline
+            symbol={symbol}
+          />
+        ) : null}
+
+        {normalizeAssetType(asset.assetType) !== "crypto" ? (
+          <TradingViewChart
+            symbol={symbol}
+            assetType={normalizeAssetType(
+              asset.assetType,
+            )}
+          />
+        ) : null}
 
         <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/30">
@@ -1017,10 +1317,20 @@ if (!response.ok || !data.success) {
       </section>
 
       <UpgradeGate
+        isOpen={isResearchUpgradeGateOpen}
+        product="trading"
+        featureName="Unlimited Trading Research"
+        description="Upgrade to Trading Pro or Nestrova AI Pro for unlimited Trading Research without the free monthly analysis limit."
+        onClose={() =>
+          setIsResearchUpgradeGateOpen(false)
+        }
+      />
+
+      <UpgradeGate
   isOpen={isUpgradeGateOpen}
   product="trading"
   featureName="Custom Trading Alerts"
-  description="Create personalized alerts based on opportunity score, risk level, and market regime."
+  description="Create personalized alerts based on AI score, risk level, and market regime."
   onClose={() => setIsUpgradeGateOpen(false)}
 />
 

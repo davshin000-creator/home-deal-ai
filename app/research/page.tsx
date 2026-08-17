@@ -1,22 +1,18 @@
 export const dynamic = "force-dynamic";
 
+import {
+  loadResearchPublicState,
+  type ResearchPublicState,
+} from "@/lib/research/public-gateway";
+
 import ResearchUsagePanel from "@/components/research/ResearchUsagePanel";
+
+import {
+  getPublicOpportunities,
+  type PublicOpportunity,
+} from "@/lib/research/publicResearch";
 import ResearchQuickSearch from "@/components/research/ResearchQuickSearch";
 import Link from "next/link";
-
-type PublicOpportunity = {
-  symbol?: string;
-  name?: string;
-  asset_type?: string;
-  score?: number;
-  weighted_score?: number;
-  confidence?: number;
-  risk?: string;
-  status?: string;
-  research_style?: string;
-  research_version?: string;
-  research_reasons?: string[];
-};
 
 type PublicState = {
   schema_version?: string;
@@ -34,56 +30,6 @@ type PublicState = {
     research_count?: number;
   };
 };
-
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  "https://api.nestrova.com";
-
-function normalizeOpportunityList(
-  value: unknown,
-): PublicOpportunity[] {
-  if (Array.isArray(value)) {
-    return value;
-  }
-
-  if (
-    value &&
-    typeof value === "object"
-  ) {
-    const objectValue =
-      value as Record<string, unknown>;
-
-    const nestedKeys = [
-      "items",
-      "candidates",
-      "opportunities",
-      "stocks",
-      "crypto",
-      "data",
-    ];
-
-    for (const key of nestedKeys) {
-      const nested =
-        objectValue[key];
-
-      if (Array.isArray(nested)) {
-        return nested as PublicOpportunity[];
-      }
-    }
-
-    return Object.values(
-      objectValue,
-    ).filter(
-      (item): item is PublicOpportunity =>
-        Boolean(
-          item &&
-          typeof item === "object",
-        ),
-    );
-  }
-
-  return [];
-}
 
 function cleanLabel(value?: string) {
   if (!value) return "Research";
@@ -121,62 +67,24 @@ function confidenceTone(
   };
 }
 
-async function loadResearchState(): Promise<PublicState | null> {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-      },
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(
-      "research_state_failed",
-      error,
-    );
-
-    return null;
-  }
-}
-
 export default async function ResearchPage() {
-  const state =
-    await loadResearchState();
-
-  const rawOpportunities =
-    normalizeOpportunityList(
-      state?.top_opportunities,
-    );
-
-  const fallbackOpportunities =
-    normalizeOpportunityList(
-      state?.opportunities,
-    );
+  const state: ResearchPublicState | null =
+    await loadResearchPublicState();
 
   const discoveries =
-    [
-      ...(
-        rawOpportunities.length > 0
-          ? rawOpportunities
-          : fallbackOpportunities
-      ),
-    ]
+    getPublicOpportunities(state)
       .sort(
         (a, b) =>
           Number(
-            b.confidence ??
+            b.opportunity_score ??
+              b.confidence ??
               b.weighted_score ??
               b.score ??
               0,
           ) -
           Number(
-            a.confidence ??
+            a.opportunity_score ??
+              a.confidence ??
               a.weighted_score ??
               a.score ??
               0,
@@ -192,6 +100,7 @@ export default async function ResearchPage() {
               sum +
               Number(
                 item.confidence ??
+                  item.opportunity_score ??
                   item.weighted_score ??
                   item.score ??
                   0,
@@ -325,6 +234,7 @@ export default async function ResearchPage() {
                   Math.round(
                     Number(
                       item.confidence ??
+                        item.opportunity_score ??
                         item.weighted_score ??
                         item.score ??
                         0,
@@ -358,6 +268,7 @@ export default async function ResearchPage() {
 
                         <h3 className="mt-2 truncate text-2xl font-black tracking-[-0.04em]">
                           {item.symbol ||
+                            item.asset_name ||
                             item.name ||
                             "Research"}
                         </h3>
@@ -380,6 +291,20 @@ export default async function ResearchPage() {
                           item.research_style,
                         )}
                       </p>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.regime ? (
+                          <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-2.5 py-1 text-[9px] font-semibold text-cyan-100/65">
+                            {cleanLabel(item.regime)}
+                          </span>
+                        ) : null}
+
+                        {item.risk ? (
+                          <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-2.5 py-1 text-[9px] font-semibold text-amber-100/65">
+                            {cleanLabel(item.risk)} Risk
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
 
                     <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">

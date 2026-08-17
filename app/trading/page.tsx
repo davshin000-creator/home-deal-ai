@@ -1,7 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import ExecutiveBrief from "@/components/trading/ExecutiveBrief";
 import MarketOverview from "@/components/trading/MarketOverview";
-import TopOpportunities from "@/components/trading/TopOpportunities";
+import MarketUniverseExplorer from "@/components/trading/MarketUniverseExplorer";
+import LiveTopOpportunities from "@/components/trading/LiveTopOpportunities";
 import TradingAI from "@/components/trading/TradingAI";
 import WatchlistPanel from "@/components/trading/WatchlistPanel";
 
@@ -24,9 +25,9 @@ import {
 } from "@/components/ui/nestrova";
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type MarketState = {
   base_asset?: string;
@@ -40,9 +41,18 @@ type MarketState = {
 
 type Opportunity = {
   symbol?: string;
+  asset_name?: string;
+  asset_type?: string;
   opportunity_score?: number;
+  confidence?: number;
   regime?: string;
   risk?: string;
+  direction?: string;
+  direction_label?: string;
+  outlook?: string;
+  outlook_label?: string;
+  outlook_summary?: string;
+  time_horizon?: string;
   research_style?: string;
   score_basis?: string;
 };
@@ -136,24 +146,23 @@ async function getTradingState(): Promise<{
   error: string | null;
 }> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingPublicState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return {
         data: null,
-        error: `Trading Intelligence API returned ${response.status}.`,
+        error:
+          gatewayResult.error ??
+          "Trading Intelligence is temporarily unavailable.",
       };
     }
 
-    const data = (await response.json()) as TradingPublicState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -324,6 +333,67 @@ export default async function TradingPage() {
         (first.opportunity_score ?? 0),
     )[0] ?? null;
 
+  const bullishNow = [...opportunities]
+    .filter((item) => {
+      const direction = String(
+        item.direction ?? "",
+      ).toUpperCase();
+
+      const outlook = String(
+        item.outlook ?? "",
+      ).toUpperCase();
+
+      return (
+        direction === "UP" ||
+        outlook === "BULLISH" ||
+        outlook === "STRONG_BULLISH"
+      );
+    })
+    .sort(
+      (first, second) =>
+        (second.confidence ?? 0) -
+          (first.confidence ?? 0) ||
+        (second.opportunity_score ?? 0) -
+          (first.opportunity_score ?? 0),
+    )
+    .slice(0, 4);
+
+  const weakeningNow = [...opportunities]
+    .filter((item) => {
+      const direction = String(
+        item.direction ?? "",
+      ).toUpperCase();
+
+      const outlook = String(
+        item.outlook ?? "",
+      ).toUpperCase();
+
+      return (
+        direction === "DOWN" ||
+        outlook === "BEARISH" ||
+        outlook === "STRONG_BEARISH"
+      );
+    })
+    .sort(
+      (first, second) =>
+        (second.confidence ?? 0) -
+          (first.confidence ?? 0),
+    )
+    .slice(0, 4);
+
+  const highestConfidence = [...opportunities]
+    .filter(
+      (item) =>
+        typeof item.confidence === "number",
+    )
+    .sort(
+      (first, second) =>
+        (second.confidence ?? 0) -
+        (first.confidence ?? 0),
+    )
+    .slice(0, 4);
+
+
   const marketConfidence = Math.max(
     0,
     Math.min(
@@ -446,6 +516,203 @@ export default async function TradingPage() {
           </div>
         </section>
 
+        <MarketUniverseExplorer compact />
+
+        <section className="py-8">
+          <div className="mb-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+              AI Market Signals
+            </p>
+
+            <h2 className="mt-2 text-3xl font-black tracking-[-0.05em]">
+              What Nestrova sees right now.
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/40">
+              A simpler view of current direction, confidence, and risk across the strongest public research signals.
+            </p>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-3">
+            <article className="rounded-[30px] border border-emerald-300/15 bg-emerald-300/[0.045] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-200/55">
+                    Bullish Now
+                  </p>
+
+                  <h3 className="mt-2 text-xl font-black">
+                    Leaning higher
+                  </h3>
+                </div>
+
+                <span className="rounded-full border border-emerald-300/15 bg-emerald-300/[0.08] px-3 py-1 text-[10px] font-bold text-emerald-100">
+                  {bullishNow.length} signals
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-2">
+                {bullishNow.length > 0 ? (
+                  bullishNow.map((item) => (
+                    <Link
+                      key={`bullish-${item.symbol}`}
+                      href={`/trading/assets/${encodeURIComponent(
+                        item.symbol ?? "",
+                      )}`}
+                      className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-emerald-300/20 hover:bg-white/[0.05]"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-bold">
+                          {item.symbol ?? "Unknown"}
+                        </p>
+
+                        <p className="mt-1 truncate text-[10px] text-white/30">
+                          {item.outlook_label ||
+                            item.direction_label ||
+                            cleanLabel(
+                              item.outlook ??
+                                item.direction,
+                            )}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm font-black text-emerald-200">
+                          {item.confidence ?? 0}%
+                        </p>
+
+                        <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-white/25">
+                          confidence
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="rounded-[18px] border border-white/10 bg-black/20 p-4 text-xs leading-5 text-white/35">
+                    No clearly bullish public research signals are available right now.
+                  </p>
+                )}
+              </div>
+            </article>
+
+            <article className="rounded-[30px] border border-orange-300/15 bg-orange-300/[0.04] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-orange-200/55">
+                    Weakening
+                  </p>
+
+                  <h3 className="mt-2 text-xl font-black">
+                    Leaning lower
+                  </h3>
+                </div>
+
+                <span className="rounded-full border border-orange-300/15 bg-orange-300/[0.08] px-3 py-1 text-[10px] font-bold text-orange-100">
+                  {weakeningNow.length} signals
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-2">
+                {weakeningNow.length > 0 ? (
+                  weakeningNow.map((item) => (
+                    <Link
+                      key={`weakening-${item.symbol}`}
+                      href={`/trading/assets/${encodeURIComponent(
+                        item.symbol ?? "",
+                      )}`}
+                      className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-orange-300/20 hover:bg-white/[0.05]"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-bold">
+                          {item.symbol ?? "Unknown"}
+                        </p>
+
+                        <p className="mt-1 truncate text-[10px] text-white/30">
+                          {item.outlook_label ||
+                            item.direction_label ||
+                            cleanLabel(
+                              item.outlook ??
+                                item.direction,
+                            )}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm font-black text-orange-200">
+                          {item.confidence ?? 0}%
+                        </p>
+
+                        <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-white/25">
+                          confidence
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="rounded-[18px] border border-white/10 bg-black/20 p-4 text-xs leading-5 text-white/35">
+                    No clearly bearish public research signals are available right now.
+                  </p>
+                )}
+              </div>
+            </article>
+
+            <article className="rounded-[30px] border border-cyan-300/15 bg-cyan-300/[0.04] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
+                    Highest Confidence
+                  </p>
+
+                  <h3 className="mt-2 text-xl font-black">
+                    Strongest conviction
+                  </h3>
+                </div>
+
+                <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[0.08] px-3 py-1 text-[10px] font-bold text-cyan-100">
+                  Top {highestConfidence.length}
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-2">
+                {highestConfidence.map((item) => (
+                  <Link
+                    key={`confidence-${item.symbol}`}
+                    href={`/trading/assets/${encodeURIComponent(
+                      item.symbol ?? "",
+                    )}`}
+                    className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-cyan-300/20 hover:bg-white/[0.05]"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-bold">
+                        {item.symbol ?? "Unknown"}
+                      </p>
+
+                      <p className="mt-1 truncate text-[10px] text-white/30">
+                        {item.outlook_label ||
+                          item.direction_label ||
+                          cleanLabel(
+                            item.outlook ??
+                              item.direction,
+                          )}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-sm font-black text-cyan-100">
+                        {item.confidence ?? 0}%
+                      </p>
+
+                      <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-white/25">
+                        confidence
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section className="py-8">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -466,8 +733,9 @@ export default async function TradingPage() {
             </Link>
           </div>
 
-          <TopOpportunities
-            opportunities={opportunities}
+          <LiveTopOpportunities
+            initialOpportunities={opportunities}
+            initialGeneratedAt={data?.generated_at}
           />
         </section>
 
@@ -629,7 +897,7 @@ export default async function TradingPage() {
 
               <div className="mt-8 grid gap-5 md:grid-cols-3">
                 <MetricCard
-                  label="Shadow Results"
+                  label="Research Results"
                   value={formatNumber(
                     shadow?.total_shadow_results,
                     0,
@@ -667,3 +935,4 @@ export default async function TradingPage() {
     </UserAwareNestrovaShell>
   );
 }
+

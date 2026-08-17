@@ -308,10 +308,11 @@ export default function ExecutiveBrief({
 
             <div className="mt-6 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
               <MetricTile
+                compact
                 label="Market Pulse"
                 value={marketSummary.label}
                 detail={cleanLabel(market?.regime)}
-                icon={<PulseIcon className="h-5 w-5" />}
+                icon={<PulseIcon className="h-4 w-4" />}
                 tone={
                   marketSummary.label === "Looking Strong"
                     ? "emerald"
@@ -322,18 +323,20 @@ export default function ExecutiveBrief({
               />
 
               <MetricTile
+                compact
                 label="AI Confidence"
                 value={`${confidence}%`}
                 detail="Current research conviction"
-                icon={<GaugeIcon className="h-5 w-5" />}
+                icon={<GaugeIcon className="h-4 w-4" />}
                 tone="cyan"
               />
 
               <MetricTile
+                compact
                 label="Risk Outlook"
                 value={cleanLabel(market?.risk)}
                 detail="Current public market risk"
-                icon={<ShieldIcon className="h-5 w-5" />}
+                icon={<ShieldIcon className="h-4 w-4" />}
                 tone={
                   normalize(market?.risk) === "LOW"
                     ? "emerald"
@@ -392,7 +395,7 @@ export default function ExecutiveBrief({
 
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] opacity-65">
-                    Recommended Action
+                    Current Research View
                   </p>
 
                   <p className="mt-2 break-words text-xl font-black leading-tight [overflow-wrap:anywhere]">
@@ -403,31 +406,42 @@ export default function ExecutiveBrief({
             </div>
 
             <div className="mt-5 space-y-3">
-              <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-                <span className="mt-0.5 text-emerald-300">
-                  ??
+              <div className="flex min-w-0 gap-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border border-emerald-300/15 bg-emerald-300/10 text-emerald-200">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12.5l4 4L19 7" />
+                  </svg>
                 </span>
-                <p className="text-sm leading-6 text-white/52">
+                <p className="min-w-0 break-words text-sm leading-6 text-white/52 [overflow-wrap:anywhere]">
                   Research assets showing strong public opportunity
                   scores.
                 </p>
               </div>
 
-              <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+              <div className="flex min-w-0 gap-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border border-amber-300/15 bg-amber-300/10 text-amber-200">
                   <AlertIcon className="h-4 w-4" />
                 </span>
-                <p className="text-sm leading-6 text-white/52">
+                <p className="min-w-0 break-words text-sm leading-6 text-white/52 [overflow-wrap:anywhere]">
                   Review the risk level and avoid decisions based on
                   one signal alone.
                 </p>
               </div>
 
-              <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+              <div className="flex min-w-0 gap-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border border-cyan-300/15 bg-cyan-300/10 text-cyan-200">
                   <BrainIcon className="h-4 w-4" />
                 </span>
-                <p className="text-sm leading-6 text-white/52">
+                <p className="min-w-0 break-words text-sm leading-6 text-white/52 [overflow-wrap:anywhere]">
                   Nestrova provides research and education, not
                   personalized financial advice.
                 </p>
@@ -454,31 +468,20 @@ export default function ExecutiveBrief({
           </div>
 
           {topOpportunities.length > 0 ? (
-            <div className="mt-6 grid auto-rows-fr gap-4 md:grid-cols-3">
+            <div className="mt-6 grid auto-rows-fr gap-4 md:grid-cols-2 xl:grid-cols-3">
               {topOpportunities.map((item, index) => (
                 <div
                   key={`${item.symbol}-${index}`}
-                  className="flex min-w-0 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] p-5"
+                  className="flex min-w-0 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] p-5 xl:p-6"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
-                        #{index + 1} Opportunity
-                      </p>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/30">
+                      #{index + 1} Opportunity
+                    </p>
 
-                      <p className="mt-2 text-2xl font-semibold">
-                        {item.symbol ?? "Unknown"}
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-right">
-                      <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-200/60">
-                        AI Score
-                      </p>
-                      <p className="mt-1 font-bold text-cyan-200">
-                        {Math.round(item.opportunity_score ?? 0)}
-                      </p>
-                    </div>
+                    <p className="mt-4 min-w-0 whitespace-nowrap text-[clamp(1.45rem,2.6vw,2rem)] font-black leading-none tracking-[-0.045em] text-white">
+                      {item.symbol ?? "Unknown"}
+                    </p>
                   </div>
 
                   <div className="mt-5 flex-1">
@@ -486,19 +489,29 @@ export default function ExecutiveBrief({
                       Why is it here?
                     </p>
 
-                    <p className="mt-2 break-words text-sm leading-6 text-white/42 [overflow-wrap:anywhere]">
+                    <p className="mt-2 break-words text-[13px] leading-5 text-white/42 [overflow-wrap:anywhere]">
                       {getOpportunityReason(item)}
                     </p>
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold text-white/45">
+                    <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[0.055] px-3 py-1 text-[10px] font-semibold text-cyan-100/65">
                       {cleanLabel(item.regime)}
                     </span>
 
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold text-white/45">
+                    <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.055] px-3 py-1 text-[10px] font-semibold text-amber-100/65">
                       {cleanLabel(item.risk)} risk
                     </span>
+                  </div>
+
+                  <div className="mt-5 flex items-end justify-between border-t border-white/[0.08] pt-4">
+                    <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-cyan-200/50">
+                      AI Score
+                    </p>
+
+                    <p className="text-xl font-black leading-none text-cyan-200">
+                      {Math.round(item.opportunity_score ?? 0)}
+                    </p>
                   </div>
                 </div>
               ))}

@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import {
+  hasActiveSubscription,
+} from "@/lib/subscriptions/entitlements";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -67,9 +70,7 @@ export async function getCurrentUserProfile() {
   }
 
   const isPro =
-    Boolean(profile?.is_pro) ||
-    profile?.plan === "pro" ||
-    profile?.subscription_status === "active";
+    hasActiveSubscription(profile);
 
   return { user, profile, isPro };
 }

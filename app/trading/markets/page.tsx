@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import SiteFooter from "@/components/site/SiteFooter";
 import MarketsOpportunityExplorer, {
   type MarketOpportunity,
@@ -7,9 +7,9 @@ import MarketUniverseExplorer from "@/components/trading/MarketUniverseExplorer"
 
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type Opportunity = MarketOpportunity;
 
@@ -47,24 +47,23 @@ async function getTradingState(): Promise<{
   error: string | null;
 }> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return {
         data: null,
-        error: `API returned status ${response.status}.`,
+        error:
+          gatewayResult.error ??
+          "Market Intelligence is temporarily unavailable.",
       };
     }
 
-    const data = (await response.json()) as TradingState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -251,7 +250,7 @@ export default async function TradingMarketsPage() {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/50">
-              Compare public World Model conditions, opportunity scores,
+              Compare current market conditions, AI scores,
               market regimes, risk classifications, and research styles.
             </p>
           </div>
@@ -285,7 +284,7 @@ export default async function TradingMarketsPage() {
             {market?.base_asset ?? "Unavailable"}
           </p>
           <p className="mt-3 text-sm text-white/42">
-            Current World Model reference asset.
+            Current market reference asset.
           </p>
         </article>
 
@@ -309,7 +308,7 @@ export default async function TradingMarketsPage() {
             {market?.confidence ?? 0}%
           </p>
           <p className="mt-3 text-sm text-white/42">
-            Public World Model confidence.
+            Public market confidence.
           </p>
         </article>
 
@@ -331,7 +330,7 @@ export default async function TradingMarketsPage() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
-                World Model
+                Market Context
               </p>
 
               <h2 className="mt-4 text-4xl font-semibold tracking-[-0.055em]">
@@ -390,7 +389,7 @@ export default async function TradingMarketsPage() {
           <div className="mt-7 grid gap-3">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
               <p className="text-[10px] uppercase tracking-[0.16em] text-white/30">
-                Candidate Count
+                Analyzed Opportunities
               </p>
               <p className="mt-2 text-2xl font-semibold">
                 {data?.opportunities?.candidate_count ?? 0}
@@ -487,7 +486,7 @@ export default async function TradingMarketsPage() {
           </h2>
 
           <p className="mt-5 max-w-4xl text-sm leading-7 text-white/45">
-            Opportunity scores are derived from sanitized World Model
+            AI scores are derived from sanitized public market research
             information. They do not expose private strategy formulas,
             brokerage credentials, account balances, positions, orders, or
             execution controls.
@@ -504,3 +503,4 @@ export default async function TradingMarketsPage() {
     </main>
   );
 }
+

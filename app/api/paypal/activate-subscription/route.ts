@@ -60,7 +60,6 @@ const PLAN_CONFIGURATIONS: PlanConfiguration[] = [
 ];
 
 const APPROVED_PAYPAL_STATUSES = new Set([
-  "APPROVAL_PENDING",
   "APPROVED",
   "ACTIVE",
 ]);
@@ -408,6 +407,7 @@ export async function POST(request: Request) {
         paypal_plan_id: subscription.plan_id,
         trial_started_at: now.toISOString(),
         trial_ends_at: trialEndsAt,
+        current_period_end: trialEndsAt,
         subscription_updated_at: now.toISOString(),
         cancel_at_period_end: false,
         updated_at: now.toISOString(),

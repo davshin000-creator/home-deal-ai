@@ -3,9 +3,9 @@ import SiteFooter from "@/components/site/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type Opportunity = {
   symbol?: string;
@@ -68,24 +68,23 @@ async function getTradingState(): Promise<{
   error: string | null;
 }> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return {
         data: null,
-        error: `Trading API returned ${response.status}.`,
+        error:
+          gatewayResult.error ??
+          "Daily Briefing is temporarily unavailable.",
       };
     }
 
-    const data = (await response.json()) as TradingState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -178,6 +177,52 @@ function riskClasses(value?: string) {
       return "border-red-400/20 bg-red-400/10 text-red-200";
     default:
       return "border-white/10 bg-white/[0.06] text-white/55";
+  }
+}
+
+
+function researchViewLabel(value?: string | null) {
+  const normalized = String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replaceAll("-", "_");
+
+  switch (normalized) {
+    case "BUY":
+    case "STRONG_BUY":
+    case "BULLISH":
+    case "STRONG_BULLISH":
+      return normalized.includes("STRONG")
+        ? "Strong Bullish"
+        : "Bullish";
+
+    case "SELL":
+    case "STRONG_SELL":
+    case "BEARISH":
+    case "STRONG_BEARISH":
+      return normalized.includes("STRONG")
+        ? "Strong Bearish"
+        : "Bearish";
+
+    case "HOLD":
+    case "WATCH":
+    case "SHADOW":
+    case "NO_TRADE":
+    case "ABSTAIN":
+    case "NEUTRAL":
+    case "MIXED":
+      return "Mixed";
+
+    default:
+      return value
+        ? String(value)
+            .replaceAll("_", " ")
+            .replaceAll("-", " ")
+            .toLowerCase()
+            .replace(/\b\w/g, (letter) =>
+              letter.toUpperCase(),
+            )
+        : "Mixed";
   }
 }
 
@@ -302,7 +347,7 @@ export default async function TradingBriefingPage() {
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/50">
               Market regime, Council consensus, top opportunity, risk,
-              Shadow research, and verification status—summarized from the
+              research evidence, and verification status—summarized from the
               public read-only intelligence layer.
             </p>
           </div>
@@ -340,7 +385,7 @@ export default async function TradingBriefingPage() {
 
         <MetricCard
           label="Council"
-          value={cleanLabel(council?.consensus)}
+          value={researchViewLabel(council?.consensus)}
           detail={`${council?.confidence ?? 0}% confidence · ${
             council?.agent_count ?? 0
           } agents`}
@@ -359,9 +404,9 @@ export default async function TradingBriefingPage() {
         />
 
         <MetricCard
-          label="Shadow Evidence"
+          label="Research Evidence"
           value={formatNumber(shadow?.total_shadow_results)}
-          detail="Simulated research results without live execution."
+          detail="Simulated market research used to evaluate model behavior."
         />
       </section>
 
@@ -427,7 +472,7 @@ export default async function TradingBriefingPage() {
           <div className="mt-5 flex items-start justify-between gap-5">
             <div>
               <h2 className="text-4xl font-semibold tracking-[-0.055em]">
-                {cleanLabel(council?.consensus)}
+                {researchViewLabel(council?.consensus)}
               </h2>
 
               <p className="mt-3 text-sm text-white/42">
@@ -498,7 +543,7 @@ export default async function TradingBriefingPage() {
 
             <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
               <p className="text-[10px] uppercase tracking-[0.16em] text-white/30">
-                Shadow Results
+                Research Results
               </p>
               <p className="mt-3 text-3xl font-semibold">
                 {formatNumber(verification?.total_shadow_results)}
@@ -549,7 +594,7 @@ export default async function TradingBriefingPage() {
 
             <div className="rounded-[26px] border border-white/10 bg-black/20 p-5">
               <p className="text-[10px] uppercase tracking-[0.16em] text-white/30">
-                Supervisor
+                Research Status
               </p>
               <p className="mt-3 text-2xl font-semibold">
                 {cleanLabel(shadow?.supervisor_status)}
@@ -558,7 +603,7 @@ export default async function TradingBriefingPage() {
           </div>
 
           <p className="mt-6 text-xs text-white/30">
-            Recommended action: {cleanLabel(system?.recommended_action)}
+            Current research view: {researchViewLabel(system?.recommended_action)}
           </p>
         </article>
       </section>
@@ -647,3 +692,4 @@ export default async function TradingBriefingPage() {
     </main>
   );
 }
+

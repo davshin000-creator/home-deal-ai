@@ -3,9 +3,9 @@ import SiteFooter from "@/components/site/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type CouncilVote = {
   agent?: string;
@@ -40,24 +40,23 @@ async function getTradingState(): Promise<{
   error: string | null;
 }> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return {
         data: null,
-        error: `Trading API returned ${response.status}.`,
+        error:
+          gatewayResult.error ??
+          "Trading Council is temporarily unavailable.",
       };
     }
 
-    const data = (await response.json()) as TradingState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -130,6 +129,52 @@ function formatDate(value?: string | null) {
 
 function confidenceWidth(value?: number) {
   return `${Math.max(0, Math.min(100, value ?? 0))}%`;
+}
+
+
+function researchViewLabel(value?: string | null) {
+  const normalized = String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replaceAll("-", "_");
+
+  switch (normalized) {
+    case "BUY":
+    case "STRONG_BUY":
+    case "BULLISH":
+    case "STRONG_BULLISH":
+      return normalized.includes("STRONG")
+        ? "Strong Bullish"
+        : "Bullish";
+
+    case "SELL":
+    case "STRONG_SELL":
+    case "BEARISH":
+    case "STRONG_BEARISH":
+      return normalized.includes("STRONG")
+        ? "Strong Bearish"
+        : "Bearish";
+
+    case "HOLD":
+    case "WATCH":
+    case "SHADOW":
+    case "NO_TRADE":
+    case "ABSTAIN":
+    case "NEUTRAL":
+    case "MIXED":
+      return "Mixed";
+
+    default:
+      return value
+        ? String(value)
+            .replaceAll("_", " ")
+            .replaceAll("-", " ")
+            .toLowerCase()
+            .replace(/\b\w/g, (letter) =>
+              letter.toUpperCase(),
+            )
+        : "Mixed";
+  }
 }
 
 function consensusClasses(value?: string) {
@@ -283,8 +328,8 @@ export default async function TradingCouncilPage() {
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/50">
               The AI Council combines specialized public research views across
-              market structure, opportunities, strategy evidence, capital,
-              positions, risk, and research quality.
+              market structure, opportunities, strategy evidence,
+              risk conditions, and research quality.
             </p>
           </div>
 
@@ -316,7 +361,7 @@ export default async function TradingCouncilPage() {
             Consensus
           </p>
           <p className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
-            {cleanLabel(council?.consensus)}
+            {researchViewLabel(council?.consensus)}
           </p>
           <p className="mt-3 text-sm text-white/42">
             Current combined public research conclusion.
@@ -369,7 +414,7 @@ export default async function TradingCouncilPage() {
               </p>
 
               <h2 className="mt-4 text-5xl font-semibold tracking-[-0.06em]">
-                {cleanLabel(council?.consensus)}
+                {researchViewLabel(council?.consensus)}
               </h2>
 
               <p className="mt-4 text-sm leading-7 text-white/45">
@@ -407,7 +452,7 @@ export default async function TradingCouncilPage() {
             </div>
 
             <p className="mt-5 text-sm leading-7 text-white/42">
-              The final consensus is decision support only and does not execute
+              The final consensus is public research context only and does not execute
               any trade or connect to a user brokerage account.
             </p>
           </div>
@@ -489,7 +534,7 @@ export default async function TradingCouncilPage() {
                       vote.view,
                     )}`}
                   >
-                    {cleanLabel(vote.view)}
+                    {researchViewLabel(vote.view)}
                   </span>
                 </div>
 
@@ -551,3 +596,4 @@ export default async function TradingCouncilPage() {
     </main>
   );
 }
+

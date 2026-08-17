@@ -441,6 +441,7 @@ export async function POST(request: Request) {
         `
           auth_user_id,
           trial_ends_at,
+          current_period_end,
           paypal_subscription_id,
           subscription_type,
           subscription_status
@@ -503,6 +504,21 @@ export async function POST(request: Request) {
       existingTrialEnd.getTime() >
         now.getTime();
 
+    const existingCurrentPeriodEnd =
+      profile.current_period_end
+        ? new Date(
+            String(profile.current_period_end),
+          )
+        : null;
+
+    const currentPeriodStillActive =
+      existingCurrentPeriodEnd !== null &&
+      !Number.isNaN(
+        existingCurrentPeriodEnd.getTime(),
+      ) &&
+      existingCurrentPeriodEnd.getTime() >
+        now.getTime();
+
     const paypalStatus = String(
       subscription.status ?? "",
     )
@@ -522,10 +538,23 @@ export async function POST(request: Request) {
           : "active";
         break;
 
-      case "APPROVED":
-        hasPaidAccess = false;
-        subscriptionStatus = "approved";
+      case "APPROVED": {
+        const existingNestrovaTrial =
+          trialStillActive &&
+          profile.subscription_status === "trialing" &&
+          profile.subscription_type ===
+            planConfiguration.subscriptionType;
+
+        hasPaidAccess =
+          existingNestrovaTrial;
+
+        subscriptionStatus =
+          existingNestrovaTrial
+            ? "trialing"
+            : "approved";
+
         break;
+      }
 
       case "APPROVAL_PENDING":
         hasPaidAccess = false;
@@ -538,11 +567,24 @@ export async function POST(request: Request) {
         subscriptionStatus = "suspended";
         break;
 
-      case "CANCELLED":
-        hasPaidAccess = false;
-        subscriptionStatus = "cancelled";
+      case "CANCELLED": {
+        const preserveExistingAccess =
+          trialStillActive ||
+          currentPeriodStillActive;
+
+        hasPaidAccess =
+          preserveExistingAccess;
+
+        subscriptionStatus =
+          preserveExistingAccess
+            ? trialStillActive
+              ? "trialing"
+              : "active"
+            : "cancelled";
+
         cancelAtPeriodEnd = true;
         break;
+      }
 
       case "EXPIRED":
         hasPaidAccess = false;
@@ -589,8 +631,20 @@ export async function POST(request: Request) {
       eventType ===
       "BILLING.SUBSCRIPTION.CANCELLED"
     ) {
-      hasPaidAccess = false;
-      subscriptionStatus = "cancelled";
+      const preserveExistingAccess =
+        trialStillActive ||
+        currentPeriodStillActive;
+
+      hasPaidAccess =
+        preserveExistingAccess;
+
+      subscriptionStatus =
+        preserveExistingAccess
+          ? trialStillActive
+            ? "trialing"
+            : "active"
+          : "cancelled";
+
       cancelAtPeriodEnd = true;
     }
 
@@ -669,7 +723,12 @@ export async function POST(request: Request) {
 
         current_period_end:
           subscription.billing_info
-            ?.next_billing_time ?? null,
+            ?.next_billing_time ??
+          (currentPeriodStillActive
+            ? existingCurrentPeriodEnd?.toISOString()
+            : trialStillActive
+              ? existingTrialEnd?.toISOString()
+              : null),
 
         cancel_at_period_end:
           cancelAtPeriodEnd,

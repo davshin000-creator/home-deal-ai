@@ -85,7 +85,29 @@ export default function WatchlistPanel() {
         },
       });
 
-      const result = (await response.json()) as WatchlistResponse;
+      const contentType =
+        response.headers.get("content-type") ?? "";
+
+      let result: WatchlistResponse;
+
+      if (contentType.includes("application/json")) {
+        result = (await response.json()) as WatchlistResponse;
+      } else {
+        const body = await response.text();
+
+        console.error(
+          "Watchlist API returned a non-JSON response:",
+          response.status,
+          contentType,
+          body.slice(0, 300),
+        );
+
+        throw new Error(
+          response.ok
+            ? "Watchlist service returned an invalid response."
+            : `Watchlist service is unavailable (${response.status}).`,
+        );
+      }
 
       if (response.status === 401) {
         setIsAuthenticated(false);

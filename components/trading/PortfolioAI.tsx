@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -62,10 +62,6 @@ type PortfolioAsset = {
   regime: string;
   reason: string;
 };
-
-const TRADING_API_URL =
-  process.env.NEXT_PUBLIC_NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
 
 function cleanLabel(value?: string | null) {
   return String(value ?? "Unknown")
@@ -153,7 +149,7 @@ async function loadPublicAsset(
 
   try {
     const response = await fetch(
-      `${TRADING_API_URL}/api/v1/assets/${encodeURIComponent(
+      `/api/trading/public-asset/${encodeURIComponent(
         symbol,
       )}`,
       {
@@ -259,8 +255,29 @@ export default function PortfolioAI() {
           },
         );
 
-        const data =
-          (await response.json()) as WatchlistResponse;
+        const contentType =
+          response.headers.get("content-type") ?? "";
+
+        let data: WatchlistResponse;
+
+        if (contentType.includes("application/json")) {
+          data = (await response.json()) as WatchlistResponse;
+        } else {
+          const body = await response.text();
+
+          console.error(
+            "Watchlist API returned a non-JSON response:",
+            response.status,
+            contentType,
+            body.slice(0, 300),
+          );
+
+          throw new Error(
+            response.ok
+              ? "Watchlist service returned an invalid response."
+              : `Watchlist service is unavailable (${response.status}).`,
+          );
+        }
 
         if (!response.ok || data.success === false) {
           throw new Error(
@@ -449,18 +466,20 @@ export default function PortfolioAI() {
 
       <div className="mt-7 grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         <MetricTile
+          compact
           label="Watchlist Assets"
           value={assets.length}
           detail={`${summary.stockCount} stocks · ${summary.cryptoCount} crypto`}
-          icon={<PortfolioIcon className="h-5 w-5" />}
+          icon={<PortfolioIcon className="h-4 w-4" />}
           tone="violet"
         />
 
         <MetricTile
+          compact
           label="Average AI Score"
           value={summary.averageScore}
           detail="Across saved watchlist assets"
-          icon={<BrainIcon className="h-5 w-5" />}
+          icon={<BrainIcon className="h-4 w-4" />}
           tone={
             summary.averageScore >= 75
               ? "emerald"
@@ -471,14 +490,16 @@ export default function PortfolioAI() {
         />
 
         <MetricTile
+          compact
           label="Average Confidence"
           value={`${summary.averageConfidence}%`}
           detail="Current public research conviction"
-          icon={<GaugeIcon className="h-5 w-5" />}
+          icon={<GaugeIcon className="h-4 w-4" />}
           tone="cyan"
         />
 
         <MetricTile
+          compact
           label="Portfolio Risk"
           value={
             <StatusChip
@@ -496,7 +517,7 @@ export default function PortfolioAI() {
             </StatusChip>
           }
           detail="Combined risk across watchlist assets"
-          icon={<ShieldIcon className="h-5 w-5" />}
+          icon={<ShieldIcon className="h-4 w-4" />}
           tone={
             summary.portfolioRisk === "LOW"
               ? "emerald"
@@ -603,60 +624,70 @@ export default function PortfolioAI() {
           </Link>
         </div>
 
-        <div className="mt-5 grid flex-1 auto-rows-fr gap-4 md:grid-cols-2 2xl:grid-cols-3">
+        <div className="mt-5 grid flex-1 gap-4">
           {assets.slice(0, 3).map((asset) => (
             <Link
               key={`${asset.assetType}-${asset.symbol}`}
               href={`/trading/assets/${encodeURIComponent(
                 asset.symbol,
               )}`}
-              className="flex min-w-0 flex-col rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.06]"
+              className="group min-w-0 rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300/20 hover:bg-white/[0.045] sm:p-6"
             >
-              <div className="flex min-w-0 items-start justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  <AssetLogo
-                    symbol={asset.symbol}
-                    assetType={asset.assetType}
-                    size="md"
-                  />
+              <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+                <AssetLogo
+                  symbol={asset.symbol}
+                  assetType={asset.assetType}
+                  size="md"
+                />
 
-                  <div className="min-w-0">
-                    <p className="truncate text-2xl font-black">
-                      {asset.symbol}
-                    </p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-2xl font-black tracking-[-0.025em] text-white">
+                    {asset.symbol}
+                  </p>
 
-                    <p className="mt-1 truncate text-xs text-white/35">
-                      {asset.assetName}
-                    </p>
-                  </div>
+                  <p className="mt-1 truncate text-sm text-white/35">
+                    {asset.assetName}
+                  </p>
                 </div>
 
-                <p
-                  className={`text-3xl font-black ${scoreClasses(
-                    asset.score,
-                  )}`}
-                >
-                  {asset.score}
-                </p>
+                <div className="shrink-0 text-right">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-cyan-200/45">
+                    AI Score
+                  </p>
+
+                  <p
+                    className={`mt-1 text-[2rem] font-black leading-none tracking-[-0.04em] ${scoreClasses(
+                      asset.score,
+                    )}`}
+                  >
+                    {asset.score}
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span
-                  className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase ${riskClasses(
+                  className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase ${riskClasses(
                     asset.risk,
                   )}`}
                 >
                   {cleanLabel(asset.risk)} Risk
                 </span>
 
-                <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] uppercase text-white/35">
+                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[9px] font-semibold uppercase text-white/35">
                   {cleanLabel(asset.regime)}
                 </span>
               </div>
 
-              <p className="mt-4 line-clamp-3 flex-1 break-words text-sm leading-6 text-white/40 [overflow-wrap:anywhere]">
+              <p className="mt-5 max-w-3xl break-words text-sm leading-6 text-white/40 [overflow-wrap:anywhere]">
                 {asset.reason}
               </p>
+
+              <div className="mt-5 flex justify-end border-t border-white/[0.06] pt-4">
+                <span className="text-xs font-semibold text-cyan-200/55 transition group-hover:text-cyan-100">
+                  View analysis →
+                </span>
+              </div>
             </Link>
           ))}
         </div>
@@ -670,3 +701,4 @@ export default function PortfolioAI() {
     </GlassPanel>
   );
 }
+

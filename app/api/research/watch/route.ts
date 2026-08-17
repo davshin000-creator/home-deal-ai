@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import {
+  loadResearchPublicState,
+} from "@/lib/research/public-gateway";
 
 import {
   hasResearchAccess,
@@ -10,12 +13,9 @@ import {
 } from "@/lib/supabase/server";
 
 import {
+  getPublicSearchUniverse,
   normalizePublicOpportunities,
 } from "@/lib/research/publicResearch";
-
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  "https://api.nestrova.com";
 
 function normalizeSymbol(
   value: unknown,
@@ -49,31 +49,51 @@ function confidenceOf(
 }
 
 async function loadPublicResearch() {
-  const response =
-    await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-      },
-    );
+  const state =
+    await loadResearchPublicState();
 
-  if (!response.ok) {
+  if (!state) {
     throw new Error(
-      `Gateway returned ${response.status}`,
+      "Research Public Gateway unavailable.",
     );
   }
 
-  const state =
-    await response.json();
+  const opportunities =
+    state.opportunities;
 
-  return [
-    ...normalizePublicOpportunities(
-      state?.top_opportunities,
-    ),
-    ...normalizePublicOpportunities(
-      state?.opportunities,
-    ),
-  ];
+  if (
+    opportunities &&
+    typeof opportunities === "object" &&
+    !Array.isArray(opportunities)
+  ) {
+    const sections =
+      opportunities as Record<
+        string,
+        unknown
+      >;
+
+    const researchUniverse =
+      normalizePublicOpportunities(
+        sections.research_universe,
+      );
+
+    if (researchUniverse.length > 0) {
+      return researchUniverse;
+    }
+
+    const topOpportunities =
+      normalizePublicOpportunities(
+        sections.top_opportunities,
+      );
+
+    if (topOpportunities.length > 0) {
+      return topOpportunities;
+    }
+  }
+
+  return normalizePublicOpportunities(
+    state.top_opportunities,
+  );
 }
 
 export async function GET() {
@@ -145,336 +165,6 @@ export async function GET() {
         "research_watch_gateway_failed",
         gatewayError,
       );
-    }
-
-    if (
-      opportunities.length > 0 &&
-      (watches ?? []).length > 0
-    ) {
-      const snapshots =
-        (watches ?? [])
-          .map((watch) => {
-            const current =
-              opportunities.find(
-                (item) =>
-                  normalizeSymbol(
-                    item.symbol,
-                  ) ===
-                  normalizeSymbol(
-                    watch.symbol,
-                  ),
-              );
-
-            if (!current) {
-              return null;
-            }
-
-            return {
-              user_id:
-                user.id,
-
-              symbol:
-                normalizeSymbol(
-                  watch.symbol,
-                ),
-
-              confidence:
-                confidenceOf(
-                  current,
-                ),
-
-              risk:
-                typeof current.risk ===
-                "string"
-                  ? current.risk
-                  : null,
-
-              research_style:
-                typeof current.research_style ===
-                "string"
-                  ? current.research_style
-                  : null,
-
-              research_version:
-                typeof current.research_version ===
-                "string"
-                  ? current.research_version
-                  : null,
-
-              evidence_count:
-                Array.isArray(
-                  current.research_reasons,
-                )
-                  ? current.research_reasons.length
-                  : 0,
-
-              captured_at:
-                new Date().toISOString(),
-            };
-          })
-          .filter(
-            (
-              item,
-            ): item is {
-              user_id: string;
-              symbol: string;
-              confidence: number;
-              risk: string | null;
-              research_style: string | null;
-              research_version: string | null;
-              evidence_count: number;
-              captured_at: string;
-            } =>
-              item !== null,
-          );
-
-      if (snapshots.length > 0) {
-        const {
-          error:
-            historyError,
-        } = await supabase
-          .from(
-            "research_watch_history",
-          )
-          .insert(
-            snapshots,
-          );
-
-        if (historyError) {
-          console.error(
-            "research_watch_history_insert_failed",
-            historyError,
-          );
-        }
-      }
-    }
-
-    const researchAlerts: {
-      user_id: string;
-      symbol: string;
-      alert_type: string;
-      title: string;
-      message: string;
-      previous_value: string | null;
-      current_value: string | null;
-      created_at: string;
-    }[] = [];
-
-    for (const watch of watches ?? []) {
-      const current =
-        opportunities.find(
-          (item) =>
-            normalizeSymbol(
-              item.symbol,
-            ) ===
-            normalizeSymbol(
-              watch.symbol,
-            ),
-        );
-
-      if (!current) {
-        continue;
-      }
-
-      const symbol =
-        normalizeSymbol(
-          watch.symbol,
-        );
-
-      const currentConfidence =
-        confidenceOf(
-          current,
-        );
-
-      const previousConfidence =
-        watch.last_confidence ===
-        null ||
-        watch.last_confidence ===
-        undefined
-          ? null
-          : Number(
-              watch.last_confidence,
-            );
-
-      if (
-        previousConfidence !== null &&
-        Math.abs(
-          currentConfidence -
-            previousConfidence,
-        ) >= 5
-      ) {
-        const delta =
-          currentConfidence -
-          previousConfidence;
-
-        researchAlerts.push({
-          user_id:
-            user.id,
-
-          symbol,
-
-          alert_type:
-            "CONFIDENCE_CHANGE",
-
-          title:
-            `${symbol} research confidence changed`,
-
-          message:
-            `Research confidence moved from ${previousConfidence}% to ${currentConfidence}% (${delta > 0 ? "+" : ""}${delta}).`,
-
-          previous_value:
-            String(
-              previousConfidence,
-            ),
-
-          current_value:
-            String(
-              currentConfidence,
-            ),
-
-          created_at:
-            new Date().toISOString(),
-        });
-      }
-
-      const currentRisk =
-        typeof current.risk ===
-        "string"
-          ? current.risk
-          : null;
-
-      if (
-        currentRisk &&
-        watch.last_risk &&
-        currentRisk !==
-          watch.last_risk
-      ) {
-        researchAlerts.push({
-          user_id:
-            user.id,
-
-          symbol,
-
-          alert_type:
-            "RISK_CHANGE",
-
-          title:
-            `${symbol} research risk changed`,
-
-          message:
-            `Research risk changed from ${watch.last_risk} to ${currentRisk}.`,
-
-          previous_value:
-            watch.last_risk,
-
-          current_value:
-            currentRisk,
-
-          created_at:
-            new Date().toISOString(),
-        });
-      }
-
-      const currentStyle =
-        typeof current.research_style ===
-        "string"
-          ? current.research_style
-          : null;
-
-      if (
-        currentStyle &&
-        watch.last_research_style &&
-        currentStyle !==
-          watch.last_research_style
-      ) {
-        researchAlerts.push({
-          user_id:
-            user.id,
-
-          symbol,
-
-          alert_type:
-            "STYLE_CHANGE",
-
-          title:
-            `${symbol} research style changed`,
-
-          message:
-            `Research style changed from ${watch.last_research_style} to ${currentStyle}.`,
-
-          previous_value:
-            watch.last_research_style,
-
-          current_value:
-            currentStyle,
-
-          created_at:
-            new Date().toISOString(),
-        });
-      }
-
-      const currentVersion =
-        typeof current.research_version ===
-        "string"
-          ? current.research_version
-          : null;
-
-      if (
-        currentVersion &&
-        watch.last_research_version &&
-        currentVersion !==
-          watch.last_research_version
-      ) {
-        researchAlerts.push({
-          user_id:
-            user.id,
-
-          symbol,
-
-          alert_type:
-            "VERSION_CHANGE",
-
-          title:
-            `${symbol} research engine changed`,
-
-          message:
-            `Research engine changed from ${watch.last_research_version} to ${currentVersion}.`,
-
-          previous_value:
-            watch.last_research_version,
-
-          current_value:
-            currentVersion,
-
-          created_at:
-            new Date().toISOString(),
-        });
-      }
-    }
-
-    if (
-      researchAlerts.length >
-      0
-    ) {
-      const {
-        error:
-          alertsInsertError,
-      } = await supabase
-        .from(
-          "research_alerts",
-        )
-        .insert(
-          researchAlerts,
-        );
-
-      if (
-        alertsInsertError
-      ) {
-        console.error(
-          "research_alert_insert_failed",
-          alertsInsertError,
-        );
-      }
     }
 
     const enriched =
@@ -661,8 +351,112 @@ export async function POST(
       );
     }
 
+    let searchable = false;
+
+    try {
+      const publicState =
+        await loadResearchPublicState();
+
+      if (!publicState) {
+        throw new Error(
+          "Research Public Gateway unavailable.",
+        );
+      }
+
+      const searchUniverse =
+        getPublicSearchUniverse(
+          publicState,
+        );
+
+      searchable =
+        searchUniverse.some(
+          (item) =>
+            normalizeSymbol(
+              item.symbol,
+            ) === symbol,
+        );
+    } catch (gatewayError) {
+      console.error(
+        "research_watch_symbol_validation_failed",
+        gatewayError,
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Research universe is temporarily unavailable.",
+          code:
+            "RESEARCH_UNIVERSE_UNAVAILABLE",
+        },
+        {
+          status: 502,
+        },
+      );
+    }
+
+    if (!searchable) {
+      return NextResponse.json(
+        {
+          error:
+            `${symbol} is not currently supported by Nestrova Research.`,
+          code:
+            "RESEARCH_SYMBOL_UNSUPPORTED",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     const supabase =
       createSupabaseAdminClient();
+
+    const {
+      data: existingWatches,
+      error: existingWatchError,
+    } = await supabase
+      .from("research_watch")
+      .select("*")
+      .eq(
+        "user_id",
+        user.id,
+      )
+      .eq(
+        "symbol",
+        symbol,
+      )
+      .limit(1);
+
+    if (existingWatchError) {
+      console.error(
+        "research_watch_existing_check_failed",
+        existingWatchError,
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Could not verify Research Watch.",
+        },
+        {
+          status: 500,
+        },
+      );
+    }
+
+    if (
+      Array.isArray(
+        existingWatches,
+      ) &&
+      existingWatches.length > 0
+    ) {
+      return NextResponse.json({
+        ok: true,
+        already_watched: true,
+        watch:
+          existingWatches[0],
+      });
+    }
 
     const {
       count,

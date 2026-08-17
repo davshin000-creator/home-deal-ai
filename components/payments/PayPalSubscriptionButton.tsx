@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   PayPalButtons,
-  PayPalScriptProvider,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
@@ -220,36 +219,22 @@ function PayPalSubscriptionInner({
 export default function PayPalSubscriptionButton({
   subscriptionType,
 }: PayPalSubscriptionButtonProps) {
-  const clientId =
-    process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-
-  const { displayName } =
+  const { displayName, planId } =
     getPlanConfig(subscriptionType);
 
-  if (!clientId) {
+  if (!planId) {
     return (
       <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-        Missing NEXT_PUBLIC_PAYPAL_CLIENT_ID.
+        Missing PayPal Plan ID for {displayName}.
       </div>
     );
   }
 
   return (
-    <PayPalScriptProvider
-      options={{
-        clientId,
-        currency: "USD",
-        vault: true,
-        intent: "subscription",
-        components: "buttons",
-        disableFunding: "card,credit,paylater",
-      }}
-    >
-      <div aria-label={`${displayName} PayPal checkout`}>
-        <PayPalSubscriptionInner
-          subscriptionType={subscriptionType}
-        />
-      </div>
-    </PayPalScriptProvider>
+    <div aria-label={`${displayName} PayPal checkout`}>
+      <PayPalSubscriptionInner
+        subscriptionType={subscriptionType}
+      />
+    </div>
   );
 }

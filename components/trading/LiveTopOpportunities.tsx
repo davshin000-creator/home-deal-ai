@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopOpportunities from "@/components/trading/TopOpportunities";
@@ -27,7 +27,6 @@ type PublicTradingState = {
 type LiveTopOpportunitiesProps = {
   initialOpportunities: Opportunity[];
   initialGeneratedAt?: string;
-  apiBaseUrl: string;
 };
 
 type ActivityEvent = {
@@ -372,8 +371,7 @@ function eventAccent(event: ActivityEvent) {
 export default function LiveTopOpportunities({
   initialOpportunities,
   initialGeneratedAt,
-  apiBaseUrl,
-}: LiveTopOpportunitiesProps) {
+  }: LiveTopOpportunitiesProps) {
   const [opportunities, setOpportunities] =
     useState<Opportunity[]>(
       initialOpportunities,
@@ -395,9 +393,7 @@ export default function LiveTopOpportunities({
   const [activityLoaded, setActivityLoaded] =
     useState(false);
 
-  const [clock, setClock] = useState(
-    Date.now(),
-  );
+  const [clock, setClock] = useState(0);
 
   const [isRefreshing, setIsRefreshing] =
     useState(false);
@@ -408,7 +404,7 @@ export default function LiveTopOpportunities({
   const [
     lastSuccessfulRefresh,
     setLastSuccessfulRefresh,
-  ] = useState<number>(Date.now());
+  ] = useState<number | null>(null);
 
   useEffect(() => {
     setActivityEvents(
@@ -443,7 +439,7 @@ export default function LiveTopOpportunities({
 
       try {
         const response = await fetch(
-          `${apiBaseUrl}/api/v1/core/state`,
+          "/api/trading/public-state",
           {
             method: "GET",
             cache: "no-store",
@@ -592,16 +588,18 @@ export default function LiveTopOpportunities({
         clockInterval,
       );
     };
-  }, [apiBaseUrl]);
+  }, []);
 
-  const relativeUpdateTime = useMemo(
-    () =>
-      formatRelativeTime(
-        generatedAt,
-        clock,
-      ),
-    [generatedAt, clock],
-  );
+  const relativeUpdateTime = useMemo(() => {
+    if (clock === 0) {
+      return "Live update";
+    }
+
+    return formatRelativeTime(
+      generatedAt,
+      clock,
+    );
+  }, [generatedAt, clock]);
 
   const refreshStatus = useMemo(() => {
     if (isRefreshing) {
@@ -613,10 +611,14 @@ export default function LiveTopOpportunities({
     }
 
     const secondsSinceSuccess =
-      Math.floor(
-        (clock - lastSuccessfulRefresh) /
-          1000,
-      );
+      clock === 0
+        ? 0
+        : Math.floor(
+            (
+              clock -
+              (lastSuccessfulRefresh ?? clock)
+            ) / 1000,
+          );
 
     if (secondsSinceSuccess < 35) {
       return "Live public intelligence";
@@ -775,3 +777,6 @@ export default function LiveTopOpportunities({
     </div>
   );
 }
+
+
+

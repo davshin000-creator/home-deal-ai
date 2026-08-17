@@ -3,9 +3,9 @@ import SiteFooter from "@/components/site/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type Strategy = {
   name?: string;
@@ -39,24 +39,23 @@ async function getTradingState(): Promise<{
   error: string | null;
 }> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return {
         data: null,
-        error: `Trading API returned ${response.status}.`,
+        error:
+          gatewayResult.error ??
+          "Verified Research is temporarily unavailable.",
       };
     }
 
-    const data = (await response.json()) as TradingState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -461,7 +460,7 @@ export default async function VerifiedStrategiesPage() {
 
         <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
-            Shadow Results
+            Research Results
           </p>
           <p className="mt-3 text-3xl font-semibold">
             {formatNumber(
@@ -583,3 +582,4 @@ export default async function VerifiedStrategiesPage() {
     </main>
   );
 }
+

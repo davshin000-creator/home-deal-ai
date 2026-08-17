@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import {
+  loadResearchPublicState,
+} from "@/lib/research/public-gateway";
 import { resolvePublicResearchAsset } from "@/lib/research/resolvePublicResearchAsset";
 
 
@@ -21,10 +24,6 @@ import {
 
 const OPENAI_API_KEY =
   process.env.OPENAI_API_KEY;
-
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  "https://api.nestrova.com";
 
 type PublicState = {
   generated_at?: string;
@@ -106,6 +105,285 @@ function extractJson(
   );
 }
 
+
+type CouncilVote =
+  | "BULLISH"
+  | "NEUTRAL"
+  | "BEARISH";
+
+type SanitizedAgent = {
+  vote: CouncilVote;
+  confidence: number;
+  reason: string;
+};
+
+function sanitizeVote(
+  value: unknown,
+): CouncilVote {
+  const vote = String(value ?? "")
+    .trim()
+    .toUpperCase();
+
+  if (
+    vote === "BULLISH" ||
+    vote === "BEARISH"
+  ) {
+    return vote;
+  }
+
+  return "NEUTRAL";
+}
+
+function sanitizeText(
+  value: unknown,
+  fallback = "Insufficient evidence.",
+) {
+  const text = String(value ?? "").trim();
+
+  return text || fallback;
+}
+
+function sanitizeStringArray(
+  value: unknown,
+) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) =>
+      String(item ?? "").trim(),
+    )
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
+function sanitizeAgent(
+  value: unknown,
+  gatewayConfidence: number,
+): SanitizedAgent {
+  const object =
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+
+  const reason =
+    sanitizeText(object.reason);
+
+  const insufficient =
+    reason
+      .toLowerCase()
+      .includes("insufficient evidence");
+
+  return {
+    vote: insufficient
+      ? "NEUTRAL"
+      : sanitizeVote(object.vote),
+
+    confidence: insufficient
+      ? 0
+      : Math.min(
+          gatewayConfidence,
+          clamp(object.confidence),
+        ),
+
+    reason,
+  };
+}
+
+function sanitizeCouncil(
+  value: unknown,
+  gatewayConfidence: number,
+) {
+  const root =
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+
+  const rawAgents =
+    root.agents &&
+    typeof root.agents === "object" &&
+    !Array.isArray(root.agents)
+      ? (
+          root.agents as Record<
+            string,
+            unknown
+          >
+        )
+      : {};
+
+  const agents = {
+    growth: sanitizeAgent(
+      rawAgents.growth,
+      gatewayConfidence,
+    ),
+
+    value: sanitizeAgent(
+      rawAgents.value,
+      gatewayConfidence,
+    ),
+
+    momentum: sanitizeAgent(
+      rawAgents.momentum,
+      gatewayConfidence,
+    ),
+
+    risk: sanitizeAgent(
+      rawAgents.risk,
+      gatewayConfidence,
+    ),
+
+    macro: sanitizeAgent(
+      rawAgents.macro,
+      gatewayConfidence,
+    ),
+  };
+
+  const agentValues =
+    Object.values(agents);
+
+  const bullishCount =
+    agentValues.filter(
+      (agent) =>
+        agent.vote === "BULLISH",
+    ).length;
+
+  const neutralCount =
+    agentValues.filter(
+      (agent) =>
+        agent.vote === "NEUTRAL",
+    ).length;
+
+  const bearishCount =
+    agentValues.filter(
+      (agent) =>
+        agent.vote === "BEARISH",
+    ).length;
+
+  let consensusVote: CouncilVote =
+    "NEUTRAL";
+
+  if (
+    bullishCount > bearishCount &&
+    bullishCount > neutralCount
+  ) {
+    consensusVote = "BULLISH";
+  } else if (
+    bearishCount > bullishCount &&
+    bearishCount > neutralCount
+  ) {
+    consensusVote = "BEARISH";
+  }
+
+  const winningCount =
+    Math.max(
+      bullishCount,
+      neutralCount,
+      bearishCount,
+    );
+
+  const agreementScore =
+    Math.round(
+      (winningCount / agentValues.length) *
+        100,
+    );
+
+  const supportedAgents =
+    agentValues.filter(
+      (agent) =>
+        agent.confidence > 0,
+    );
+
+  const averageConfidence =
+    supportedAgents.length > 0
+      ? Math.round(
+          supportedAgents.reduce(
+            (total, agent) =>
+              total + agent.confidence,
+            0,
+          ) / supportedAgents.length,
+        )
+      : 0;
+
+  const rawConsensus =
+    root.consensus &&
+    typeof root.consensus === "object" &&
+    !Array.isArray(root.consensus)
+      ? (
+          root.consensus as Record<
+            string,
+            unknown
+          >
+        )
+      : {};
+
+  const rawStrength =
+    String(
+      root.evidence_strength ?? "",
+    )
+      .trim()
+      .toUpperCase();
+
+  const evidenceStrength =
+    rawStrength === "HIGH" ||
+    rawStrength === "MEDIUM" ||
+    rawStrength === "LOW"
+      ? rawStrength
+      : supportedAgents.length >= 4
+        ? "HIGH"
+        : supportedAgents.length >= 2
+          ? "MEDIUM"
+          : "LOW";
+
+  return {
+    agents,
+
+    consensus: {
+      vote: consensusVote,
+
+      agreement_score:
+        agreementScore,
+
+      confidence:
+        Math.min(
+          gatewayConfidence,
+          averageConfidence,
+        ),
+
+      bullish_count:
+        bullishCount,
+
+      neutral_count:
+        neutralCount,
+
+      bearish_count:
+        bearishCount,
+
+      summary:
+        sanitizeText(
+          rawConsensus.summary,
+        ),
+
+      dissenting_view:
+        sanitizeText(
+          rawConsensus.dissenting_view,
+        ),
+    },
+
+    evidence_strength:
+      evidenceStrength,
+
+    limitations:
+      sanitizeStringArray(
+        root.limitations,
+      ),
+  };
+}
+
 export async function POST(
   request: Request,
 ) {
@@ -174,15 +452,10 @@ export async function POST(
       );
     }
 
-    const stateResponse =
-      await fetch(
-        `${API_BASE_URL}/api/v1/core/state`,
-        {
-          cache: "no-store",
-        },
-      );
+    const state =
+      await loadResearchPublicState();
 
-    if (!stateResponse.ok) {
+    if (!state) {
       return NextResponse.json(
         {
           error:
@@ -194,12 +467,8 @@ export async function POST(
       );
     }
 
-    const state =
-      (await stateResponse.json()) as PublicState;
-
     const evidence =
       await resolvePublicResearchAsset(
-        API_BASE_URL,
         state,
         symbol,
       );
@@ -431,6 +700,12 @@ ${JSON.stringify(
         extractJson(content),
       );
 
+    const council =
+      sanitizeCouncil(
+        parsed,
+        gatewayConfidence,
+      );
+
     const consumedUsage =
       await consumeResearchUsage(
         user.id,
@@ -472,8 +747,7 @@ ${JSON.stringify(
 
       evidence: context,
 
-      council:
-        parsed,
+      council,
     });
   } catch (error) {
     console.error(

@@ -24,6 +24,8 @@ export type ProfileSubscriptionData = {
   entitlements?: unknown;
   subscription_status?: unknown;
   trial_ends_at?: unknown;
+  current_period_end?: unknown;
+  cancel_at_period_end?: unknown;
   is_pro?: unknown;
 };
 
@@ -194,6 +196,28 @@ export function hasActiveSubscription(
     isTrialExpired(profile.trial_ends_at, now)
   ) {
     return false;
+  }
+
+  if (profile.cancel_at_period_end === true) {
+    const periodEndValue =
+      profile.current_period_end ??
+      profile.trial_ends_at;
+
+    if (
+      periodEndValue !== null &&
+      periodEndValue !== undefined &&
+      periodEndValue !== ""
+    ) {
+      const periodEnd =
+        new Date(String(periodEndValue));
+
+      if (
+        !Number.isNaN(periodEnd.getTime()) &&
+        periodEnd.getTime() <= now.getTime()
+      ) {
+        return false;
+      }
+    }
   }
 
   return true;

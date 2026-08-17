@@ -23,6 +23,14 @@ export type Opportunity = {
   research_version?: string;
   research_reasons?: string[];
   score_components?: Record<string, number>;
+  direction?: string;
+  direction_label?: string;
+  outlook?: string;
+  outlook_label?: string;
+  outlook_summary?: string;
+  time_horizon?: string;
+  positive_factors?: string[];
+  watch_factors?: string[];
 };
 
 type OpportunityCardProps = {
@@ -63,31 +71,78 @@ function normalize(value?: string | null) {
   return value?.trim().toUpperCase().replaceAll("-", "_") ?? "";
 }
 
-function getRecommendation(score?: number) {
-  const normalizedScore = score ?? 0;
+function getOutlookPresentation(
+  opportunity: Opportunity,
+) {
+  const outlook = normalize(
+    opportunity.outlook,
+  );
 
-  if (normalizedScore >= 90) {
+  const direction = normalize(
+    opportunity.direction,
+  );
+
+  if (
+    outlook === "STRONG_BULLISH" ||
+    outlook === "BULLISH" ||
+    direction === "UP"
+  ) {
     return {
-      label: "BUY",
+      label:
+        opportunity.outlook_label ||
+        opportunity.direction_label ||
+        "Bullish",
       classes:
         "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
-      description: "High-priority opportunity",
+      description:
+        opportunity.outlook_summary ||
+        "Current research evidence leans positive.",
     };
   }
 
-  if (normalizedScore >= 75) {
+  if (
+    outlook === "BEARISH" ||
+    outlook === "STRONG_BEARISH" ||
+    direction === "DOWN"
+  ) {
     return {
-      label: "HOLD",
+      label:
+        opportunity.outlook_label ||
+        opportunity.direction_label ||
+        "Bearish",
+      classes:
+        "border-red-400/25 bg-red-400/10 text-red-300",
+      description:
+        opportunity.outlook_summary ||
+        "Current research evidence leans negative.",
+    };
+  }
+
+  if (
+    outlook === "NEUTRAL" ||
+    outlook === "MIXED" ||
+    direction === "NEUTRAL" ||
+    direction === "MIXED"
+  ) {
+    return {
+      label:
+        opportunity.outlook_label ||
+        opportunity.direction_label ||
+        "Mixed",
       classes:
         "border-amber-400/25 bg-amber-400/10 text-amber-200",
-      description: "Promising, but confirmation is still needed",
+      description:
+        opportunity.outlook_summary ||
+        "Current evidence is mixed and needs more confirmation.",
     };
   }
 
   return {
-    label: "WAIT",
-    classes: "border-white/10 bg-white/[0.06] text-white/55",
-    description: "Conditions are not strong enough yet",
+    label: "Researching",
+    classes:
+      "border-white/10 bg-white/[0.06] text-white/55",
+    description:
+      "A directional outlook is not available yet.",
   };
 }
 
@@ -166,7 +221,7 @@ function getStyleReason(style?: string) {
     return "Volatility is creating opportunity, but position sizing matters.";
   }
 
-  return "Multiple public market signals contributed to this opportunity score.";
+  return "Multiple public market signals contributed to the current AI assessment.";
 }
 
 function getBasisReason(scoreBasis?: string) {
@@ -218,7 +273,8 @@ export default function OpportunityCard({
   );
 
   const score = opportunity.opportunity_score ?? 0;
-  const recommendation = getRecommendation(score);
+  const recommendation =
+    getOutlookPresentation(opportunity);
   const basisReason = getBasisReason(opportunity.score_basis);
 
   const publicReasons =

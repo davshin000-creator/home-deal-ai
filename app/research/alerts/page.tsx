@@ -23,6 +23,7 @@ type ResearchAlert = {
 type AlertsResponse = {
   ok?: boolean;
   alerts?: ResearchAlert[];
+  watch_subject_count?: number;
   error?: string;
 };
 
@@ -60,6 +61,13 @@ function alertLabel(
 ) {
   if (
     type ===
+    "RESEARCH_AVAILABLE"
+  ) {
+    return "Research Available";
+  }
+
+  if (
+    type ===
     "CONFIDENCE_CHANGE"
   ) {
     return "Confidence";
@@ -94,6 +102,13 @@ function alertStyle(
 ) {
   if (
     type ===
+    "RESEARCH_AVAILABLE"
+  ) {
+    return "border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-100";
+  }
+
+  if (
+    type ===
     "CONFIDENCE_CHANGE"
   ) {
     return "border-cyan-300/15 bg-cyan-300/[0.055] text-cyan-100";
@@ -124,6 +139,11 @@ export default function ResearchAlertsPage() {
     useState<ResearchAlert[]>(
       [],
     );
+
+  const [
+    watchSubjectCount,
+    setWatchSubjectCount,
+  ] = useState(0);
 
   const [
     loading,
@@ -179,6 +199,10 @@ export default function ResearchAlertsPage() {
 
           setAlerts(
             data.alerts ?? [],
+          );
+
+          setWatchSubjectCount(
+            data.watch_subject_count ?? 0,
           );
         } catch (
           requestError
@@ -403,14 +427,7 @@ export default function ResearchAlertsPage() {
               </p>
 
               <p className="mt-3 text-3xl font-black">
-                {
-                  new Set(
-                    alerts.map(
-                      (alert) =>
-                        alert.symbol,
-                    ),
-                  ).size
-                }
+                {watchSubjectCount}
               </p>
             </div>
           </div>

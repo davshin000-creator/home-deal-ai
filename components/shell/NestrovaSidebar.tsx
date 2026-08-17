@@ -158,12 +158,12 @@ export default function NestrovaSidebar() {
       >
         <NestrovaMark className="h-10 w-10 rounded-[13px] text-[13px]" />
 
-        <div className="min-w-0">
-          <p className="truncate text-lg font-black tracking-[-0.045em]">
+        <div className="min-w-0 flex-1 overflow-visible">
+          <p className="whitespace-nowrap text-lg font-black tracking-[-0.045em]">
             Nestrova
           </p>
 
-          <p className="truncate text-[9px] font-semibold uppercase tracking-[0.16em] text-white/28">
+          <p className="whitespace-nowrap text-[8px] font-semibold uppercase tracking-[0.11em] text-white/28">
             Intelligence Platform
           </p>
         </div>

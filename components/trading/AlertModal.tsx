@@ -201,7 +201,7 @@ if (!response.ok || !data.success) {
               className="mt-3 h-12 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-white outline-none transition focus:border-amber-300/40"
             >
               <option value="opportunity_score">
-                Opportunity Score reaches threshold
+                AI Score reaches threshold
               </option>
 
               <option value="risk_change">

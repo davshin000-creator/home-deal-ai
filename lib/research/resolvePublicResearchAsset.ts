@@ -1,3 +1,7 @@
+import {
+  loadResearchPublicAsset,
+} from "@/lib/research/public-gateway";
+
 export type PublicResearchAsset = {
   symbol?: string;
   asset_name?: string;
@@ -65,7 +69,6 @@ function normalizeList(
 }
 
 export async function resolvePublicResearchAsset(
-  apiBaseUrl: string,
   state: {
     top_opportunities?: unknown;
     opportunities?: unknown;
@@ -99,30 +102,14 @@ export async function resolvePublicResearchAsset(
     return existing;
   }
 
-  const response = await fetch(
-    `${apiBaseUrl}/api/v1/assets/${encodeURIComponent(
+  const asset =
+    await loadResearchPublicAsset(
       symbol,
-    )}`,
-    {
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-      },
-    },
-  );
+    );
 
-  if (response.status === 404) {
+  if (!asset) {
     return null;
   }
-
-  if (!response.ok) {
-    throw new Error(
-      `PUBLIC_ASSET_LOOKUP_${response.status}`,
-    );
-  }
-
-  const asset =
-    (await response.json()) as PublicResearchAsset;
 
   if (
     normalizeSymbol(

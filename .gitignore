@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local development backups
+*.bak
+*.before_*
+*.tsx.before_*
+*.ts.before_*
+*.before_*.tsx
+*.before_*.ts
+backup_wording_*
+legacy_backup/
+
+# Local one-off repair files
+fix_trading_ui.py
+*.bak-before-*

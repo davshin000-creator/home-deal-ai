@@ -1,5 +1,6 @@
 "use client";
 
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import PayPalSubscriptionButton from "@/components/payments/PayPalSubscriptionButton";
 import {
   useUser,
@@ -112,6 +113,10 @@ const realEstateFeatures: PlanFeature[] = [
 
 const tradingFeatures: PlanFeature[] = [
   {
+    text: "Unlimited Trading Research",
+    emphasized: true,
+  },
+  {
     text: "Unlimited trading watchlists",
     emphasized: true,
   },
@@ -214,6 +219,13 @@ const comparisonRows: ComparisonRow[] = [
     feature: "Watchlist assets",
     free: "5",
     realEstate: "5",
+    trading: "Unlimited",
+    allAccess: "Unlimited",
+  },
+  {
+    feature: "Trading Research",
+    free: "10 / month",
+    realEstate: "10 / month",
     trading: "Unlimited",
     allAccess: "Unlimited",
   },
@@ -357,7 +369,7 @@ function PlanFeatureList({
   features: PlanFeature[];
 }) {
   return (
-    <div className="grid gap-3">
+    <div className="grid content-start gap-3">
       {features.map((feature) => (
         <div
           key={feature.text}
@@ -418,6 +430,9 @@ function ComparisonCell({
 
 export default function PricingPage() {
   const { isLoaded, isSignedIn } = useUser();
+
+  const paypalClientId =
+    process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
   return (
     <main
@@ -729,9 +744,20 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:items-stretch">
-            <article className="flex min-h-full flex-col rounded-[40px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-2xl">
-              <div>
+          {paypalClientId ? (
+            <PayPalScriptProvider
+              options={{
+                clientId: paypalClientId,
+                currency: "USD",
+                vault: true,
+                intent: "subscription",
+                components: "buttons",
+                disableFunding: "card,credit,paylater",
+              }}
+            >
+              <div className="mt-12 grid items-start gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <article className="flex flex-col rounded-[40px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-2xl">
+              <div className="xl:min-h-[250px]">
                 <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/30">
                   Free
                 </p>
@@ -758,9 +784,11 @@ export default function PricingPage() {
 
               <div className="my-7 h-px bg-white/10" />
 
-              <PlanFeatureList features={freeFeatures} />
+              <div>
+                <PlanFeatureList features={freeFeatures} />
+              </div>
 
-              <div className="mt-auto pt-8">
+              <div className="pt-8">
                 <a
                   href="/dashboard"
                   className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-5 py-4 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
@@ -774,8 +802,8 @@ export default function PricingPage() {
               </div>
             </article>
 
-            <article className="flex min-h-full flex-col rounded-[40px] border border-cyan-400/20 bg-cyan-400/[0.055] p-7 shadow-[0_32px_100px_rgba(34,211,238,0.05)] backdrop-blur-2xl">
-              <div>
+            <article className="flex flex-col rounded-[40px] border border-cyan-400/20 bg-cyan-400/[0.055] p-7 shadow-[0_32px_100px_rgba(34,211,238,0.05)] backdrop-blur-2xl">
+              <div className="xl:min-h-[250px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200/55">
@@ -810,11 +838,13 @@ export default function PricingPage() {
 
               <div className="my-7 h-px bg-white/10" />
 
-              <PlanFeatureList
-                features={realEstateFeatures}
-              />
+              <div>
+                <PlanFeatureList
+                  features={realEstateFeatures}
+                />
+              </div>
 
-              <div className="mt-auto pt-8">
+              <div className="pt-8">
                 <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
                   <PayPalSubscriptionButton subscriptionType="real_estate" />
                 </div>
@@ -825,8 +855,8 @@ export default function PricingPage() {
               </div>
             </article>
 
-            <article className="flex min-h-full flex-col rounded-[40px] border border-emerald-400/20 bg-emerald-400/[0.055] p-7 shadow-[0_32px_100px_rgba(52,211,153,0.05)] backdrop-blur-2xl">
-              <div>
+            <article className="flex flex-col rounded-[40px] border border-emerald-400/20 bg-emerald-400/[0.055] p-7 shadow-[0_32px_100px_rgba(52,211,153,0.05)] backdrop-blur-2xl">
+              <div className="xl:min-h-[250px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-200/55">
@@ -861,11 +891,13 @@ export default function PricingPage() {
 
               <div className="my-7 h-px bg-white/10" />
 
-              <PlanFeatureList
-                features={tradingFeatures}
-              />
+              <div>
+                <PlanFeatureList
+                  features={tradingFeatures}
+                />
+              </div>
 
-              <div className="mt-auto pt-8">
+              <div className="pt-8">
                 <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
                   <PayPalSubscriptionButton subscriptionType="trading" />
                 </div>
@@ -876,10 +908,10 @@ export default function PricingPage() {
               </div>
             </article>
 
-            <article className="relative flex min-h-full flex-col overflow-hidden rounded-[40px] border border-amber-300/30 bg-gradient-to-b from-amber-300/[0.12] via-white/[0.075] to-emerald-400/[0.055] p-7 shadow-[0_38px_130px_rgba(252,211,77,0.09)] backdrop-blur-2xl xl:-translate-y-4">
+            <article className="relative flex flex-col overflow-hidden rounded-[40px] border border-amber-300/30 bg-gradient-to-b from-amber-300/[0.12] via-white/[0.075] to-emerald-400/[0.055] p-7 shadow-[0_38px_130px_rgba(252,211,77,0.09)] backdrop-blur-2xl">
               <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-amber-300/15 blur-3xl" />
 
-              <div className="relative">
+              <div className="relative xl:min-h-[250px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-200/70">
@@ -924,7 +956,7 @@ export default function PricingPage() {
                 />
               </div>
 
-              <div className="relative mt-auto pt-8">
+              <div className="relative pt-8">
                 <div className="rounded-[27px] border border-amber-200/20 bg-black/30 p-3">
                   <PayPalSubscriptionButton subscriptionType="all_access" />
                 </div>
@@ -933,8 +965,14 @@ export default function PricingPage() {
                   5 days free, then $17.99 per month.
                 </p>
               </div>
-            </article>
-          </div>
+                </article>
+              </div>
+            </PayPalScriptProvider>
+          ) : (
+            <div className="mt-12 rounded-[32px] border border-red-500/20 bg-red-500/10 p-6 text-center text-sm text-red-200">
+              PayPal checkout is temporarily unavailable.
+            </div>
+          )}
 
           <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-6 text-white/30">
             Paid subscriptions renew automatically until

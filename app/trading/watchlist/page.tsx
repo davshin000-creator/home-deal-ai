@@ -11,9 +11,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
+import {
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 
 type WatchlistItem = {
   id: string;
@@ -25,6 +25,21 @@ type WatchlistItem = {
   risk_threshold: string | null;
   created_at: string;
   updated_at: string;
+  last_confidence: number | null;
+  last_direction: string | null;
+  last_outlook: string | null;
+  last_risk: string | null;
+  last_research_checked_at: string | null;
+};
+
+type TradingChangeAlert = {
+  id: string;
+  symbol: string;
+  alert_type: string;
+  title: string;
+  message: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
 };
 
 type Opportunity = {
@@ -58,21 +73,18 @@ type SearchParams = Promise<{
 
 async function getTradingState(): Promise<TradingState | null> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
+    const gatewayResult =
+      await loadTradingPublicState<TradingState>();
 
-    if (!response.ok) {
+    if (
+      gatewayResult.error ||
+      !gatewayResult.data
+    ) {
       return null;
     }
 
-    const data = (await response.json()) as TradingState;
+    const data =
+      gatewayResult.data;
 
     if (
       data.system?.public_mode !== "READ_ONLY" ||
@@ -225,7 +237,11 @@ export default async function TradingWatchlistPage({
     redirect("/login?next=/trading/watchlist");
   }
 
-  const [{ data, error }, tradingState] = await Promise.all([
+  const [
+    { data, error },
+    tradingState,
+    { data: recentAlertData },
+  ] = await Promise.all([
     supabase
       .from("trading_watchlist")
       .select(
@@ -238,7 +254,12 @@ export default async function TradingWatchlistPage({
           opportunity_threshold,
           risk_threshold,
           created_at,
-          updated_at
+          updated_at,
+          last_confidence,
+          last_direction,
+          last_outlook,
+          last_risk,
+          last_research_checked_at
         `,
       )
       .eq("user_id", authData.user.id)
@@ -246,9 +267,75 @@ export default async function TradingWatchlistPage({
         ascending: false,
       }),
     getTradingState(),
+    supabase
+      .from("trading_alerts")
+      .select(
+        `
+          id,
+          symbol,
+          alert_type,
+          title,
+          message,
+          metadata,
+          created_at
+        `,
+      )
+      .eq(
+        "user_id",
+        authData.user.id,
+      )
+      .in(
+        "alert_type",
+        [
+          "CONFIDENCE_CHANGE",
+          "DIRECTION_CHANGE",
+          "OUTLOOK_CHANGE",
+          "RISK_CHANGE",
+        ],
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      )
+      .limit(100),
   ]);
 
   const watchlist = (data ?? []) as WatchlistItem[];
+
+  const recentAlerts =
+    (recentAlertData ??
+      []) as TradingChangeAlert[];
+
+  const recentChangesBySymbol =
+    new Map<
+      string,
+      TradingChangeAlert[]
+    >();
+
+  for (const alert of recentAlerts) {
+    const symbol =
+      normalizeSymbol(
+        alert.symbol,
+      );
+
+    const current =
+      recentChangesBySymbol.get(
+        symbol,
+      ) ?? [];
+
+    if (current.length >= 4) {
+      continue;
+    }
+
+    current.push(alert);
+
+    recentChangesBySymbol.set(
+      symbol,
+      current,
+    );
+  }
 
   const opportunities =
     tradingState?.opportunities?.top_opportunities ?? [];
@@ -401,7 +488,7 @@ export default async function TradingWatchlistPage({
             {matchedCount}
           </p>
           <p className="mt-3 text-sm text-white/42">
-            Saved assets currently found in the public scanner.
+            Saved assets with current public research coverage.
           </p>
         </article>
 
@@ -413,7 +500,7 @@ export default async function TradingWatchlistPage({
             {triggeredCount}
           </p>
           <p className="mt-3 text-sm text-white/42">
-            Saved assets currently meeting your Opportunity threshold.
+            Saved assets currently meeting your AI Score threshold.
           </p>
         </article>
 
@@ -490,7 +577,7 @@ export default async function TradingWatchlistPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-white/65">
-                Opportunity threshold
+                AI Score threshold
               </span>
 
               <input
@@ -535,6 +622,13 @@ export default async function TradingWatchlistPage({
 
                 const opportunityScore =
                   intelligence?.opportunity_score;
+
+                const recentChanges =
+                  recentChangesBySymbol.get(
+                    normalizeSymbol(
+                      item.symbol,
+                    ),
+                  ) ?? [];
 
                 const opportunityTriggered =
                   item.alert_enabled &&
@@ -603,82 +697,290 @@ export default async function TradingWatchlistPage({
                       </form>
                     </div>
 
-                    <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                          Opportunity
-                        </p>
+                    <div className="mt-7 rounded-[28px] border border-white/10 bg-black/20 p-5">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+                            Nestrova Research View
+                          </p>
 
-                        <p
-                          className={`mt-2 text-2xl font-semibold ${opportunityClasses(
-                            opportunityScore,
-                          )}`}
-                        >
-                          {opportunityScore ?? "—"}
-                          {opportunityScore !== undefined ? (
-                            <span className="text-xs text-white/28">
-                              {" "}
-                              / 100
+                          <div className="mt-3 flex flex-wrap items-center gap-3">
+                            <span className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-1.5 text-xs font-bold text-cyan-100">
+                              {item.last_direction === "UP"
+                                ? "Likely Up"
+                                : item.last_direction === "DOWN"
+                                  ? "Leaning Down"
+                                  : item.last_direction
+                                    ? item.last_direction
+                                    : "Research Pending"}
                             </span>
-                          ) : null}
-                        </p>
-                      </div>
 
-                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                          Regime
-                        </p>
+                            <span className="text-lg font-black text-white/75">
+                              {item.last_outlook
+                                ? cleanLabel(
+                                    item.last_outlook,
+                                  )
+                                : "Analysis Pending"}
+                            </span>
+                          </div>
+                        </div>
 
-                        <p className="mt-2 text-lg font-semibold">
-                          {cleanLabel(
-                            intelligence?.regime ??
-                              tradingState?.market?.regime,
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                          Risk
-                        </p>
-
-                        <span
-                          className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskClasses(
-                            intelligence?.risk ??
-                              tradingState?.market?.risk,
+                        <Link
+                          href={`/trading/assets/${encodeURIComponent(
+                            normalizeSymbol(
+                              item.symbol,
+                            ),
                           )}`}
+                          className="inline-flex items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-300/[0.13]"
                         >
-                          {cleanLabel(
-                            intelligence?.risk ??
-                              tradingState?.market?.risk,
-                          )}
-                        </span>
+                          Open AI Research ?
+                        </Link>
                       </div>
 
-                      <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                          Research Style
-                        </p>
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/25">
+                            Confidence
+                          </p>
 
-                        <p className="mt-2 text-sm font-semibold text-white/55">
-                          {intelligence?.research_style ??
-                            "No direct scanner match"}
-                        </p>
+                          <p className="mt-2 text-2xl font-black text-cyan-100">
+                            {item.last_confidence !== null
+                              ? `${item.last_confidence}%`
+                              : "Pending"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/25">
+                            Risk
+                          </p>
+
+                          <span
+                            className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskClasses(
+                              item.last_risk ??
+                                intelligence?.risk ??
+                                tradingState?.market?.risk,
+                            )}`}
+                          >
+                            {cleanLabel(
+                              item.last_risk ??
+                                intelligence?.risk ??
+                                tradingState?.market?.risk,
+                            )}
+                          </span>
+                        </div>
+
+                        <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/25">
+                            AI Score
+                          </p>
+
+                          <p
+                            className={`mt-2 text-2xl font-black ${opportunityClasses(
+                              opportunityScore,
+                            )}`}
+                          >
+                            {opportunityScore ?? "Pending"}
+
+                            {opportunityScore !== undefined ? (
+                              <span className="ml-1 text-xs font-semibold text-white/25">
+                                /100
+                              </span>
+                            ) : null}
+                          </p>
+                        </div>
+
+                        <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/25">
+                            Last Research
+                          </p>
+
+                          <p className="mt-2 text-xs font-semibold leading-5 text-white/55">
+                            {item.last_research_checked_at
+                              ? formatDate(
+                                  item.last_research_checked_at,
+                                )
+                              : "Waiting for first check"}
+                          </p>
+                        </div>
                       </div>
+
+                      {item.last_direction ? (
+                        <p className="mt-5 border-t border-white/10 pt-4 text-sm leading-6 text-white/40">
+                          Nestrova's latest public research for{" "}
+                          <span className="font-semibold text-white/65">
+                            {item.symbol}
+                          </span>{" "}
+                          currently leans{" "}
+                          <span className="font-semibold text-white/65">
+                            {item.last_direction === "UP"
+                              ? "up"
+                              : item.last_direction === "DOWN"
+                                ? "down"
+                                : "mixed"}
+                          </span>
+
+                          {item.last_confidence !== null
+                            ? ` with ${item.last_confidence}% research confidence.`
+                            : "."}
+                        </p>
+                      ) : null}
                     </div>
 
-                    {!intelligence ? (
-                      <div className="mt-5 rounded-2xl border border-amber-400/15 bg-amber-400/[0.06] p-4 text-xs leading-6 text-amber-100/60">
-                        This asset is saved, but it is not currently included
-                        in the public Opportunity Scanner. Global market context
-                        is shown instead.
+                    {!item.last_research_checked_at ? (
+                      <div className="mt-5 rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.05] p-4 text-xs leading-6 text-cyan-100/55">
+                        Monitoring baseline pending. Nestrova will establish the first AI research snapshot when the alert engine checks this asset.
                       </div>
                     ) : null}
 
+                    <div className="mt-5 rounded-[26px] border border-white/10 bg-white/[0.025] p-5">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+                            Recent Changes
+                          </p>
+
+                          <p className="mt-1 text-xs text-white/35">
+                            Meaningful AI research changes detected by Nestrova.
+                          </p>
+                        </div>
+
+                        {recentChanges.length > 0 ? (
+                          <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-3 py-1 text-[10px] font-bold text-cyan-100/65">
+                            {recentChanges.length} recent
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {recentChanges.length > 0 ? (
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          {recentChanges.map(
+                            (change) => (
+                              <div
+                                key={change.id}
+                                className="rounded-[18px] border border-white/10 bg-black/20 p-4"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-cyan-100/60">
+                                    {change.alert_type ===
+                                    "CONFIDENCE_CHANGE"
+                                      ? "Confidence"
+                                      : change.alert_type ===
+                                          "DIRECTION_CHANGE"
+                                        ? "Direction"
+                                        : change.alert_type ===
+                                            "OUTLOOK_CHANGE"
+                                          ? "Outlook"
+                                          : change.alert_type ===
+                                              "RISK_CHANGE"
+                                            ? "Risk"
+                                            : cleanLabel(
+                                                change.alert_type,
+                                              )}
+                                  </p>
+
+                                  <span className="text-[9px] text-white/22">
+                                    {formatDate(
+                                      change.created_at,
+                                    )}
+                                  </span>
+                                </div>
+
+                                <p className="mt-2 text-xs leading-5 text-white/55">
+                                  {change.message}
+                                </p>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      ) : (
+                        <div className="mt-4 rounded-[18px] border border-white/8 bg-black/20 p-4">
+                          <p className="text-xs leading-5 text-white/35">
+                            No meaningful research changes detected yet.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
                     <form
                       action={updateWatchlistSettings}
-                      className="mt-7 grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-5 md:grid-cols-[1fr_1fr_auto]"
+                      className="mt-7 rounded-[28px] border border-white/10 bg-black/20 p-5"
                     >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
+                            Monitoring Settings
+                          </p>
+
+                          <p className="mt-2 max-w-2xl text-xs leading-5 text-white/35">
+                            Nestrova monitors meaningful changes in AI confidence,
+                            direction, outlook, and risk for this asset.
+                          </p>
+                        </div>
+
+                        <label className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-white/60">
+                          <input
+                            type="checkbox"
+                            name="alert_enabled"
+                            defaultChecked={
+                              item.alert_enabled
+                            }
+                            className="h-4 w-4"
+                          />
+
+                          Monitoring enabled
+                        </label>
+                      </div>
+
+                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                            Confidence
+                          </p>
+
+                          <p className="mt-2 text-xs leading-5 text-white/45">
+                            Alerts when research confidence changes meaningfully.
+                          </p>
+                        </div>
+
+                        <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                            Direction
+                          </p>
+
+                          <p className="mt-2 text-xs leading-5 text-white/45">
+                            Alerts when the research direction changes.
+                          </p>
+                        </div>
+
+                        <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                            Outlook
+                          </p>
+
+                          <p className="mt-2 text-xs leading-5 text-white/45">
+                            Alerts when the AI outlook materially changes.
+                          </p>
+                        </div>
+
+                        <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
+                            Risk
+                          </p>
+
+                          <p className="mt-2 text-xs leading-5 text-white/45">
+                            Alerts when the modeled risk level changes.
+                          </p>
+                        </div>
+                      </div>
+
+                      <details className="mt-5 rounded-[20px] border border-white/10 bg-white/[0.025]">
+                        <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white/50">
+                          Advanced alert thresholds
+                        </summary>
+
+                        <div className="grid gap-4 border-t border-white/10 p-4 md:grid-cols-2">
+
                       <input
                         type="hidden"
                         name="id"
@@ -687,7 +989,7 @@ export default async function TradingWatchlistPage({
 
                       <label className="grid gap-2">
                         <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
-                          Opportunity threshold
+                          AI Score threshold
                         </span>
 
                         <input
@@ -704,7 +1006,7 @@ export default async function TradingWatchlistPage({
 
                       <label className="grid gap-2">
                         <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/30">
-                          Risk alert
+                          Specific risk level
                         </span>
 
                         <select
@@ -726,24 +1028,15 @@ export default async function TradingWatchlistPage({
                         </select>
                       </label>
 
-                      <div className="flex flex-col justify-end gap-3">
-                        <label className="flex items-center gap-3 text-sm text-white/55">
-                          <input
-                            type="checkbox"
-                            name="alert_enabled"
-                            defaultChecked={
-                              item.alert_enabled
-                            }
-                            className="h-4 w-4"
-                          />
-                          Alerts enabled
-                        </label>
+                        </div>
+                      </details>
 
+                      <div className="mt-5 flex justify-end">
                         <button
                           type="submit"
-                          className="rounded-full border border-white/10 bg-white/[0.07] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                          className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/[0.13]"
                         >
-                          Save
+                          Save monitoring settings
                         </button>
                       </div>
                     </form>

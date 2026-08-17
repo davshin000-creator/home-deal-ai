@@ -1,5 +1,10 @@
 export const dynamic = "force-dynamic";
 
+import {
+  loadResearchPublicState,
+  type ResearchPublicState,
+} from "@/lib/research/public-gateway";
+
 
 import {
   getPublicOpportunities,
@@ -21,16 +26,6 @@ type PublicOpportunity = {
   research_reasons?: string[];
 };
 
-type PublicState = {
-  generated_at?: string;
-  opportunities?: PublicOpportunity[];
-  top_opportunities?: PublicOpportunity[];
-};
-
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  "https://api.nestrova.com";
-
 function cleanLabel(value?: string) {
   if (!value) return "Unclassified";
 
@@ -41,32 +36,9 @@ function cleanLabel(value?: string) {
     );
 }
 
-async function loadState(): Promise<PublicState | null> {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/core/state`,
-      {
-        cache: "no-store",
-      },
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(
-      "research_evidence_failed",
-      error,
-    );
-
-    return null;
-  }
-}
-
 export default async function ResearchEvidencePage() {
-  const state = await loadState();
+  const state: ResearchPublicState | null =
+    await loadResearchPublicState();
 
   const opportunities =
     getPublicOpportunities(

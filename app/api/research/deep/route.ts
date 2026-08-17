@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import {
+  loadResearchPublicState,
+} from "@/lib/research/public-gateway";
 import { resolvePublicResearchAsset } from "@/lib/research/resolvePublicResearchAsset";
 
 
@@ -18,18 +21,16 @@ import {
 const OPENAI_API_KEY =
   process.env.OPENAI_API_KEY;
 
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ||
-  "https://api.nestrova.com";
-
 type PublicOpportunity = {
   symbol?: string;
   name?: string;
   asset_type?: string;
   score?: number;
+  opportunity_score?: number;
   weighted_score?: number;
   confidence?: number;
   risk?: string;
+  regime?: string;
   status?: string;
   research_style?: string;
   research_version?: string;
@@ -405,20 +406,10 @@ export async function POST(
       );
     }
 
-    const stateResponse =
-      await fetch(
-        `${API_BASE_URL}/api/v1/core/state`,
-        {
-          cache: "no-store",
-        },
-      );
+    const state =
+      await loadResearchPublicState();
 
-    if (!stateResponse.ok) {
-      console.error(
-        "research_gateway_failed",
-        stateResponse.status,
-      );
-
+    if (!state) {
       return NextResponse.json(
         {
           error:
@@ -430,12 +421,8 @@ export async function POST(
       );
     }
 
-    const state =
-      (await stateResponse.json()) as PublicState;
-
     const evidence =
       await resolvePublicResearchAsset(
-        API_BASE_URL,
         state,
         symbol,
       );
@@ -514,6 +501,10 @@ export async function POST(
         evidence.score ??
         null,
 
+      opportunity_score:
+        evidence.opportunity_score ??
+        null,
+
       weighted_score:
         evidence.weighted_score ??
         null,
@@ -523,6 +514,10 @@ export async function POST(
 
       risk:
         evidence.risk ??
+        null,
+
+      regime:
+        evidence.regime ??
         null,
 
       status:
@@ -771,6 +766,12 @@ ${JSON.stringify(
 
         risk:
           researchEvidence.risk,
+
+        regime:
+          researchEvidence.regime,
+
+        opportunity_score:
+          researchEvidence.opportunity_score,
 
         research_style:
           researchEvidence.research_style,

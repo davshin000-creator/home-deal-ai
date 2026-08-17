@@ -1,16 +1,23 @@
 export type PublicOpportunity = {
   symbol?: string;
   name?: string;
+  asset_name?: string;
   asset_type?: string;
   market?: string;
+
   confidence?: number;
+  opportunity_score?: number;
   weighted_score?: number;
   score?: number;
+
   risk?: string;
+  regime?: string;
   status?: string;
+
   research_style?: string;
   research_version?: string;
   research_reasons?: string[];
+
   [key: string]: unknown;
 };
 

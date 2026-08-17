@@ -481,6 +481,11 @@ export default function ResearchWatchPage() {
               <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {watches.map(
                   (watch) => {
+                    const hasCurrentResearch =
+                      Boolean(
+                        watch.current,
+                      );
+
                     const confidence =
                       watch.current
                         ?.confidence ??
@@ -523,17 +528,37 @@ export default function ResearchWatchPage() {
 
                           <span
                             className={
-                              changeDetected
-                                ? "rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-amber-100"
-                                : "rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-emerald-100"
+                              !hasCurrentResearch
+                                ? "rounded-full border border-violet-300/15 bg-violet-300/[0.06] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-violet-100"
+                                : changeDetected
+                                  ? "rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-amber-100"
+                                  : "rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-emerald-100"
                             }
                           >
-                            {changeDetected
-                              ? "Change Detected"
-                              : "Stable"}
+                            {!hasCurrentResearch
+                              ? "Awaiting Research"
+                              : changeDetected
+                                ? "Change Detected"
+                                : "Stable"}
                           </span>
                         </div>
 
+                        {!hasCurrentResearch ? (
+                          <div className="mt-6 flex flex-1 flex-col justify-center rounded-[24px] border border-violet-300/10 bg-violet-300/[0.035] p-6">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-200/55">
+                              Awaiting Research
+                            </p>
+
+                            <p className="mt-3 text-base font-bold text-white/75">
+                              No current public research evidence yet.
+                            </p>
+
+                            <p className="mt-3 text-sm leading-6 text-white/35">
+                              This symbol is supported by Nestrova and remains on your watch list. Confidence, risk, research style, and engine details will appear automatically when current public research evidence becomes available.
+                            </p>
+                          </div>
+                        ) : (
+                          <>
                         <div className="mt-6 grid grid-cols-2 gap-3">
                           <div className="rounded-[19px] border border-white/[0.07] bg-black/20 p-4">
                             <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/28">
@@ -634,6 +659,9 @@ export default function ResearchWatchPage() {
                             </div>
                           </div>
                         </div>
+
+                          </>
+                        )}
 
                         {watch.current
                           ?.reasons &&

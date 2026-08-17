@@ -93,10 +93,44 @@ export async function GET() {
       );
     }
 
+    const {
+      count:
+        watchSubjectCount,
+      error:
+        watchCountError,
+    } = await supabase
+      .from("research_watch")
+      .select(
+        "*",
+        {
+          count: "exact",
+          head: true,
+        },
+      )
+      .eq(
+        "user_id",
+        user.id,
+      );
+
+    if (watchCountError) {
+      console.error(
+        "research_alerts_watch_count_failed",
+        watchCountError,
+      );
+    }
+
     return NextResponse.json({
       ok: true,
+
       alerts:
         data ?? [],
+
+      watch_subject_count:
+        watchCountError
+          ? 0
+          : Number(
+              watchSubjectCount ?? 0,
+            ),
     });
   } catch (error) {
     console.error(

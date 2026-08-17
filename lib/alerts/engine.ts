@@ -1,4 +1,8 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import {
+  loadTradingPublicAsset,
+  loadTradingPublicState,
+} from "@/lib/trading/public-gateway";
 import { updateAlertEngineHealth } from "./health-monitor";
 
 import {
@@ -8,10 +12,6 @@ import {
   type PublicOpportunity,
   type WatchlistAlertInput,
 } from "./evaluator";
-
-const API_BASE_URL =
-  process.env.NESTROVA_TRADING_API_URL ??
-  "https://api.nestrovaai.com";
 
 type TradingState = {
   generated_at?: string;
@@ -35,23 +35,21 @@ export type AlertEngineResult = {
 };
 
 async function fetchTradingState(): Promise<TradingState> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/core/state`,
-    {
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-      },
-    },
-  );
+  const result =
+    await loadTradingPublicState<TradingState>();
 
-  if (!response.ok) {
+  if (
+    result.error ||
+    !result.data
+  ) {
     throw new Error(
-      `Trading API returned ${response.status}.`,
+      result.error ??
+        "Trading intelligence is temporarily unavailable.",
     );
   }
 
-  const data = (await response.json()) as TradingState;
+  const data =
+    result.data;
 
   if (
     data.system?.public_mode !== "READ_ONLY" ||
@@ -63,6 +61,119 @@ async function fetchTradingState(): Promise<TradingState> {
   }
 
   return data;
+}
+
+
+async function fetchAssetOpportunity(
+  symbol: string,
+): Promise<PublicOpportunity | undefined> {
+  const maxAttempts = 3;
+
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt += 1
+  ) {
+    try {
+      const result =
+        await loadTradingPublicAsset<
+          PublicOpportunity & {
+            public_mode?: string;
+            execution_exposed?: boolean;
+            source_available?: boolean;
+          }
+        >(symbol);
+
+      if (
+        result.error ||
+        !result.data
+      ) {
+        const retryable =
+          result.status === 502 ||
+          result.status === 503 ||
+          result.status === 504 ||
+          result.status === null;
+
+        console.warn(
+          "alert_engine_asset_fetch_failed",
+          symbol,
+          result.status,
+          `attempt=${attempt}/${maxAttempts}`,
+        );
+
+        if (
+          retryable &&
+          attempt < maxAttempts
+        ) {
+          await new Promise(
+            (resolve) =>
+              setTimeout(
+                resolve,
+                750 * attempt,
+              ),
+          );
+
+          continue;
+        }
+
+        return undefined;
+      }
+
+      const data =
+        result.data;
+
+      if (
+        data.public_mode !== "READ_ONLY" ||
+        data.execution_exposed !== false ||
+        data.source_available === false
+      ) {
+        console.warn(
+          "alert_engine_asset_safety_rejected",
+          symbol,
+        );
+
+        return undefined;
+      }
+
+      if (
+        normalizeSymbol(data.symbol) !==
+        normalizeSymbol(symbol)
+      ) {
+        console.warn(
+          "alert_engine_asset_symbol_mismatch",
+          symbol,
+          data.symbol,
+        );
+
+        return undefined;
+      }
+
+      return data;
+    } catch (error) {
+      console.error(
+        "alert_engine_asset_fetch_error",
+        symbol,
+        `attempt=${attempt}/${maxAttempts}`,
+        error,
+      );
+
+      if (attempt < maxAttempts) {
+        await new Promise(
+          (resolve) =>
+            setTimeout(
+              resolve,
+              750 * attempt,
+            ),
+        );
+
+        continue;
+      }
+
+      return undefined;
+    }
+  }
+
+  return undefined;
 }
 
 export async function runAlertEngine(): Promise<AlertEngineResult> {
@@ -110,7 +221,12 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
               asset_type,
               alert_enabled,
               opportunity_threshold,
-              risk_threshold
+              risk_threshold,
+              last_confidence,
+              last_direction,
+              last_outlook,
+              last_risk,
+              last_research_checked_at
             `,
           )
           .eq("alert_enabled", true),
@@ -137,6 +253,54 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
       ]),
     );
 
+    /*
+     * The public ranking only contains a small
+     * subset of the full market universe.
+     *
+     * For watched assets that are not currently
+     * ranked, request fresh public research from
+     * the read-only per-asset endpoint.
+     */
+    const missingSymbols = Array.from(
+      new Set(
+        watchlists
+          .map((item) =>
+            normalizeSymbol(item.symbol),
+          )
+          .filter(
+            (symbol) =>
+              Boolean(symbol) &&
+              !opportunityMap.has(symbol),
+          ),
+      ),
+    );
+
+    if (missingSymbols.length > 0) {
+      const fallbackResults =
+        await Promise.all(
+          missingSymbols.map(
+            async (symbol) => ({
+              symbol,
+              opportunity:
+                await fetchAssetOpportunity(
+                  symbol,
+                ),
+            }),
+          ),
+        );
+
+      for (const result of fallbackResults) {
+        if (!result.opportunity) {
+          continue;
+        }
+
+        opportunityMap.set(
+          result.symbol,
+          result.opportunity,
+        );
+      }
+    }
+
     const candidates: AlertCandidate[] = [];
     let matchedAssets = 0;
 
@@ -145,8 +309,85 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
         normalizeSymbol(item.symbol),
       );
 
-      if (opportunity) {
-        matchedAssets += 1;
+      if (!opportunity) {
+        continue;
+      }
+
+      matchedAssets += 1;
+
+      const currentConfidence =
+        typeof opportunity.confidence === "number" &&
+        Number.isFinite(opportunity.confidence)
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                Math.round(
+                  opportunity.confidence,
+                ),
+              ),
+            )
+          : null;
+
+      const currentDirection =
+        typeof opportunity.direction === "string" &&
+        opportunity.direction.trim()
+          ? opportunity.direction
+              .trim()
+              .toUpperCase()
+          : null;
+
+      const currentOutlook =
+        typeof opportunity.outlook === "string" &&
+        opportunity.outlook.trim()
+          ? opportunity.outlook
+              .trim()
+              .toUpperCase()
+          : null;
+
+      const currentRisk =
+        typeof opportunity.risk === "string" &&
+        opportunity.risk.trim()
+          ? opportunity.risk
+              .trim()
+              .toUpperCase()
+          : null;
+
+      /*
+       * First observation:
+       * establish a baseline without generating
+       * a change alert.
+       */
+      if (!item.last_research_checked_at) {
+        const {
+          error: baselineError,
+        } = await supabase
+          .from("trading_watchlist")
+          .update({
+            last_confidence:
+              currentConfidence,
+            last_direction:
+              currentDirection,
+            last_outlook:
+              currentOutlook,
+            last_risk:
+              currentRisk,
+            last_research_checked_at:
+              new Date().toISOString(),
+          })
+          .eq("id", item.id)
+          .eq(
+            "user_id",
+            item.user_id,
+          );
+
+        if (baselineError) {
+          throw new Error(
+            `Unable to save alert baseline for ${item.symbol}: ${baselineError.message}`,
+          );
+        }
+
+        continue;
       }
 
       candidates.push(
@@ -201,6 +442,119 @@ export async function runAlertEngine(): Promise<AlertEngineResult> {
       }
 
       throw new Error(error.message);
+    }
+
+    /*
+     * Refresh research snapshots after candidate
+     * evaluation and alert insertion.
+     *
+     * Confidence keeps its previous baseline until
+     * the cumulative move reaches 5 points.
+     */
+    for (const item of watchlists) {
+      const opportunity =
+        opportunityMap.get(
+          normalizeSymbol(
+            item.symbol,
+          ),
+        );
+
+      if (!opportunity) {
+        continue;
+      }
+
+      const currentConfidence =
+        typeof opportunity.confidence === "number" &&
+        Number.isFinite(
+          opportunity.confidence,
+        )
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                Math.round(
+                  opportunity.confidence,
+                ),
+              ),
+            )
+          : null;
+
+      const currentDirection =
+        typeof opportunity.direction === "string" &&
+        opportunity.direction.trim()
+          ? opportunity.direction
+              .trim()
+              .toUpperCase()
+          : null;
+
+      const currentOutlook =
+        typeof opportunity.outlook === "string" &&
+        opportunity.outlook.trim()
+          ? opportunity.outlook
+              .trim()
+              .toUpperCase()
+          : null;
+
+      const currentRisk =
+        typeof opportunity.risk === "string" &&
+        opportunity.risk.trim()
+          ? opportunity.risk
+              .trim()
+              .toUpperCase()
+          : null;
+
+      let nextConfidence =
+        item.last_confidence ??
+        currentConfidence;
+
+      if (
+        currentConfidence !== null &&
+        item.last_confidence !== null &&
+        item.last_confidence !== undefined &&
+        Math.abs(
+          currentConfidence -
+            Number(
+              item.last_confidence,
+            ),
+        ) >= 5
+      ) {
+        nextConfidence =
+          currentConfidence;
+      }
+
+      const {
+        error: snapshotError,
+      } = await supabase
+        .from("trading_watchlist")
+        .update({
+          last_confidence:
+            nextConfidence,
+          last_direction:
+            currentDirection ??
+            item.last_direction ??
+            null,
+          last_outlook:
+            currentOutlook ??
+            item.last_outlook ??
+            null,
+          last_risk:
+            currentRisk ??
+            item.last_risk ??
+            null,
+          last_research_checked_at:
+            new Date().toISOString(),
+        })
+        .eq("id", item.id)
+        .eq(
+          "user_id",
+          item.user_id,
+        );
+
+      if (snapshotError) {
+        throw new Error(
+          `Unable to update research snapshot for ${item.symbol}: ${snapshotError.message}`,
+        );
+      }
     }
 
     const completedAt = new Date();

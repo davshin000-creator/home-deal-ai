@@ -243,6 +243,10 @@ export default function AssetAITimeline({
     [events, normalizedSymbol],
   );
 
+  if (assetEvents.length === 0) {
+    return null;
+  }
+
   return (
     <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
