@@ -81,7 +81,7 @@ export default function LoginPage() {
       </header>
 
       <section className="relative mx-auto my-auto grid w-full max-w-6xl overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.035] lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="relative flex min-h-[560px] flex-col justify-between overflow-hidden p-8 md:p-12">
+        <div className="order-2 relative flex min-h-[420px] flex-col justify-between overflow-hidden p-8 md:p-12 lg:order-1 lg:min-h-[560px]">
           <div className="pointer-events-none absolute -left-28 -top-28 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
 
@@ -115,7 +115,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 bg-black/20 p-6 md:p-10 lg:border-l lg:border-t-0">
+        <div className="order-1 bg-black/20 p-6 md:p-10 lg:order-2 lg:border-l lg:border-t-0">
           <div className="mx-auto flex h-full max-w-md flex-col justify-center">
             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/35">
               Welcome
@@ -175,5 +175,6 @@ export default function LoginPage() {
     </main>
   );
 }
+
 
 
