@@ -1,5 +1,6 @@
-import { createServerClient } from "@supabase/ssr";
+﻿import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -113,9 +114,45 @@ export async function GET(request: Request) {
     return NextResponse.redirect(loginUrl);
   }
 
+  let redirectTo = safeNext;
+
+  try {
+    const admin = createSupabaseAdminClient();
+
+    const {
+      data: onboarding,
+      error: onboardingError,
+    } = await admin
+      .from("user_onboarding")
+      .select("completed")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (onboardingError) {
+      console.error("oauth_callback_onboarding_lookup_error", {
+        userId: data.user.id,
+        message: onboardingError.message,
+      });
+    }
+
+    if (!onboardingError && onboarding?.completed !== true) {
+      redirectTo = "/onboarding";
+    }
+  } catch (onboardingLookupError) {
+    console.error(
+      "oauth_callback_onboarding_lookup_exception",
+      onboardingLookupError
+    );
+  }
+
+  redirectResponse.headers.set(
+    "Location",
+    new URL(redirectTo, canonicalOrigin).toString()
+  );
+
   console.log("oauth_callback_success", {
     userId: data.user.id,
-    redirectTo: safeNext,
+    redirectTo,
   });
 
   return redirectResponse;

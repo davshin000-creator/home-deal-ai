@@ -93,20 +93,22 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-[#050505] px-5 py-8 text-white md:px-8 md:py-10">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center justify-between">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-black">
+        <div className="mb-10 flex items-center justify-between">
+          <a href="/" className="rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-white/65 transition hover:bg-white/[0.08] hover:text-white">
             Back to Nestrova
           </a>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={skipOnboarding}
-              className="text-sm font-semibold text-gray-600 hover:text-black"
-            >
-              Skip
-            </button>
+          <div className="flex items-center gap-3">
+            {step > 0 && (
+              <button
+                onClick={skipOnboarding}
+                className="rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+              >
+                Skip
+              </button>
+            )}
             <UserButton />
           </div>
         </div>
@@ -116,7 +118,7 @@ export default function OnboardingPage() {
         )}
 
         {message && (
-          <div className="mb-6 rounded-2xl bg-gray-100 p-4 text-gray-800">
+          <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-sm text-white/65">
             {message}
           </div>
         )}
@@ -153,5 +155,7 @@ export default function OnboardingPage() {
     </main>
   );
 }
+
+
 
 

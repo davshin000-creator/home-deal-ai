@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export default function AnalyzeStep({
   address,
@@ -10,12 +10,16 @@ export default function AnalyzeStep({
   onContinue?: () => void | Promise<void>;
 }) {
   return (
-    <section className="rounded-[28px] border border-black/10 bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-semibold tracking-[-0.02em] text-neutral-950">
+    <section className="rounded-[32px] border border-white/10 bg-white/[0.045] p-8 text-white md:p-10">
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/35">
+        Step 1
+      </p>
+
+      <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-4xl">
         Analyze your first property
       </h2>
 
-      <p className="mt-2 text-sm leading-6 text-neutral-600">
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
         Enter a property address to start your first AI analysis.
       </p>
 
@@ -23,16 +27,15 @@ export default function AnalyzeStep({
         value={address || ""}
         onChange={(e) => setAddress?.(e.target.value)}
         placeholder="123 Main St, Irvine, CA"
-        className="mt-5 h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none"
+        className="mt-7 h-14 w-full rounded-2xl border border-white/10 bg-white/[0.055] px-5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/25 focus:bg-white/[0.07]"
       />
 
       <button
         onClick={onContinue}
-        className="mt-5 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+        className="mt-5 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-neutral-200"
       >
         Continue
       </button>
     </section>
   );
 }
-
