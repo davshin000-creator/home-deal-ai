@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import NestrovaMark from "@/components/brand/NestrovaMark";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -104,7 +104,7 @@ export default async function HomePage() {
               </p>
 
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
-                AI Intelligence
+                Intelligence Platform
               </p>
             </div>
           </Link>
@@ -146,7 +146,7 @@ export default async function HomePage() {
       <section className="relative mx-auto max-w-[1320px] px-5 pb-16 pt-20 text-center md:px-8 md:pb-24 md:pt-28">
         <div className="mx-auto max-w-4xl">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/35">
-            Nestrova Intelligence
+            Nestrova Intelligence Platform
           </p>
 
           <h1 className="mt-6 text-[clamp(3.5rem,9vw,7.5rem)] font-semibold leading-[0.88] tracking-[-0.075em]">
@@ -156,18 +156,15 @@ export default async function HomePage() {
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-white/48 md:text-lg">
-            Understand properties, markets,
-            and investments with clear AI
-            research instead of information
-            overload.
+            Start with real estate intelligence. Analyze properties, compare opportunities, and understand the factors behind better decisions, with broader market and research intelligence available across the Nestrova platform.
           </p>
 
           <div className="mt-9 flex justify-center">
             <a
-              href="/login"
+              href="/real-estate"
               className="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/[0.09]"
             >
-              Explore Nestrova
+              Analyze a Property
             </a>
           </div>
         </div>
@@ -179,61 +176,112 @@ export default async function HomePage() {
       >
         <div className="text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/30">
-            Choose where to start
+            Nestrova Intelligence
           </p>
 
           <h2 className="mx-auto mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.055em] md:text-5xl">
-            What do you want to explore?
+            Start with real estate. Explore more when you need it.
           </h2>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {products.map((product) => {
-            const styles =
-              productStyles(
-                product.accent,
-              );
+        <div className="mt-10 grid gap-5 lg:grid-cols-[1.45fr_0.55fr]">
+          <Link
+            href={products[0].href}
+            className="group relative overflow-hidden rounded-[36px] border border-emerald-300/15 bg-white/[0.05] p-8 transition duration-300 hover:-translate-y-1 hover:border-emerald-300/30 hover:bg-white/[0.07] md:p-10"
+          >
+            <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
 
-            return (
-              <Link
-                key={product.title}
-                href={product.href}
-                className={`group relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.045] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.07] ${styles.border}`}
-              >
-                <div
-                  className={`pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full blur-3xl ${styles.glow}`}
-                />
+            <div className="relative flex min-h-[360px] flex-col">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200">
+                  Featured Intelligence
+                </p>
 
-                <div className="relative flex min-h-[250px] flex-col">
-                  <p
-                    className={`text-[10px] font-bold uppercase tracking-[0.18em] ${styles.label}`}
+                <span className="rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-200/70">
+                  Main
+                </span>
+              </div>
+
+              <h3 className="mt-8 max-w-xl text-5xl font-semibold tracking-[-0.06em] md:text-6xl">
+                Real Estate
+              </h3>
+
+              <p className="mt-5 max-w-xl text-base leading-8 text-white/48">
+                Analyze properties, compare opportunities, understand market context, and make more informed real estate decisions with Nestrova intelligence.
+              </p>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  "Property Analysis",
+                  "Deal Intelligence",
+                  "Market Research",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-xs font-semibold text-white/55"
                   >
-                    {product.title}
-                  </p>
-
-                  <h3 className="mt-5 text-4xl font-semibold tracking-[-0.055em]">
-                    {product.title}
-                  </h3>
-
-                  <p className="mt-4 max-w-sm text-sm leading-7 text-white/45">
-                    {product.description}
-                  </p>
-
-                  <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-6">
-                    <span className="text-sm font-semibold">
-                      {product.action}
-                    </span>
-
-                    <span
-                      className={`text-xl transition group-hover:translate-x-1 ${styles.button}`}
-                    >
-                      &rarr;
-                    </span>
+                    {item}
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                ))}
+              </div>
+
+              <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-7">
+                <span className="text-sm font-semibold">
+                  Analyze a Property
+                </span>
+
+                <span className="text-xl text-emerald-200 transition group-hover:translate-x-1">
+                  &rarr;
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          <div className="grid gap-5">
+            {products.slice(1).map((product) => {
+              const styles = productStyles(product.accent);
+
+              return (
+                <Link
+                  key={product.title}
+                  href={product.href}
+                  className={`group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.035] p-6 transition duration-300 hover:-translate-y-1 hover:bg-white/[0.06] ${styles.border}`}
+                >
+                  <div
+                    className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl ${styles.glow}`}
+                  />
+
+                  <div className="relative flex min-h-[167px] flex-col">
+                    <p
+                      className={`text-[10px] font-bold uppercase tracking-[0.18em] ${styles.label}`}
+                    >
+                      Explore more
+                    </p>
+
+                    <h3 className="mt-4 text-3xl font-semibold tracking-[-0.05em]">
+                      {product.title}
+                    </h3>
+
+                    <p className="mt-3 max-w-sm text-sm leading-6 text-white/40">
+                      {product.description}
+                    </p>
+
+                    <div className="mt-auto flex items-center justify-between pt-5">
+                      <span className="text-xs font-semibold text-white/55">
+                        {product.action}
+                      </span>
+
+                      <span
+                        className={`text-lg transition group-hover:translate-x-1 ${styles.button}`}
+                      >
+                        &rarr;
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
