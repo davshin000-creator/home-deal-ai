@@ -58,7 +58,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-[#050505] px-6 py-12 text-white">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between pb-10 md:pb-12">
         <Link href="/" className="flex items-center gap-3">
           <NestrovaMark className="h-10 w-10 rounded-[12px] text-[13px]" />
 
@@ -74,8 +74,28 @@ export default function LoginPage() {
 
         <Link
           href="/"
-          className="text-sm font-medium text-white/45 transition hover:text-white"
+          className="flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
         >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path
+              d="M3.5 11.25 12 4l8.5 7.25"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5.75 10.25V20h12.5v-9.75"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+          </svg>
           Back to home
         </Link>
       </header>
@@ -132,8 +152,18 @@ export default function LoginPage() {
             <button
               onClick={loginWithGoogle}
               disabled={loading}
-              className="mt-8 w-full rounded-full bg-white px-6 py-4 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
+              className="mt-8 flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-4 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
             >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.92h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.38Z" />
+                <path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.63-2.39l-3.24-2.51c-.9.6-2.05.96-3.39.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.59A10 10 0 0 0 12 22Z" />
+                <path fill="#FBBC05" d="M6.39 13.93A6 6 0 0 1 6.08 12c0-.67.11-1.32.31-1.93V7.48H3.04A10 10 0 0 0 2 12c0 1.61.39 3.13 1.04 4.52l3.35-2.59Z" />
+                <path fill="#EA4335" d="M12 5.94c1.47 0 2.79.51 3.83 1.5l2.87-2.87A9.62 9.62 0 0 0 12 2a10 10 0 0 0-8.96 5.48l3.35 2.59C7.18 7.7 9.39 5.94 12 5.94Z" />
+              </svg>
               Continue with Google
             </button>
 
@@ -145,12 +175,35 @@ export default function LoginPage() {
               <div className="h-px flex-1 bg-white/10" />
             </div>
 
-            <input
-              className="h-14 w-full rounded-2xl border border-white/10 bg-white/[0.055] px-5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/25 focus:bg-white/[0.07]"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <div className="relative">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/35"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 6.5h16v11H4z"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="m5 8 7 5 7-5"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+
+              <input
+                className="h-14 w-full rounded-2xl border border-white/10 bg-white/[0.055] pl-14 pr-5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/25 focus:bg-white/[0.07]"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
             <button
               onClick={loginWithEmail}
@@ -175,6 +228,9 @@ export default function LoginPage() {
     </main>
   );
 }
+
+
+
 
 
 
