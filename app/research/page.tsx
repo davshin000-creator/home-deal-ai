@@ -6,6 +6,7 @@ import {
 } from "@/lib/research/public-gateway";
 
 import ResearchUsagePanel from "@/components/research/ResearchUsagePanel";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
 import {
   getPublicOpportunities,
@@ -127,7 +128,11 @@ export default async function ResearchPage() {
       : "Unavailable";
 
   return (
-    <main className="min-h-screen bg-[#050607] text-white">
+    <UserAwareNestrovaShell
+      title="Research"
+      subtitle="AI research and market intelligence."
+    >
+      <div className="min-h-screen bg-[#050607] text-white">
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full bg-violet-400/[0.08] blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-cyan-400/[0.06] blur-3xl" />
@@ -462,7 +467,7 @@ export default async function ResearchPage() {
           </p>
         </div>
       </section>
-    </main>
+    </div>
+    </UserAwareNestrovaShell>
   );
 }
-

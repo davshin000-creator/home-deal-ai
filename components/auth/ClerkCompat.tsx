@@ -55,7 +55,7 @@ export function UserButton({ ...props }: { [key: string]: any }) {
   return (
     <button
       onClick={signOut}
-      className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black"
+      className="whitespace-nowrap rounded-[13px] border border-white/10 bg-white/[0.07] px-4 py-2.5 text-xs font-bold text-white/70 transition hover:bg-white/[0.12] hover:text-white"
     >
       Sign Out
     </button>

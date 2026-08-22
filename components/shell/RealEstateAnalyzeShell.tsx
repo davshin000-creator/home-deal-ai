@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import {
 } from "@/components/auth/ClerkCompat";
 
 import NestrovaAppShell from "@/components/shell/NestrovaAppShell";
+import NestrovaMark from "@/components/brand/NestrovaMark";
 
 type RealEstateAnalyzeShellProps = {
   children: ReactNode;
@@ -77,12 +78,10 @@ export default function RealEstateAnalyzeShell({
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080b]/85 backdrop-blur-2xl">
         <div className="mx-auto flex min-h-[76px] max-w-[1500px] items-center justify-between gap-4 px-5 py-4 md:px-8">
           <Link
-            href="/"
+            href="/real-estate"
             className="flex items-center gap-3"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-gradient-to-br from-violet-400 to-fuchsia-500 text-sm font-black">
-              N
-            </span>
+            <NestrovaMark className="h-10 w-10 rounded-[13px] text-[13px]" />
 
             <div>
               <p className="font-bold tracking-[-0.03em]">
@@ -90,12 +89,19 @@ export default function RealEstateAnalyzeShell({
               </p>
 
               <p className="text-[9px] uppercase tracking-[0.18em] text-white/30">
-                Real Estate Intelligence
+                Intelligence Platform
               </p>
             </div>
           </Link>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/real-estate"
+              className="hidden rounded-[14px] border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-white/55 transition hover:bg-white/[0.1] hover:text-white sm:inline-flex"
+            >
+              Real Estate
+            </Link>
+
             <Link
               href="/saved"
               className="hidden rounded-[14px] border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-white/55 transition hover:bg-white/[0.1] hover:text-white sm:inline-flex"

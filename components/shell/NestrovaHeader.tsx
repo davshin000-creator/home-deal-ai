@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import NestrovaMark from "@/components/brand/NestrovaMark";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -8,6 +9,12 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserButton } from "@/components/auth/ClerkCompat";
 import {
   ArrowRightIcon,
+  BellIcon,
+  BillingIcon,
+  BrainIcon,
+  BuildingIcon,
+  HomeIcon,
+  MarketsIcon,
   SparkIcon,
 } from "@/components/ui/NestrovaIcons";
 
@@ -20,7 +27,7 @@ type NestrovaHeaderProps = {
 type MobileNavigationItem = {
   label: string;
   href: string;
-  marker: string;
+  icon: ReactNode;
 };
 
 type MobileNavigationGroup = {
@@ -34,7 +41,7 @@ const mobileNavigation: MobileNavigationGroup[] = [
       {
         label: "Home",
         href: "/dashboard",
-        marker: "H",
+        icon: <HomeIcon className="h-4 w-4" />,
       },
     ],
   },
@@ -42,19 +49,19 @@ const mobileNavigation: MobileNavigationGroup[] = [
     label: "Explore",
     items: [
       {
-        label: "Trading",
-        href: "/trading",
-        marker: "T",
-      },
-      {
         label: "Real Estate",
         href: "/real-estate",
-        marker: "R",
+        icon: <BuildingIcon className="h-4 w-4" />,
+      },
+      {
+        label: "Trading",
+        href: "/trading",
+        icon: <MarketsIcon className="h-4 w-4" />,
       },
       {
         label: "Research",
         href: "/research",
-        marker: "AI",
+        icon: <BrainIcon className="h-4 w-4" />,
       },
     ],
   },
@@ -64,12 +71,12 @@ const mobileNavigation: MobileNavigationGroup[] = [
       {
         label: "Notifications",
         href: "/notifications",
-        marker: "N",
+        icon: <BellIcon className="h-4 w-4" />,
       },
       {
         label: "Settings",
         href: "/settings/billing",
-        marker: "S",
+        icon: <BillingIcon className="h-4 w-4" />,
       },
     ],
   },
@@ -257,9 +264,10 @@ export default function NestrovaHeader({
 
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-violet-400 via-fuchsia-500 to-indigo-500 text-sm font-black text-white shadow-[0_0_28px_rgba(168,85,247,0.28)] xl:hidden"
+              aria-label="Nestrova Home"
+              className="shrink-0 xl:hidden"
             >
-              N
+              <NestrovaMark className="h-10 w-10 rounded-[13px] text-[13px]" />
             </Link>
 
             <span
@@ -298,7 +306,7 @@ export default function NestrovaHeader({
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
 
-            <div className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:ml-2">
+            <div className="ml-1 sm:ml-2">
               <UserButton />
             </div>
           </div>
@@ -396,7 +404,7 @@ export default function NestrovaHeader({
                                     : "border-white/10 bg-white/[0.04] text-white/35"
                                 }`}
                               >
-                                {item.marker}
+                                {item.icon}
                               </span>
 
                               {item.label}
