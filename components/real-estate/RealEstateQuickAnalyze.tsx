@@ -133,7 +133,7 @@ export default function RealEstateQuickAnalyze() {
               !address.trim() ||
               !country.enabled
             }
-            className="inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-[18px] bg-white px-6 text-sm font-bold text-black transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-[18px] bg-emerald-300 px-6 text-sm font-bold text-black shadow-[0_14px_40px_rgba(110,231,183,0.12)] transition hover:-translate-y-0.5 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:bg-white/[0.07] disabled:text-white/25 disabled:shadow-none disabled:hover:translate-y-0"
           >
             <PropertyIcon className="h-4 w-4" />
             Analyze

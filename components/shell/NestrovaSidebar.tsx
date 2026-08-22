@@ -12,6 +12,7 @@ import {
   MarketsIcon,
   PropertyIcon,
   BrainIcon,
+  BuildingIcon,
 } from "@/components/ui/NestrovaIcons";
 
 type NavigationTone =
@@ -49,7 +50,7 @@ const navigationGroups: NavigationGroup[] = [
       {
         label: "Real Estate",
         href: "/real-estate",
-        icon: <PropertyIcon className="h-4 w-4" />,
+        icon: <BuildingIcon className="h-4 w-4" />,
         tone: "emerald",
       },
       {

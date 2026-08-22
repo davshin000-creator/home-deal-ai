@@ -149,22 +149,13 @@ export default async function HomePage() {
             Nestrova Intelligence Platform
           </p>
 
-          <h1 className="mt-6 text-[clamp(3.5rem,9vw,7.5rem)] font-semibold leading-[0.88] tracking-[-0.075em]">
+          <h1 className="mt-6 text-[clamp(3rem,7.5vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.075em]">
             Decide Better.
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-white/48 md:text-lg">
             Intelligence for decisions that matter.
           </p>
-
-          <div className="mt-9 flex justify-center">
-            <a
-              href="/deals"
-              className="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/[0.09]"
-            >
-              Search
-            </a>
-          </div>
         </div>
       </section>
 

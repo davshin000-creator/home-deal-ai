@@ -199,6 +199,21 @@ export function PropertyIcon(props: IconProps) {
   );
 }
 
+export function BuildingIcon(props: IconProps) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M5 21V4h10v17" />
+      <path d="M15 9h4v12" />
+      <path d="M8 7h4" />
+      <path d="M8 11h4" />
+      <path d="M8 15h4" />
+      <path d="M8 19h4" />
+      <path d="M18 12h1" />
+      <path d="M18 16h1" />
+      <path d="M3 21h18" />
+    </svg>
+  );
+}
 export function SearchPropertyIcon(props: IconProps) {
   return (
     <svg {...baseProps} {...props}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 
@@ -88,10 +88,44 @@ function getVerdictColor(status: string) {
 export default function DealsPage() {
   const { isSignedIn, user } = useUser();
 
-  const [city, setCity] = useState("Irvine");
-  const [state, setState] = useState("CA");
-  const [maxPrice, setMaxPrice] = useState("1500000");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [sortBy, setSortBy] = useState("overall");
+  const autoSearchStarted = useRef(false);
+
+  useEffect(() => {
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const queryCity =
+      params.get("city") || "";
+
+    const queryState =
+      params.get("state") || "";
+
+    const queryMaxPrice =
+      params.get("max_price") || "";
+
+    setCity(queryCity);
+    setState(queryState);
+    setMaxPrice(queryMaxPrice);
+
+    if (
+      queryCity &&
+      queryState &&
+      queryMaxPrice &&
+      !autoSearchStarted.current
+    ) {
+      autoSearchStarted.current = true;
+
+      void findDeals(
+        queryCity,
+        queryState,
+        queryMaxPrice,
+      );
+    }
+  }, []);
 
   const [result, setResult] = useState<FindDealsResult | null>(null);
   const [loading, setLoading] = useState(false);

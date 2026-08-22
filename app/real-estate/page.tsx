@@ -380,14 +380,57 @@ export default function RealEstateDashboardPage() {
               Search
             </p>
 
-            <div className="mt-5">
-              <Link
-                href="/deals"
-                className="inline-flex items-center gap-2 rounded-[14px] bg-white px-6 py-3 text-sm font-bold text-black transition hover:bg-neutral-200"
+            <form
+              action="/deals"
+              method="get"
+              className="mt-5 grid gap-3 md:grid-cols-[minmax(0,1.4fr)_120px_minmax(0,1fr)_auto]"
+            >
+              <input
+                name="city"
+                placeholder="City"
+                required
+                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
+              />
+
+              <input
+                name="state"
+                placeholder="State"
+                maxLength={2}
+                required
+                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold uppercase text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
+              />
+
+              <input
+                name="max_price"
+                placeholder="Max Price"
+                inputMode="numeric"
+                required
+                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
+              />
+
+              <button
+                type="submit"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-7 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-emerald-200"
               >
                 Search
                 <ArrowRightIcon className="h-4 w-4" />
-              </Link>
+              </button>
+            </form>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                ["Irvine", "CA", "1500000"],
+                ["Austin", "TX", "750000"],
+                ["Miami", "FL", "700000"],
+              ].map(([city, state, maxPrice]) => (
+                <Link
+                  key={`${city}-${state}`}
+                  href={`/deals?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&max_price=${encodeURIComponent(maxPrice)}`}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/45 transition hover:bg-white/[0.08] hover:text-white"
+                >
+                  {city}, {state}
+                </Link>
+              ))}
             </div>
           </div>
 
