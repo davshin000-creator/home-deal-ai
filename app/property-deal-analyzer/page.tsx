@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFooter from "@/components/site/SiteFooter";
 
@@ -166,7 +166,7 @@ export default function PropertyDealAnalyzerPage() {
               href="/analyze"
               className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200"
             >
-              Analyze Property
+              Analyze
             </Link>
           </div>
         </header>

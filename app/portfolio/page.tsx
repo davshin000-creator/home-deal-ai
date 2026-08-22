@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
@@ -213,7 +213,7 @@ export default function PortfolioPage() {
 
           <aside className="rounded-[44px] border border-white/10 bg-white/[0.07] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
-              Portfolio Brain
+              Portfolio Intelligence
             </p>
             <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">
               {stats.bestDeal ? getInvestmentGrade(Number(stats.bestDeal.deal_score || 0)) : "AI"}
@@ -221,7 +221,7 @@ export default function PortfolioPage() {
             <p className="mt-5 text-sm leading-6 text-white/55">
               {stats.bestDeal
                 ? `${stats.bestDeal.address} is currently your strongest saved opportunity.`
-                : "Save properties from Deal Finder to activate your portfolio intelligence."}
+                : "Save properties from Search to activate your portfolio intelligence."}
             </p>
 
             <div className="mt-7 grid grid-cols-2 gap-3">
@@ -335,7 +335,7 @@ export default function PortfolioPage() {
                       href="/deals"
                       className="mt-7 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200"
                     >
-                      Find Deals
+                      Search Properties
                     </a>
                   </section>
                 ) : (

@@ -339,7 +339,7 @@ export default function SavedDealsPage() {
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                       <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
-                          AI Score
+                          Investment Score
                         </p>
 
                         <p className="mt-2 text-xl font-semibold">

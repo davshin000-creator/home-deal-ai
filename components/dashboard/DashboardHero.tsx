@@ -41,7 +41,7 @@ export default function DashboardHero({
       </h1>
 
       <p className="mt-3 max-w-2xl text-neutral-600">
-        Analyze properties, compare opportunities, and generate AI-powered investment decisions.
+        Analyze properties, compare opportunities, and make stronger investment decisions.
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">

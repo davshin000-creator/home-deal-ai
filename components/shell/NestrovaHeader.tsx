@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import NestrovaMark from "@/components/brand/NestrovaMark";
@@ -158,7 +158,7 @@ function getHeaderTheme(
       actionClasses:
         "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/[0.16]",
       actionHref: "/analyze",
-      actionLabel: "Analyze Property",
+      actionLabel: "Analyze",
     };
   }
 

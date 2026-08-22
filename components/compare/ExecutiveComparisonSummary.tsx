@@ -92,8 +92,8 @@ export default function ExecutiveComparisonSummary({
 
             <p className="mt-2 text-sm leading-6 text-white/45">
               {valueSpread >= 0
-                ? "Below estimated AI fair value."
-                : "Above estimated AI fair value."}
+                ? "Below Estimated Fair Value."
+                : "Above Estimated Fair Value."}
             </p>
           </div>
         </div>

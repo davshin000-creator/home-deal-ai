@@ -136,7 +136,7 @@ export default function RealEstateQuickAnalyze() {
             className="inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-[18px] bg-white px-6 text-sm font-bold text-black transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <PropertyIcon className="h-4 w-4" />
-            Analyze Property
+            Analyze
             <ArrowRightIcon className="h-4 w-4" />
           </button>
         </div>

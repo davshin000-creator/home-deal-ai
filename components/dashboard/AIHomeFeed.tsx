@@ -81,7 +81,7 @@ export default function AIHomeFeed({
       description:
         "Review fair value, rental estimates, deal quality, financing, and negotiation leverage.",
       href: "/analyze",
-      action: "Analyze Property",
+      action: "Analyze",
       accent: "emerald",
     },
     {

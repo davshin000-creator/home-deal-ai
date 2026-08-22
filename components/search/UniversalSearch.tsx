@@ -362,7 +362,7 @@ export default function UniversalSearch() {
         {[
           ["BTC", "/trading/assets/BTC"],
           ["NVDA", "/trading/assets/NVDA"],
-          ["Analyze Property", "/analyze"],
+          ["Analyze", "/analyze"],
           ["Daily Briefing", "/trading/briefing"],
         ].map(([label, href]) => (
           <Link

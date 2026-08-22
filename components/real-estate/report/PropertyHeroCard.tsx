@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -310,7 +310,7 @@ export default function PropertyHeroCard({
                   <BrainIcon className="h-4 w-4" />
 
                   <p className="text-[9px] font-bold uppercase tracking-[0.14em]">
-                    AI Fair Value
+                    Estimated Fair Value
                   </p>
                 </div>
 

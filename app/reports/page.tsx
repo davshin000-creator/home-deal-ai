@@ -176,7 +176,7 @@ export default function ReportsPage() {
               href="/analyze"
               className="hidden rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
             >
-              Analyze Property
+              Analyze
             </Link>
 
             <div className="rounded-full border border-white/10 bg-white/[0.06] p-1">

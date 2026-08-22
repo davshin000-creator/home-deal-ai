@@ -124,7 +124,7 @@ export default function PropertyCompareCard({
 
           <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/35">
-              AI Fair Value
+              Estimated Fair Value
             </p>
 
             <p className="mt-2 text-xl font-semibold text-white">

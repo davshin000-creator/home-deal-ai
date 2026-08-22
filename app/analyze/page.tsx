@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -506,7 +506,7 @@ const heroTitle = result
   : "Analyze Your Next Property.";
 
 const heroDescription = result
-  ? `${resultAction} · ${overallScore}/100 investment score · AI fair value ${moneyForCountry(
+  ? `${resultAction} 쨌 ${overallScore}/100 investment score 쨌 estimated fair value ${moneyForCountry(
       result.fair_value,
     )}.`
   : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
@@ -616,7 +616,7 @@ const resultLocation = result
           </div>
 
           <aside className="rounded-[44px] border border-white/10 bg-white/[0.07] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Verified Analysis Brain</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Investment Analysis</p>
             <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">{result ? grade : isPro ? "PRO" : "FREE"}</h2>
             <p className="mt-5 text-sm leading-6 text-white/55">
               {result
@@ -819,7 +819,7 @@ const resultLocation = result
                   key={strength}
                   className="flex gap-3 text-sm leading-6 text-white/65"
                 >
-                  <span className="text-emerald-300">✓</span>
+                  <span className="text-emerald-300">→</span>
                   <span>{strength}</span>
                 </div>
               ))
@@ -971,7 +971,7 @@ const resultLocation = result
     <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
       <div className="flex-1">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300">
-          🧠 Nestrova Executive Brief
+          ?쭬 Nestrova Executive Brief
         </p>
 
         <h3 className="mt-3 text-3xl font-semibold">
@@ -998,7 +998,7 @@ const resultLocation = result
         <div className="mt-4 space-y-3">
           {(result.home_report.key_strengths ?? []).map((item) => (
             <div key={item} className="flex gap-3 text-sm text-white/80">
-              <span className="text-emerald-300">✓</span>
+              <span className="text-emerald-300">→</span>
               <span>{item}</span>
             </div>
           ))}
@@ -1104,7 +1104,7 @@ const resultLocation = result
   {isGuestResult && !guestUnlocked && (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/55 px-6 text-center backdrop-blur-sm">
       <p className="text-sm font-semibold text-white">
-        Unlock your negotiation strategy &amp; offer range — free
+        Unlock your negotiation strategy &amp; offer range ??free
       </p>
 
       <div className="flex w-full max-w-sm flex-col gap-2 sm:flex-row">
@@ -1344,7 +1344,7 @@ const resultLocation = result
               <p>100 property analyses per month</p>
               <p>AI investment reports</p>
               <p>Advanced comparison and portfolio tools</p>
-              <p>Nestrova Brain access</p>
+              <p>Advanced investment intelligence</p>
             </>
           )}
         </div>
@@ -1380,5 +1380,7 @@ const resultLocation = result
     </RealEstateAnalyzeShell>
   );
 }
+
+
 
 

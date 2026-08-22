@@ -181,9 +181,9 @@ export async function GET(request: Request) {
         ? {
             title: "Analyze your first property",
             description:
-              "Start with one address or use Deal Finder to create your first intelligence baseline.",
+              "Start with one address or use Property Search to create your first intelligence baseline.",
             href: "/",
-            cta: "Analyze Property",
+            cta: "Analyze",
           }
         : reports.length === 0
         ? {

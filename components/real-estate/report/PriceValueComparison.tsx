@@ -1,4 +1,4 @@
-﻿type PriceValueComparisonProps = {
+type PriceValueComparisonProps = {
   listingPrice?: number | null;
   fairValue?: number | null;
   className?: string;
@@ -89,7 +89,7 @@ export default function PriceValueComparison({
             </p>
 
             <h3 className="mt-3 break-words text-3xl font-black tracking-[-0.05em] [overflow-wrap:anywhere]">
-              Listed price vs AI fair value.
+              Listed price vs estimated fair value.
             </h3>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/38">
@@ -160,7 +160,7 @@ export default function PriceValueComparison({
             <div className="flex min-w-0 items-end justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
-                  AI Fair Value
+                  Estimated Fair Value
                 </p>
 
                 <p className="mt-2 truncate text-2xl font-black text-cyan-100">
@@ -199,8 +199,8 @@ export default function PriceValueComparison({
               ].join(" ")}
             >
               {isUndervalued
-                ? "Below AI Fair Value"
-                : "Above AI Fair Value"}
+                ? "Below Estimated Fair Value"
+                : "Above Estimated Fair Value"}
             </p>
           </div>
 

@@ -68,7 +68,7 @@ export default function FavoritesPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between">
           <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white">??Dashboard</a>
-          <a href="/analyze" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Analyze Property</a>
+          <a href="/analyze" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Analyze</a>
         </div>
         <h1 className="mt-8 text-6xl font-semibold tracking-[-0.07em]">Favorites</h1>
         <p className="mt-4 text-white/55">Your shortlist of properties worth watching closely.</p>

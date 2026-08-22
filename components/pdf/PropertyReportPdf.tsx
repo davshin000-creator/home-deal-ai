@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   DocumentProps,
 } from "@react-pdf/renderer";
 
@@ -337,7 +337,7 @@ export default function PropertyReportPdf({
 
           <View style={pdfTheme.metricCard}>
             <Text style={pdfTheme.label}>
-              AI Fair Value
+              Estimated Fair Value
             </Text>
             <Text style={pdfTheme.metricValue}>
               {money(fairValue)}

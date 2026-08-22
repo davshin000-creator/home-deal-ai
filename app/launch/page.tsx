@@ -1,4 +1,4 @@
-﻿export default function LaunchPage() {
+export default function LaunchPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-5xl">
@@ -14,13 +14,13 @@
             Nestrova Beta is getting ready
           </h1>
           <p className="mt-5 max-w-3xl text-lg text-gray-600">
-            AI property analysis, deal finder, portfolio tracking, negotiation strategy,
+            Property analysis, property search, portfolio tracking, negotiation strategy,
             and investment insights in one place.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <a href="/deals" className="rounded-2xl border bg-white p-5 font-semibold shadow-sm hover:bg-gray-50">
-              Find Deals
+              Search Properties
             </a>
             <a href="/portfolio" className="rounded-2xl border bg-white p-5 font-semibold shadow-sm hover:bg-gray-50">
               View Portfolio
@@ -33,8 +33,8 @@
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            ["AI Analysis", "Estimate fair value, rent, cash flow, and investment score."],
-            ["Deal Finder", "Search markets and rank properties by investment quality."],
+            ["Property Analysis", "Estimate fair value, rent, cash flow, and investment score."],
+            ["Property Search", "Search markets and rank properties by investment quality."],
             ["AI Negotiation", "Generate a practical offer strategy before making a move."],
             ["Portfolio", "Save and compare your best opportunities."],
             ["AI Chat", "Ask property-specific questions after analysis."],

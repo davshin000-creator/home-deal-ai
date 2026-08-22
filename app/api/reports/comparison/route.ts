@@ -102,7 +102,7 @@ function buildPropertyCard(
         </div>
 
         <div class="metric">
-          <span>AI fair value</span>
+          <span>Estimated Fair Value</span>
           <strong>${formatCurrency(property.fairValue)}</strong>
         </div>
 
@@ -123,7 +123,7 @@ function buildPropertyCard(
       </div>
 
       <div class="score-grid">
-        <div><span>AI Score</span><strong>${property.brainScore}</strong></div>
+        <div><span>Investment Score</span><strong>${property.brainScore}</strong></div>
         <div><span>Risk</span><strong>${property.riskScore}</strong></div>
         <div><span>Rental</span><strong>${property.rentalScore}</strong></div>
         <div><span>Negotiation</span><strong>${property.negotiationScore}</strong></div>
@@ -594,7 +594,7 @@ function buildComparisonHtml(result: CompareResult) {
                   )}
 
                   ${buildMetricRow(
-                    "AI fair value",
+                    "Estimated Fair Value",
                     formatCurrency(firstProperty.fairValue),
                     formatCurrency(secondProperty.fairValue),
                   )}
@@ -606,7 +606,7 @@ function buildComparisonHtml(result: CompareResult) {
                   )}
 
                   ${buildMetricRow(
-                    "AI score",
+                    "investment score",
                     `${firstProperty.brainScore}/100`,
                     `${secondProperty.brainScore}/100`,
                   )}

@@ -188,7 +188,7 @@ const comparisonRows: ComparisonRow[] = [
     allAccess: "Unlimited",
   },
   {
-    feature: "AI fair value",
+    feature: "Estimated Fair Value",
     free: true,
     realEstate: true,
     trading: false,
