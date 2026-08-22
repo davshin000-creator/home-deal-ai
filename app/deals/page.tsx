@@ -265,17 +265,8 @@ export default function DealsPage() {
 
         <section className="grid gap-6 xl:grid-cols-[1fr_430px]">
           <div className="rounded-[44px] border border-white/10 bg-white/[0.06] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.85)]" />
-              Property Search
-            </div>
-
-            <h1 className="mt-6 max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
-              Find high-potential real estate deals before the market notices.
-            </h1>
-
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">
-              Search a market, rank properties by investment quality, and save the strongest opportunities to your portfolio.
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              Search
             </p>
 
             <div className="mt-8 grid gap-3 md:grid-cols-5">
@@ -316,7 +307,7 @@ export default function DealsPage() {
                 disabled={loading}
                 className="h-14 rounded-2xl bg-white px-5 text-sm font-semibold text-black shadow-[0_24px_80px_rgba(255,255,255,0.16)] transition hover:-translate-y-0.5 hover:bg-neutral-200 disabled:cursor-not-allowed disabled:bg-white/30"
               >
-                {loading ? "Scanning..." : "Search Properties"}
+                {loading ? "Scanning..." : "Search"}
               </button>
             </div>
 

@@ -372,57 +372,32 @@ export default function RealEstateDashboardPage() {
   return (
     <UserAwareNestrovaShell
       title="Real Estate"
-      subtitle="Understand properties with clear AI research."
     >
       <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10">
         <section className="rounded-[36px] border border-white/10 bg-white/[0.045] p-6 md:p-9">
-          <div className="max-w-4xl">
+          <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/65">
-              Real Estate
+              Search
             </p>
 
-            <h1 className="mt-4 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.94] tracking-[-0.065em]">
-              Understand any property
-              <span className="block text-white/35">
-                before you make a decision.
-              </span>
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/45 md:text-base">
-              Enter an address to explore estimated value,
-              rental potential, Deal Score, risks, and
-              negotiation context in one place.
-            </p>
-
-            <RealEstateQuickAnalyze />
+            <div className="mt-5">
+              <Link
+                href="/deals"
+                className="inline-flex items-center gap-2 rounded-[14px] bg-white px-6 py-3 text-sm font-bold text-black transition hover:bg-neutral-200"
+              >
+                Search
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-8 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-3">
-            <div>
-              <p className="text-sm font-semibold">
-                Property Value
-              </p>
-              <p className="mt-1 text-xs leading-5 text-white/30">
-                Compare listing price with estimated fair value.
-              </p>
-            </div>
+          <div className="mt-8 border-t border-white/10 pt-7">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+              Analyze
+            </p>
 
-            <div>
-              <p className="text-sm font-semibold">
-                Rental Potential
-              </p>
-              <p className="mt-1 text-xs leading-5 text-white/30">
-                Understand rent estimates and investment yield.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold">
-                Deal Quality
-              </p>
-              <p className="mt-1 text-xs leading-5 text-white/30">
-                See opportunity, risk, and negotiation context.
-              </p>
+            <div className="mt-5 max-w-4xl">
+              <RealEstateQuickAnalyze />
             </div>
           </div>
         </section>
@@ -459,18 +434,18 @@ export default function RealEstateDashboardPage() {
             </p>
 
             <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
-              Analyze and save your first property.
+              No saved properties yet.
             </h2>
 
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/40">
-              Your saved properties, Deal Scores, fair values, and rent estimates will appear here.
+              Saved properties will appear here.
             </p>
 
             <Link
               href="/analyze"
               className="mt-6 inline-flex rounded-[14px] bg-emerald-300 px-5 py-3 text-sm font-bold text-black"
             >
-              Start Analysis
+              Analyze
             </Link>
           </section>
         ) : (
@@ -497,7 +472,7 @@ export default function RealEstateDashboardPage() {
                       }`}
                       className="text-sm font-semibold text-emerald-200/70 transition hover:text-emerald-200"
                     >
-                      View full analysis →
+                      View full analysis ??
                     </Link>
                   </div>
 
@@ -606,7 +581,7 @@ export default function RealEstateDashboardPage() {
                       href="/saved"
                       className="text-sm font-semibold text-emerald-200/70 transition hover:text-emerald-200"
                     >
-                      View all →
+                      View all ??
                     </Link>
                   </div>
 
@@ -643,8 +618,7 @@ export default function RealEstateDashboardPage() {
                               </p>
 
                               <p className="mt-1 text-2xl font-black text-emerald-200">
-                                {property.brain_score ??
-                                  "—"}
+                                {property.brain_score ?? "—"}
                               </p>
                             </div>
                           </div>
@@ -664,7 +638,7 @@ export default function RealEstateDashboardPage() {
                             </div>
 
                             <span className="text-sm font-semibold text-emerald-200/60 transition group-hover:text-emerald-200">
-                              Open →
+                              Open ??
                             </span>
                           </div>
                         </Link>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import NestrovaMark from "@/components/brand/NestrovaMark";
 
 import {
   BellIcon,
+  BillingIcon,
   HomeIcon,
   MarketsIcon,
   PropertyIcon,
@@ -46,16 +47,16 @@ const navigationGroups: NavigationGroup[] = [
     label: "Explore",
     items: [
       {
-        label: "Trading",
-        href: "/trading",
-        icon: <MarketsIcon className="h-4 w-4" />,
-        tone: "cyan",
-      },
-      {
         label: "Real Estate",
         href: "/real-estate",
         icon: <PropertyIcon className="h-4 w-4" />,
         tone: "emerald",
+      },
+      {
+        label: "Trading",
+        href: "/trading",
+        icon: <MarketsIcon className="h-4 w-4" />,
+        tone: "cyan",
       },
       {
         label: "Research",
@@ -77,7 +78,7 @@ const navigationGroups: NavigationGroup[] = [
       {
         label: "Settings",
         href: "/settings/billing",
-        icon: <HomeIcon className="h-4 w-4" />,
+        icon: <BillingIcon className="h-4 w-4" />,
         tone: "neutral",
       },
     ],
