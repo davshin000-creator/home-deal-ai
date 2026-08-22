@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/ClerkCompat";
 import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 import RealEstateQuickAnalyze from "@/components/real-estate/RealEstateQuickAnalyze";
+import { formatRealEstateCurrency } from "@/lib/real-estate/global/formatters";
+import type { RealEstateCountryCode } from "@/lib/real-estate/global/country-config";
 import {
   ArrowRightIcon,
   BrainIcon,
@@ -26,6 +28,7 @@ import {
 type SavedProperty = {
   id: string;
   address?: string | null;
+  country?: RealEstateCountryCode | null;
   city?: string | null;
   state?: string | null;
   listing_price?: number | null;
@@ -43,7 +46,10 @@ type SavedPropertiesResponse = {
   error?: string;
 };
 
-function money(value?: number | null) {
+function money(
+  value?: number | null,
+  countryCode: RealEstateCountryCode = "US",
+) {
   if (
     value === null ||
     value === undefined ||
@@ -52,7 +58,10 @@ function money(value?: number | null) {
     return "—";
   }
 
-  return `$${Math.round(value).toLocaleString("en-US")}`;
+  return formatRealEstateCurrency(
+    value,
+    countryCode,
+  );
 }
 
 function averageScore(properties: SavedProperty[]) {
@@ -529,6 +538,7 @@ export default function RealEstateDashboardPage() {
                           <p className="mt-2 text-xl font-bold">
                             {money(
                               bestProperty.fair_value,
+                              bestProperty.country ?? "US",
                             )}
                           </p>
                         </div>
@@ -541,6 +551,7 @@ export default function RealEstateDashboardPage() {
                           <p className="mt-2 text-xl font-bold">
                             {money(
                               bestProperty.estimated_rent,
+                              bestProperty.country ?? "US",
                             )}
                             <span className="ml-1 text-xs font-medium text-white/30">
                               / mo
@@ -647,6 +658,7 @@ export default function RealEstateDashboardPage() {
                               <p className="mt-1 text-sm font-semibold">
                                 {money(
                                   property.fair_value,
+                                  property.country ?? "US",
                                 )}
                               </p>
                             </div>

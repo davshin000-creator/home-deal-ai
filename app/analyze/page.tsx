@@ -8,6 +8,12 @@ import AddressAutocomplete from "@/components/AddressAutocomplete";
 import PropertyMap from "@/components/PropertyMap";
 import FloatingAIAssistant from "@/components/assistant/FloatingAIAssistant";
 import RealEstateAnalyzeShell from "@/components/shell/RealEstateAnalyzeShell";
+import { formatRealEstateCurrency } from "@/lib/real-estate/global/formatters";
+import { parseRealEstateLocation } from "@/lib/real-estate/global/location-parser";
+import {
+  getRealEstateCountryConfig,
+  type RealEstateCountryCode,
+} from "@/lib/real-estate/global/country-config";
 import {
   AIHeadToHead,
   ComparableProperties,
@@ -116,39 +122,32 @@ type AnalysisResult = {
   plan?: string;
 };
 
-function money(value: number | undefined) {
-  return `$${Math.round(Number(value || 0)).toLocaleString()}`;
+function money(
+  value: number | undefined,
+  countryCode: RealEstateCountryCode = "US",
+) {
+  return formatRealEstateCurrency(
+    Number(value || 0),
+    countryCode,
+  );
 }
 
 function percent(value: number | undefined) {
   return `${Number(value || 0).toFixed(2)}%`;
 }
 
-function parsePropertyLocation(address: string) {
-  const parts = String(address ?? "")
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  const city =
-    parts.length >= 2
-      ? parts[parts.length - 2]
-      : null;
-
-  const stateAndZip =
-    parts.length >= 1
-      ? parts[parts.length - 1]
-      : "";
-
-  const stateMatch = stateAndZip.match(
-    /\b([A-Z]{2})\b/i,
+function parsePropertyLocation(
+  address: string,
+  countryCode: RealEstateCountryCode = "US",
+) {
+  const location = parseRealEstateLocation(
+    address,
+    countryCode,
   );
 
   return {
-    city,
-    state: stateMatch
-      ? stateMatch[1].toUpperCase()
-      : null,
+    city: location.city,
+    state: location.region,
   };
 }
 
@@ -180,6 +179,19 @@ export default function AnalyzePage() {
 
   const [address, setAddress] = useState("");
   const [listingPrice, setListingPrice] = useState("");
+  const [countryCode, setCountryCode] =
+    useState<RealEstateCountryCode>("US");
+  const moneyForCountry = (
+    value: number | undefined,
+  ) => money(value, countryCode);
+
+  const parsePropertyLocationForCountry = (
+    value: string,
+  ) => parsePropertyLocation(
+    value,
+    countryCode,
+  );
+
   const downPaymentPercent = 25;
   const interestRate = 6.5;
   const loanTermYears = 30;
@@ -202,9 +214,17 @@ export default function AnalyzePage() {
     const params = new URLSearchParams(window.location.search);
     const queryAddress = params.get("address");
     const queryPrice = params.get("listing_price") || params.get("price");
+    const queryCountry = params.get("country");
+
+    const countryConfig =
+      getRealEstateCountryConfig(queryCountry);
 
     if (queryAddress) setAddress(queryAddress);
     if (queryPrice) setListingPrice(queryPrice);
+
+    if (countryConfig.enabled) {
+      setCountryCode(countryConfig.code);
+    }
   }, []);
 
   useEffect(() => {
@@ -285,6 +305,7 @@ const usageResponse = await fetch(
         interest_rate: interestRate,
         loan_term_years: loanTermYears,
         analysis_goal: analysisGoal,
+        country: countryCode,
       }),
     });
 
@@ -391,7 +412,8 @@ const usageResponse = await fetch(
       },
       body: JSON.stringify({
         address: result.address,
-        ...parsePropertyLocation(result.address),
+        country: countryCode,
+        ...parsePropertyLocationForCountry(result.address),
 
         price: result.listing_price,
         fairValue: result.fair_value,
@@ -484,13 +506,13 @@ const heroTitle = result
   : "Analyze Your Next Property.";
 
 const heroDescription = result
-  ? `${resultAction} · ${overallScore}/100 investment score · AI fair value ${money(
+  ? `${resultAction} · ${overallScore}/100 investment score · AI fair value ${moneyForCountry(
       result.fair_value,
     )}.`
   : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
 
 const resultLocation = result
-  ? parsePropertyLocation(result.address)
+  ? parsePropertyLocationForCountry(result.address)
   : {
       city: null,
       state: null,
@@ -1055,21 +1077,21 @@ const resultLocation = result
       <div>
         <p className="text-xs text-white/40">Suggested Offer</p>
         <p className="mt-2 text-2xl font-semibold">
-          {money(result.negotiation?.suggested_offer)}
+          {moneyForCountry(result.negotiation?.suggested_offer)}
         </p>
       </div>
 
       <div>
         <p className="text-xs text-white/40">Maximum Offer</p>
         <p className="mt-2 text-2xl font-semibold">
-          {money(result.negotiation?.maximum_offer)}
+          {moneyForCountry(result.negotiation?.maximum_offer)}
         </p>
       </div>
 
       <div>
         <p className="text-xs text-white/40">Potential Savings</p>
         <p className="mt-2 text-2xl font-semibold text-emerald-300">
-          {money(result.negotiation?.estimated_savings)}
+          {moneyForCountry(result.negotiation?.estimated_savings)}
         </p>
       </div>
     </div>
@@ -1219,33 +1241,33 @@ const resultLocation = result
                   {[
                     [
                       "Down Payment",
-                      money(result.down_payment),
+                      moneyForCountry(result.down_payment),
                     ],
                     [
                       "Loan Amount",
-                      money(result.loan_amount),
+                      moneyForCountry(result.loan_amount),
                     ],
                     [
                       "Mortgage",
-                      `${money(
+                      `${moneyForCountry(
                         result.monthly_mortgage,
                       )}/mo`,
                     ],
                     [
                       "Property Tax",
-                      `${money(
+                      `${moneyForCountry(
                         result.monthly_property_tax,
                       )}/mo`,
                     ],
                     [
                       "Insurance",
-                      `${money(
+                      `${moneyForCountry(
                         result.monthly_insurance,
                       )}/mo`,
                     ],
                     [
                       "Maintenance",
-                      `${money(
+                      `${moneyForCountry(
                         result.monthly_maintenance,
                       )}/mo`,
                     ],

@@ -1,20 +1,21 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   createSupabaseAdminClient,
   getCurrentUserProfile,
 } from "@/lib/supabase/server";
 import { canUseFeature } from "@/lib/revenue/permissions";
+import { getRealEstateCountryConfig } from "@/lib/real-estate/global/country-config";
+import {
+  getRealEstateDataProvider,
+  resolveRealEstateProvider,
+} from "@/lib/real-estate/global/provider-router";
+import {
+  RealEstateProviderError,
+} from "@/lib/real-estate/global/provider-types";
 import {
   hasFeature,
   normalizeSubscriptionType,
 } from "@/lib/subscriptions/entitlements";
-
-const HOME_DEAL_API_URL =
-  process.env.HOME_DEAL_API_URL ||
-  "https://home-deal-api.onrender.com";
-
-const INTERNAL_API_KEY =
-  process.env.NESTROVA_INTERNAL_API_KEY;
 
 // Guests get 1 free analysis per IP per rolling 24h window.
 // Change this if you want a different guest allowance.
@@ -41,6 +42,62 @@ export async function POST(request: Request) {
 
     const address = String(body.address || "").trim();
     const listingPrice = Number(body.listing_price);
+    const requestedCountry = String(
+      body.country || "US",
+    ).toUpperCase();
+
+    if (
+      requestedCountry !== "US" &&
+      requestedCountry !== "CA" &&
+      requestedCountry !== "KR"
+    ) {
+      return NextResponse.json(
+        {
+          code: "INVALID_REAL_ESTATE_COUNTRY",
+          detail: "Unsupported real estate country.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const countryConfig =
+      getRealEstateCountryConfig(
+        requestedCountry,
+      );
+
+    const providerResolution =
+      resolveRealEstateProvider(
+        countryConfig.code,
+      );
+
+    if (!providerResolution.available) {
+      return NextResponse.json(
+        {
+          code: "COUNTRY_NOT_AVAILABLE",
+          detail: `${countryConfig.name} property analysis is not available yet.`,
+          country: countryConfig.code,
+        },
+        { status: 400 },
+      );
+    }
+
+    const country = countryConfig.code;
+    const provider =
+      providerResolution.provider;
+
+    const dataProvider =
+      getRealEstateDataProvider(country);
+
+    if (!dataProvider) {
+      return NextResponse.json(
+        {
+          code: "COUNTRY_NOT_AVAILABLE",
+          detail: `${countryConfig.name} property analysis is not available yet.`,
+          country,
+        },
+        { status: 400 },
+      );
+    }
 
     if (!address) {
       return NextResponse.json(
@@ -91,32 +148,59 @@ export async function POST(request: Request) {
         );
       }
 
-      const response = await fetch(`${HOME_DEAL_API_URL}/analyze`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(INTERNAL_API_KEY
-            ? { "X-Nestrova-Internal-Key": INTERNAL_API_KEY }
-            : {}),
-        },
-        body: JSON.stringify({
-          address,
-          listing_price: listingPrice,
-          down_payment_percent: Number(body.down_payment_percent || 25),
-          interest_rate: Number(body.interest_rate || 6.5),
-          loan_term_years: Number(body.loan_term_years || 30),
-          user_id: null,
-          is_pro: false,
-        }),
-        cache: "no-store",
-      });
+      let data: Record<string, any>;
 
-      const data = await response.json().catch(() => ({}));
+      try {
+        const providerResult =
+          await dataProvider.analyze({
+            address,
+            countryCode: country,
+            listingPrice,
 
-      if (!response.ok) {
-        return NextResponse.json(data, { status: response.status });
+            financing: {
+              downPaymentPercent:
+                Number(
+                  body.down_payment_percent || 25,
+                ),
+
+              interestRate:
+                Number(
+                  body.interest_rate || 6.5,
+                ),
+
+              loanTermYears:
+                Number(
+                  body.loan_term_years || 30,
+                ),
+            },
+
+            requestContext: {
+              userId: null,
+              isPro: false,
+            },
+          });
+
+        data =
+          (providerResult.raw ?? {}) as Record<
+            string,
+            any
+          >;
+      } catch (providerError) {
+        if (
+          providerError instanceof
+          RealEstateProviderError
+        ) {
+          return NextResponse.json(
+            providerError.data,
+            {
+              status:
+                providerError.status,
+            },
+          );
+        }
+
+        throw providerError;
       }
-
       // Record guest usage for rate limiting (no user_id, so it
       // never touches feature_usage / deal_history / analysis_history).
       const { error: guestInsertError } = await admin
@@ -135,7 +219,7 @@ export async function POST(request: Request) {
         user_id: null,
         event_name: "guest_analyze_completed",
         page_path: "/analyze",
-        metadata: { address, ip },
+        metadata: { address, ip, country, provider },
         created_at: new Date().toISOString(),
       });
 
@@ -232,41 +316,75 @@ const hasUnlimitedAnalysis =
       created_at: new Date().toISOString(),
     });
 
-    const response = await fetch(`${HOME_DEAL_API_URL}/analyze`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(INTERNAL_API_KEY
-          ? { "X-Nestrova-Internal-Key": INTERNAL_API_KEY }
-          : {}),
-      },
-      body: JSON.stringify({
-        address,
-        listing_price: listingPrice,
-        down_payment_percent: Number(body.down_payment_percent || 25),
-        interest_rate: Number(body.interest_rate || 6.5),
-        loan_term_years: Number(body.loan_term_years || 30),
-        user_id: user.id,
-        is_pro: hasUnlimitedAnalysis,
-      }),
-      cache: "no-store",
-    });
+    let data: Record<string, any>;
 
-    const data = (await response.json().catch(() => ({}))) as Record<
-  string,
-  any
->;
+    try {
+      const providerResult =
+        await dataProvider.analyze({
+          address,
+          countryCode: country,
+          listingPrice,
 
-    if (!response.ok) {
-      await admin.from("analytics_events").insert({
-        user_id: user.id,
-        event_name: "analyze_failed",
-        page_path: "/analyze",
-        metadata: { address, status_code: response.status },
-        created_at: new Date().toISOString(),
-      });
+          financing: {
+            downPaymentPercent:
+              Number(
+                body.down_payment_percent || 25,
+              ),
 
-      return NextResponse.json(data, { status: response.status });
+            interestRate:
+              Number(
+                body.interest_rate || 6.5,
+              ),
+
+            loanTermYears:
+              Number(
+                body.loan_term_years || 30,
+              ),
+          },
+
+          requestContext: {
+            userId: user.id,
+            isPro: hasUnlimitedAnalysis,
+          },
+        });
+
+      data =
+        (providerResult.raw ?? {}) as Record<
+          string,
+          any
+        >;
+    } catch (providerError) {
+      if (
+        providerError instanceof
+        RealEstateProviderError
+      ) {
+        await admin
+          .from("analytics_events")
+          .insert({
+            user_id: user.id,
+            event_name: "analyze_failed",
+            page_path: "/analyze",
+            metadata: {
+              address,
+              country,
+              provider,
+              status_code:
+                providerError.status,
+            },
+            created_at:
+              new Date().toISOString(),
+          });
+
+        return NextResponse.json(
+          providerError.data,
+          {
+            status:
+              providerError.status,
+          },
+        );
+      }
+
+      throw providerError;
     }
 
     const usageInsert = await admin.from("feature_usage").insert({
@@ -300,7 +418,10 @@ const hasUnlimitedAnalysis =
       estimated_monthly_cash_flow: Number(
         data.estimated_monthly_cash_flow || 0,
       ),
-      result_json: data,
+      result_json: {
+        ...data,
+        country,
+      },
       created_at: new Date().toISOString(),
     });
 

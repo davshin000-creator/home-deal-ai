@@ -3,6 +3,7 @@ import {
   createSupabaseAdminClient,
   getCurrentUserProfile,
 } from "@/lib/supabase/server";
+import { getRealEstateCountryConfig } from "@/lib/real-estate/global/country-config";
 
 export async function GET() {
   const { user } = await getCurrentUserProfile();
@@ -48,6 +49,26 @@ export async function POST(request: Request) {
 
   const property = await request.json();
 
+  const requestedCountry = String(
+    property.country || "US",
+  ).toUpperCase();
+
+  if (
+    requestedCountry !== "US" &&
+    requestedCountry !== "CA" &&
+    requestedCountry !== "KR"
+  ) {
+    return NextResponse.json(
+      { error: "Unsupported real estate country." },
+      { status: 400 }
+    );
+  }
+
+  const country =
+    getRealEstateCountryConfig(
+      requestedCountry,
+    ).code;
+
   const supabase = createSupabaseAdminClient();
 
   const { error } = await supabase
@@ -56,6 +77,7 @@ export async function POST(request: Request) {
       user_id: user.id,
 
       address: property.address,
+      country,
       city: property.city,
       state: property.state,
 
