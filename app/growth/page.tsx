@@ -23,7 +23,7 @@ export default function GrowthPage() {
   return (
     <main className="min-h-screen bg-[#050505] px-6 py-12 text-white">
       <section className="mx-auto max-w-6xl">
-        <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">??Back</a>
+        <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">&larr; Back</a>
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.28em] text-white/35">Growth Engine</p>
         <h1 className="mt-4 text-6xl font-semibold tracking-[-0.07em]">Turn property analysis into launch content.</h1>
 

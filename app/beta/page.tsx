@@ -29,7 +29,7 @@ export default function BetaPage() {
   return (
     <main className="min-h-screen bg-[#050505] px-6 py-12 text-white">
       <section className="mx-auto max-w-4xl rounded-[44px] border border-white/10 bg-white/[0.07] p-8">
-        <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">??Back</a>
+        <a href="/" className="text-sm font-semibold text-white/50 hover:text-white">&larr; Back</a>
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.28em] text-white/35">Private Beta</p>
         <h1 className="mt-4 text-6xl font-semibold tracking-[-0.07em]">Help shape Nestrova before public launch.</h1>
         <p className="mt-5 max-w-2xl text-white/55">Test analysis, reports, portfolio, watchlist, and history. Tell us what is useful or worth paying for.</p>

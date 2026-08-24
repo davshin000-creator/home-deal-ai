@@ -15,7 +15,7 @@ export default function LaunchDashboardPage() {
     setFunnel(fd.funnel||[]); setSources(sd.top_sources||[]);
   }
   return <main className="min-h-screen bg-[#050505] px-6 py-12 text-white"><section className="mx-auto max-w-7xl">
-    <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white">??Dashboard</a>
+    <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white">&larr; Dashboard</a>
     <p className="mt-8 text-xs font-semibold uppercase tracking-[0.28em] text-white/35">Launch Readiness</p>
     <h1 className="mt-4 text-6xl font-semibold tracking-[-0.07em]">Nestrova Growth Dashboard</h1>
     <p className="mt-5 max-w-3xl text-white/55">Track the funnel from landing page to checkout intent.</p>

@@ -709,6 +709,14 @@ const resultLocation = result
               />
             </section>
 
+
+            <section className="mt-6">
+              <h3 className="mb-4 text-lg font-semibold text-white">
+                Property Location
+              </h3>
+
+              <PropertyMap address={address} />
+            </section>
             {result.comparables?.length ? (
               <>
                 <section className="mt-8">
@@ -832,7 +840,7 @@ const resultLocation = result
                   key={strength}
                   className="flex gap-3 text-sm leading-6 text-white/65"
                 >
-                  <span className="text-emerald-300">→</span>
+                  <span className="text-emerald-300">&rarr;</span>
                   <span>{strength}</span>
                 </div>
               ))
@@ -984,7 +992,7 @@ const resultLocation = result
     <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
       <div className="flex-1">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300">
-          ?쭬 Nestrova Executive Brief
+          Nestrova Executive Brief
         </p>
 
         <h3 className="mt-3 text-3xl font-semibold">
@@ -1011,7 +1019,7 @@ const resultLocation = result
         <div className="mt-4 space-y-3">
           {(result.home_report.key_strengths ?? []).map((item) => (
             <div key={item} className="flex gap-3 text-sm text-white/80">
-              <span className="text-emerald-300">→</span>
+              <span className="text-emerald-300">&rarr;</span>
               <span>{item}</span>
             </div>
           ))}
@@ -1310,14 +1318,6 @@ const resultLocation = result
                 ))}
               </div>
             </div>
-          </section>
-
-          <section className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold text-white">
-              Property Location
-            </h3>
-
-            <PropertyMap address={address} />
           </section>
 
           </>

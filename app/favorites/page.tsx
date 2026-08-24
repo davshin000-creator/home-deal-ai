@@ -67,7 +67,7 @@ export default function FavoritesPage() {
     <main className="min-h-screen bg-[#050505] p-8 text-white">
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between">
-          <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white">??Dashboard</a>
+          <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white">&larr; Dashboard</a>
           <a href="/analyze" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Analyze</a>
         </div>
         <h1 className="mt-8 text-6xl font-semibold tracking-[-0.07em]">Favorites</h1>

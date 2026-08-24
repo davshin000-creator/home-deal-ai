@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ReactNode, useEffect, useState } from "react";
 import { SignInButton, useUser } from "@/components/auth/ClerkCompat";
@@ -84,10 +84,10 @@ export default function ProFeatureGate({
               <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">PRO</h2>
               <p className="mt-5 text-sm leading-6 text-white/55">Your account is currently on the Free plan.</p>
               <div className="mt-7 rounded-[30px] border border-white/10 bg-black/25 p-5">
-                <p className="text-sm text-white/58">??Advanced AI workspaces</p>
-                <p className="mt-3 text-sm text-white/58">??Investor-ready workflows</p>
-                <p className="mt-3 text-sm text-white/58">??Pro reports and exports</p>
-                <p className="mt-3 text-sm text-white/58">??Higher monthly usage limits</p>
+                <p className="text-sm text-white/58">&#10003; Advanced AI workspaces</p>
+                <p className="mt-3 text-sm text-white/58">&#10003; Investor-ready workflows</p>
+                <p className="mt-3 text-sm text-white/58">&#10003; Pro reports and exports</p>
+                <p className="mt-3 text-sm text-white/58">&#10003; Higher monthly usage limits</p>
               </div>
             </aside>
           </div>
