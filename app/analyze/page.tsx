@@ -501,18 +501,24 @@ risks: [],
       ? "Negotiate First"
       : result?.status || "Review Carefully");
 
-const heroTitle = result
+const displayAddress = result
   ? result.address
+      .replace(/\s+\uBBF8\uAD6D\s*$/i, "")
+      .trim()
+  : "";
+
+const heroTitle = result
+  ? displayAddress
   : "Analyze Your Next Property.";
 
 const heroDescription = result
-  ? `${resultAction} 쨌 ${overallScore}/100 investment score 쨌 estimated fair value ${moneyForCountry(
+  ? `${resultAction} - ${overallScore}/100 investment score - estimated fair value ${moneyForCountry(
       result.fair_value,
     )}.`
   : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
 
 const resultLocation = result
-  ? parsePropertyLocationForCountry(result.address)
+  ? parsePropertyLocationForCountry(displayAddress)
   : {
       city: null,
       state: null,
@@ -564,11 +570,11 @@ const resultLocation = result
 ) : null}
 
 {result ? (
-  <div className="mt-8 flex flex-wrap gap-3">
+  <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
     <button
       onClick={generateReport}
       disabled={reportLoading}
-      className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
+      className="rounded-[14px] bg-white px-4 py-3 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50 sm:rounded-full sm:px-6 sm:text-sm"
     >
       {reportLoading ? "Generating Report..." : "Generate AI Report"}
     </button>
@@ -576,33 +582,33 @@ const resultLocation = result
     <button
       onClick={saveToPortfolio}
       disabled={saving}
-      className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+      className="rounded-[14px] border border-white/10 bg-white/[0.06] px-4 py-3 text-xs font-semibold text-white transition hover:bg-white/10 disabled:opacity-50 sm:rounded-full sm:px-6 sm:text-sm"
     >
       {saving ? "Saving..." : "Save Property"}
     </button>
     <Link
   href="/saved"
-  className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-6 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+  className="col-span-2 rounded-[14px] border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-center text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/20 sm:col-span-1 sm:rounded-full sm:px-6 sm:text-sm"
 >
   View Saved Deals
 </Link>
   </div>
 ) : null}
 
-            <div className="mt-8 grid gap-3 md:grid-cols-6">
+            <div className={`grid gap-3 md:grid-cols-6 ${result ? "mt-5" : "mt-8"}`}>
               <div className="md:col-span-3">
                 <AddressAutocomplete
                   value={address}
                   onChange={setAddress}
                 />
               </div>
-              <input className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25" placeholder="Listing price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
-              <button onClick={analyzeProperty} disabled={loading} className="h-14 rounded-2xl bg-emerald-300 px-5 text-sm font-bold text-black shadow-[0_18px_60px_rgba(110,231,183,0.12)] transition hover:-translate-y-0.5 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:bg-white/[0.07] disabled:text-white/25 disabled:shadow-none disabled:hover:translate-y-0 md:col-span-2">
+              <input className={`rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-white/25 ${result ? "h-12" : "h-14"}`} placeholder="Listing price" value={listingPrice} onChange={(e) => setListingPrice(e.target.value)} />
+              <button onClick={analyzeProperty} disabled={loading} className={`rounded-2xl bg-emerald-300 px-5 text-sm font-bold text-black shadow-[0_18px_60px_rgba(110,231,183,0.12)] transition hover:-translate-y-0.5 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:bg-white/[0.07] disabled:text-white/25 disabled:shadow-none disabled:hover:translate-y-0 md:col-span-2 ${result ? "h-12" : "h-14"}`}>
                 {loading ? "Analyzing..." : "Analyze"}
               </button>
             </div>
 
-<div className="mt-6">
+<div className={result ? "mt-4" : "mt-6"}>
   <label className="mb-2 block text-sm font-semibold text-white/70">
     What is your goal?
   </label>
@@ -890,7 +896,7 @@ const resultLocation = result
                 </div>
               </div>
 
-              <div className="mt-6">
+              <div className={result ? "mt-4" : "mt-6"}>
                 <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/60">

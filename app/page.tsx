@@ -214,7 +214,7 @@ export default async function HomePage() {
                 ))}
               </div>
 
-              <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-7">
+              <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-6 lg:mt-auto lg:pt-7">
                 <span className="text-sm font-semibold">
                   Analyze a Property
                 </span>

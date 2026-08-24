@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopOpportunities from "@/components/trading/TopOpportunities";
@@ -678,7 +678,7 @@ export default function LiveTopOpportunities({
         opportunities={opportunities}
       />
 
-      <section className="relative mx-auto max-w-[1480px] px-5 pb-12 md:px-8">
+      <section className="relative mx-auto mt-6 max-w-[1480px] px-5 pb-12 md:mt-8 md:px-8">
         <div className="rounded-[36px] border border-white/10 bg-white/[0.05] p-6 md:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>

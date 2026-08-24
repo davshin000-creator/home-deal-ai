@@ -171,7 +171,7 @@ export default function FloatingAIAssistant({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="fixed bottom-6 right-6 z-40 rounded-full border border-cyan-300/20 bg-black px-5 py-4 text-sm font-semibold text-white shadow-[0_20px_70px_rgba(34,211,238,0.18)] transition hover:border-cyan-300/40 hover:bg-neutral-900"
+        className="fixed bottom-4 right-4 z-40 rounded-full border border-cyan-300/20 bg-black px-4 py-3 text-xs font-semibold text-white shadow-[0_20px_70px_rgba(34,211,238,0.18)] transition hover:border-cyan-300/40 hover:bg-neutral-900 md:bottom-6 md:right-6 md:px-5 md:py-4 md:text-sm"
         aria-label="Open Nestrova AI assistant"
       >
         Ask Nestrova AI

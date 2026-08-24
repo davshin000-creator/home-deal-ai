@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -1247,7 +1247,7 @@ if (!response.ok || !data.success) {
             </div>
           </div>
 
-          <p className="mt-5 text-xs leading-5 text-white/25">
+          <p className="mt-4 px-1 pb-4 text-[11px] leading-5 text-white/30 sm:mt-5 sm:px-0 sm:pb-0 sm:text-xs">
             This outlook is automated market research, not a prediction,
             personalized investment recommendation, or instruction to buy or
             sell.
