@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 import PropertyMap from "@/components/PropertyMap";
@@ -303,20 +304,20 @@ export default function DealsPage() {
 
       <div className="relative mx-auto max-w-[1500px] px-5 py-6 md:px-8">
         <header className="mb-8 flex items-center justify-between gap-4">
-          <a
+          <Link
             href="/"
             className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
           >
             Back to Nestrova
-          </a>
+          </Link>
 
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/portfolio"
               className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
             >
               Portfolio
-            </a>
+            </Link>
 
             {isSignedIn ? (
               <UserButton />
@@ -505,12 +506,12 @@ export default function DealsPage() {
                 </p>
               </div>
 
-              <a
+              <Link
                 href="/portfolio"
                 className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white"
               >
                 View Portfolio
-              </a>
+              </Link>
             </div>
             {locationDeal ? (
               <section id="featured-property-location" className="scroll-mt-24 mb-8 rounded-[34px] border border-white/10 bg-black/20 p-5 md:p-6">
@@ -525,12 +526,12 @@ export default function DealsPage() {
                     </h3>
                   </div>
 
-                  <a
+                  <Link
                     href={`/analyze?address=${encodeURIComponent(locationDeal.address)}&listing_price=${encodeURIComponent(String(locationDeal.listing_price))}`}
                     className="text-xs font-semibold text-emerald-200 transition hover:text-emerald-100"
                   >
                     Analyze this property
-                  </a>
+                  </Link>
                 </div>
 
                 <PropertyMap address={locationDeal.address} />
@@ -634,12 +635,12 @@ export default function DealsPage() {
                         View Location
                       </button>
 
-                      <a
+                      <Link
                         href={`/analyze?address=${encodeURIComponent(deal.address)}&listing_price=${encodeURIComponent(String(deal.listing_price))}`}
                         className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-center text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white"
                       >
                         Analyze
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 );
