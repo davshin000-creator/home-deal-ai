@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
+import PropertyMap from "@/components/PropertyMap";
 
 type Deal = {
   address: string;
@@ -130,6 +131,7 @@ export default function DealsPage() {
   const [result, setResult] = useState<FindDealsResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
   async function findDeals(customCity?: string, customState?: string, customMaxPrice?: string) {
     const finalCity = customCity || city;
@@ -254,6 +256,7 @@ export default function DealsPage() {
   });
 
   const topDeal = sortedDeals[0];
+  const locationDeal = selectedDeal || topDeal;
   const topScore = topDeal ? getDealOverallScore(topDeal) : 94;
   const totalAnalyzed = result?.total_analyzed || result?.count || sortedDeals.length || 0;
 
@@ -473,6 +476,30 @@ export default function DealsPage() {
                 View Portfolio
               </a>
             </div>
+            {locationDeal ? (
+              <section id="featured-property-location" className="scroll-mt-24 mb-8 rounded-[34px] border border-white/10 bg-black/20 p-5 md:p-6">
+                <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300/70">
+                      Featured Property Location
+                    </p>
+
+                    <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+                      {locationDeal.address}
+                    </h3>
+                  </div>
+
+                  <a
+                    href={`/analyze?address=${encodeURIComponent(locationDeal.address)}&listing_price=${encodeURIComponent(String(locationDeal.listing_price))}`}
+                    className="text-xs font-semibold text-emerald-200 transition hover:text-emerald-100"
+                  >
+                    Analyze this property
+                  </a>
+                </div>
+
+                <PropertyMap address={locationDeal.address} />
+              </section>
+            ) : null}
 
             <div className="grid gap-5">
               {sortedDeals.map((deal, index) => {
@@ -553,6 +580,22 @@ export default function DealsPage() {
                         className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200"
                       >
                         Save to Portfolio
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDeal(deal);
+
+                          document
+                            .getElementById("featured-property-location")
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                        }}
+                        className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/15"
+                      >
+                        View Location
                       </button>
 
                       <a
