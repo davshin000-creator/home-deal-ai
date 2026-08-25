@@ -56,6 +56,7 @@ export async function GET() {
       signed_in: true,
       is_pro: isPro,
       plan: profile.plan || "free",
+      subscription_type: profile.subscription_type || "free",
       subscription_status:
         profile.subscription_status || "free",
       pro_since: profile.pro_since || null,

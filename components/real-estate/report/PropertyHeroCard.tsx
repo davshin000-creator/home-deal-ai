@@ -211,7 +211,7 @@ export default function PropertyHeroCard({
           </>
         )}
 
-        <div className="relative z-10 flex min-h-[520px] flex-col justify-between p-6 md:p-9 lg:max-w-[68%]">
+        <div className="relative z-10 flex min-h-[520px] flex-col justify-between p-6 md:p-9 lg:max-w-[62%]">
           <div className="flex flex-wrap items-center gap-3">
             <StatusChip
               tone={recommendationTone(
@@ -244,7 +244,7 @@ export default function PropertyHeroCard({
             </span>
           </div>
 
-          <div className="mt-16 min-w-0">
+          <div className="mt-12 min-w-0 md:mt-16">
             <div className="flex items-center gap-2 text-emerald-200/65">
               <LocationIcon className="h-4 w-4 shrink-0" />
 
@@ -253,11 +253,11 @@ export default function PropertyHeroCard({
               </p>
             </div>
 
-            <h2 className="mt-4 max-w-full break-words text-[clamp(2.4rem,6vw,5.25rem)] font-black leading-[0.92] tracking-[-0.07em] [overflow-wrap:anywhere]">
+            <h2 className="mt-4 max-w-[720px] break-words text-[clamp(2.15rem,4.5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.055em] [overflow-wrap:anywhere]">
               {address || "Analyzed Property"}
             </h2>
 
-            <div className="mt-7 flex flex-wrap items-end gap-6">
+            <div className="mt-7 flex max-w-[680px] flex-wrap items-end gap-6">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-white/35">
                   Deal Score
@@ -274,7 +274,7 @@ export default function PropertyHeroCard({
                 </div>
               </div>
 
-              <div className="min-w-[180px] flex-1">
+              <div className="min-w-[160px] max-w-[360px] flex-1">
                 <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full bg-emerald-300 shadow-[0_0_24px_rgba(110,231,183,0.48)]"

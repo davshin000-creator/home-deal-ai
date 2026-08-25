@@ -196,6 +196,7 @@ export default function AnalyzePage() {
   const interestRate = 6.5;
   const loanTermYears = 30;
   const [isPro, setIsPro] = useState(false);
+  const [isAllAccess, setIsAllAccess] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -236,6 +237,9 @@ export default function AnalyzePage() {
 
       const proData = await proResponse.json();
       setIsPro(Boolean(proData?.is_pro));
+      setIsAllAccess(
+        proData?.subscription_type === "all_access"
+      );
 
       if (!isSignedIn) {
         setUsageRemaining(null);
@@ -642,11 +646,15 @@ const resultLocation = result
             <div className="mt-7 grid grid-cols-2 gap-3">
               <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">Plan</p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isPro ? "Pro" : "Free"}</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isAllAccess ? "All Access" : isPro ? "Pro" : "Free"}</p>
               </div>
               <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">Remaining</p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{usageRemaining ?? "--"}</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isAllAccess
+                  ? "Unlimited"
+                  : usageRemaining !== null
+                    ? Math.max(0, usageRemaining)
+                    : "--"}</p>
               </div>
             </div>
 
