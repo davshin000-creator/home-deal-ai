@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCurrentUserProfile } from "@/lib/supabase/server";
 
 const HOME_DEAL_API_URL =
@@ -9,8 +9,22 @@ const INTERNAL_API_KEY =
   process.env.NESTROVA_INTERNAL_API_KEY;
 
 export async function POST(request: Request) {
+  const requestStartedAt = Date.now();
+
   try {
+    const profileStartedAt = Date.now();
+
     const { user, isPro } = await getCurrentUserProfile();
+
+    const profileMs =
+      Date.now() - profileStartedAt;
+
+    console.log(
+      "[FIND_DEALS_PROXY_PROFILE]",
+      {
+        profile_ms: profileMs,
+      }
+    );
 
     if (!user) {
       return NextResponse.json(
@@ -57,6 +71,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const backendStartedAt = Date.now();
+
     const response = await fetch(
       `${HOME_DEAL_API_URL}/find-deals`,
       {
@@ -93,12 +109,31 @@ export async function POST(request: Request) {
     const data =
       await response.json().catch(() => ({}));
 
+    const backendMs =
+      Date.now() - backendStartedAt;
+
+    console.log(
+      "[FIND_DEALS_PROXY_BACKEND]",
+      {
+        backend_ms: backendMs,
+        status: response.status,
+      }
+    );
+
     if (!response.ok) {
       return NextResponse.json(
         data,
         { status: response.status }
       );
     }
+
+    console.log(
+      "[FIND_DEALS_PROXY_TOTAL]",
+      {
+        total_ms:
+          Date.now() - requestStartedAt,
+      }
+    );
 
     return NextResponse.json({
       ...data,
