@@ -253,7 +253,7 @@ export default function PropertyHeroCard({
               </p>
             </div>
 
-            <h2 className="mt-4 max-w-[720px] break-words text-[clamp(2.15rem,4.5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.055em] [overflow-wrap:anywhere]">
+            <h2 className="mt-4 max-w-[720px] break-words text-[clamp(2rem,3.8vw,3.65rem)] font-black leading-[0.96] tracking-[-0.055em] [overflow-wrap:anywhere]">
               {address || "Analyzed Property"}
             </h2>
 

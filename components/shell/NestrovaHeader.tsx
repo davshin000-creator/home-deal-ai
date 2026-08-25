@@ -277,7 +277,7 @@ export default function NestrovaHeader({
             </span>
 
             <div className="min-w-0">
-              <p className="hidden text-[10px] font-medium text-white/28 sm:block">
+              <p className="hidden text-xs font-semibold tracking-[-0.01em] text-white/55 sm:block md:text-sm">
                 {greeting}, {firstName}
               </p>
 
@@ -354,7 +354,7 @@ export default function NestrovaHeader({
                 aria-label="Close navigation"
                 className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.05] text-xl text-white/60"
               >
-                ×
+                횞
               </button>
             </div>
 

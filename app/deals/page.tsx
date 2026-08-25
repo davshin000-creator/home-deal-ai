@@ -132,7 +132,39 @@ export default function DealsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [usageRemaining, setUsageRemaining] = useState<number | null>(null);
 
+  useEffect(() => {
+    async function loadUsage() {
+      if (!isSignedIn || !user?.id) {
+        setUsageRemaining(null);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/usage?feature=analysis&user_id=${encodeURIComponent(user.id)}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setUsageRemaining(
+            typeof data.remaining === "number"
+              ? data.remaining
+              : null
+          );
+        }
+      } catch (error) {
+        console.error("deals_usage_load_failed", error);
+      }
+    }
+
+    void loadUsage();
+  }, [isSignedIn, user?.id]);
   async function findDeals(customCity?: string, customState?: string, customMaxPrice?: string) {
     const finalCity = customCity || city;
     const finalState = customState || state;
@@ -287,9 +319,7 @@ export default function DealsPage() {
             </a>
 
             {isSignedIn ? (
-              <div className="rounded-full border border-white/10 bg-white/[0.06] p-1">
-                <UserButton />
-              </div>
+              <UserButton />
             ) : (
               <SignInButton mode="modal">
                 <button className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200">
@@ -399,9 +429,15 @@ export default function DealsPage() {
 
               <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-                  Analyzed
+                  Remaining
                 </p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{totalAnalyzed}</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">
+                  {usageRemaining === -1
+                    ? "Unlimited"
+                    : usageRemaining !== null
+                      ? Math.max(0, usageRemaining)
+                      : "--"}
+                </p>
               </div>
             </div>
 
@@ -615,5 +651,6 @@ export default function DealsPage() {
     </main>
   );
 }
+
 
 
