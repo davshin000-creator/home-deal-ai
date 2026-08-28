@@ -16,7 +16,7 @@ export default function SiteFooter({
       <div className="mx-auto flex max-w-[1480px] flex-col gap-6 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
         <div>
           <p>
-            © {new Date().getFullYear()} Nestrova AI. All rights reserved.
+            © 2025 Nestrova AI. All rights reserved.
           </p>
 
           <p className="mt-1">

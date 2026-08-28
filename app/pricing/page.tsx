@@ -845,13 +845,34 @@ export default function PricingPage() {
               </div>
 
               <div className="pt-8">
-                <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
-                  <PayPalSubscriptionButton subscriptionType="real_estate" />
-                </div>
+                <div className="rounded-[26px] border border-cyan-300/15 bg-black/30 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
+                      5-day free trial
+                    </p>
 
-                <p className="mt-4 text-center text-xs leading-5 text-white/28">
-                  5 days free, then $9.99 per month.
-                </p>
+                    <div className="text-right">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                        Due today
+                      </p>
+                      <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
+                        $0
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-[22px] border border-white/10 bg-black/25 p-3">
+                    <PayPalSubscriptionButton subscriptionType="real_estate" />
+                  </div>
+
+                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/38">
+                    Then $9.99/month · Cancel anytime
+                  </p>
+
+                  <p className="text-center text-[10px] leading-5 text-white/22">
+                    Secure checkout powered by PayPal
+                  </p>
+                </div>
               </div>
             </article>
 
@@ -898,13 +919,34 @@ export default function PricingPage() {
               </div>
 
               <div className="pt-8">
-                <div className="rounded-[27px] border border-white/10 bg-black/25 p-3">
-                  <PayPalSubscriptionButton subscriptionType="trading" />
-                </div>
+                <div className="rounded-[26px] border border-emerald-300/15 bg-black/30 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/55">
+                      5-day free trial
+                    </p>
 
-                <p className="mt-4 text-center text-xs leading-5 text-white/28">
-                  5 days free, then $9.99 per month.
-                </p>
+                    <div className="text-right">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                        Due today
+                      </p>
+                      <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
+                        $0
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-[22px] border border-white/10 bg-black/25 p-3">
+                    <PayPalSubscriptionButton subscriptionType="trading" />
+                  </div>
+
+                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/38">
+                    Then $9.99/month · Cancel anytime
+                  </p>
+
+                  <p className="text-center text-[10px] leading-5 text-white/22">
+                    Secure checkout powered by PayPal
+                  </p>
+                </div>
               </div>
             </article>
 
@@ -957,13 +999,34 @@ export default function PricingPage() {
               </div>
 
               <div className="relative pt-8">
-                <div className="rounded-[27px] border border-amber-200/20 bg-black/30 p-3">
-                  <PayPalSubscriptionButton subscriptionType="all_access" />
-                </div>
+                <div className="rounded-[26px] border border-amber-200/20 bg-black/30 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/65">
+                      5-day free trial
+                    </p>
 
-                <p className="mt-4 text-center text-xs leading-5 text-white/35">
-                  5 days free, then $17.99 per month.
-                </p>
+                    <div className="text-right">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                        Due today
+                      </p>
+                      <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
+                        $0
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-[22px] border border-amber-200/15 bg-black/25 p-3">
+                    <PayPalSubscriptionButton subscriptionType="all_access" />
+                  </div>
+
+                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/42">
+                    Then $17.99/month · Cancel anytime
+                  </p>
+
+                  <p className="text-center text-[10px] leading-5 text-white/25">
+                    Secure checkout powered by PayPal
+                  </p>
+                </div>
               </div>
                 </article>
               </div>

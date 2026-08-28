@@ -160,7 +160,7 @@ export default function UpgradeGate({
               </span>
 
               <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-[20px] border border-white/10 bg-white/[0.07] text-2xl">
-                🔒
+                &#10022;
               </div>
             </div>
 
@@ -170,7 +170,7 @@ export default function UpgradeGate({
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-xl text-white/45 transition hover:bg-white/10 hover:text-white"
               aria-label="Close"
             >
-              ×
+              &#215;
             </button>
           </div>
 
@@ -218,7 +218,7 @@ export default function UpgradeGate({
                   className="flex items-start gap-3"
                 >
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-[10px] font-black text-black">
-                    ✓
+                    &#10003;
                   </span>
 
                   <p className="text-sm leading-6 text-white/55">
@@ -251,7 +251,7 @@ export default function UpgradeGate({
               href="/pricing#plans"
               className="mt-4 inline-flex w-full justify-center text-xs font-semibold text-amber-200/65 transition hover:text-amber-200"
             >
-              Or unlock everything with Nestrova AI Pro →
+              Or unlock everything with Nestrova AI Pro &#8594;
             </Link>
           )}
 

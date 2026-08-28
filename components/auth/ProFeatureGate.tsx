@@ -61,7 +61,7 @@ export default function ProFeatureGate({
         <section className="relative mx-auto grid max-w-[1480px] gap-8">
           <header className="flex items-center justify-between gap-4">
             <a href="/" className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">Back to Nestrova</a>
-            <a href="/pricing" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">Upgrade Pro</a>
+            <a href="/pricing#plans" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">Upgrade Pro</a>
           </header>
           <div className="grid gap-8 xl:grid-cols-[1fr_460px] xl:items-center">
             <div className="rounded-[48px] border border-white/10 bg-white/[0.06] p-8 md:p-12">
@@ -75,8 +75,8 @@ export default function ProFeatureGate({
                 {description || `${featureName} is part of Nestrova Pro. Upgrade to activate advanced investment intelligence.`}
               </p>
               <div className="mt-10 flex flex-wrap gap-3">
-                <a href="/pricing" className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black">Upgrade to Pro</a>
-                <a href="/analyze" className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70">Try Analyze First</a>
+                <a href="/pricing#plans" className="rounded-full bg-white px-7 py-4 text-sm font-semibold text-black">Upgrade to Pro</a>
+                <a href="/real-estate" className="rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white/70">Continue with Free</a>
               </div>
             </div>
             <aside className="rounded-[44px] border border-white/10 bg-white/[0.07] p-6">
