@@ -1,6 +1,7 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
 import NestrovaHeader from "@/components/shell/NestrovaHeader";
 import NestrovaSidebar from "@/components/shell/NestrovaSidebar";
+import ProductNavigation from "@/components/shell/ProductNavigation";
 
 type NestrovaAppShellProps = {
   children: ReactNode;
@@ -26,6 +27,8 @@ export default function NestrovaAppShell({
             title={title}
             subtitle={subtitle}
           />
+
+          <ProductNavigation />
 
           <main className="relative min-h-[calc(100vh-78px)] overflow-hidden">
             <div className="pointer-events-none absolute left-[10%] top-[-180px] h-[420px] w-[420px] rounded-full bg-violet-500/[0.08] blur-[120px]" />
