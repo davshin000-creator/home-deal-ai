@@ -65,8 +65,8 @@ export default function RealEstateAnalyzeShell({
     return (
       <NestrovaAppShell
         userName={resolveUserName(user)}
-        title="Real Estate Intelligence"
-        subtitle="AI-powered property valuation and investment analysis."
+        title="Real Estate"
+        subtitle="Analyze properties and surface stronger investment decisions."
       >
         {children}
       </NestrovaAppShell>

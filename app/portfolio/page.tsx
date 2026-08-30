@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SignInButton, UserButton, useUser } from "@/components/auth/ClerkCompat";
+import { useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
 type SavedDeal = {
   id: string;
@@ -149,7 +150,11 @@ export default function PortfolioPage() {
   }, [deals]);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
+    <UserAwareNestrovaShell
+      title="Real Estate"
+      subtitle="Manage saved properties and portfolio intelligence."
+    >
+      <main className="overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
         <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-white/[0.075] blur-3xl" />
@@ -158,26 +163,6 @@ export default function PortfolioPage() {
       </div>
 
       <div className="relative mx-auto max-w-[1500px] px-5 py-6 md:px-8">
-        <header className="mb-8 flex items-center justify-between gap-4">
-          <a
-            href="/"
-            className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
-          >
-            Back to Nestrova
-          </a>
-
-          {isSignedIn ? (
-            <div className="rounded-full border border-white/10 bg-white/[0.06] p-1">
-              <UserButton />
-            </div>
-          ) : (
-            <SignInButton mode="modal">
-              <button className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200">
-                Sign In
-              </button>
-            </SignInButton>
-          )}
-        </header>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_430px]">
           <div className="rounded-[44px] border border-white/10 bg-white/[0.06] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-10">
@@ -406,7 +391,8 @@ export default function PortfolioPage() {
           </>
         )}
       </div>
-    </main>
+      </main>
+    </UserAwareNestrovaShell>
   );
 }
 
