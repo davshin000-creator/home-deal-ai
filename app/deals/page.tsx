@@ -134,6 +134,7 @@ export default function DealsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [detailTab, setDetailTab] = useState<"overview" | "financials" | "location">("overview");
   const [usageRemaining, setUsageRemaining] = useState<number | null>(null);
 
   useEffect(() => {
@@ -290,7 +291,7 @@ export default function DealsPage() {
   });
 
   const topDeal = sortedDeals[0];
-  const locationDeal = selectedDeal || topDeal;
+  const locationDeal = selectedDeal;
   const topScore = topDeal ? getDealOverallScore(topDeal) : 94;
   const totalAnalyzed = result?.total_analyzed || result?.count || sortedDeals.length || 0;
 
@@ -486,27 +487,111 @@ export default function DealsPage() {
               </Link>
             </div>
             {locationDeal ? (
-              <section id="featured-property-location" className="scroll-mt-24 mb-8 rounded-[34px] border border-white/10 bg-black/20 p-5 md:p-6">
-                <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
+              <section
+                id="featured-property-location"
+                className="scroll-mt-28 mb-8 rounded-[30px] border border-white/10 bg-black/20 p-4 sm:p-5 md:p-6"
+              >
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300/70">
-                      Featured Property Location
+                      Selected Property
                     </p>
 
-                    <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+                    <h3 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-white md:text-2xl">
                       {locationDeal.address}
                     </h3>
+
+                    <p className="mt-2 text-lg font-semibold text-white/70">
+                      {money(locationDeal.listing_price)}
+                    </p>
                   </div>
 
                   <Link
                     href={`/analyze?address=${encodeURIComponent(locationDeal.address)}&listing_price=${encodeURIComponent(String(locationDeal.listing_price))}`}
-                    className="text-xs font-semibold text-emerald-200 transition hover:text-emerald-100"
+                    className="inline-flex w-fit rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15"
                   >
-                    Analyze this property
+                    Analyze Property
                   </Link>
                 </div>
 
-                <PropertyMap address={locationDeal.address} />
+                <div className="mt-5 flex gap-2 overflow-x-auto border-b border-white/[0.08] pb-3">
+                  {[
+                    ["overview", "Overview"],
+                    ["financials", "Financials"],
+                    ["location", "Location"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() =>
+                        setDetailTab(
+                          value as "overview" | "financials" | "location"
+                        )
+                      }
+                      className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition ${
+                        detailTab === value
+                          ? "bg-emerald-400/15 text-emerald-200"
+                          : "text-white/45 hover:bg-white/[0.05] hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {detailTab === "overview" ? (
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      ["Overall Score", `${getDealOverallScore(locationDeal)}/100`],
+                      ["Investment Grade", getInvestmentGrade(getDealOverallScore(locationDeal))],
+                      ["Status", locationDeal.status],
+                      ["Discount", `${Number(locationDeal.discount_percent || 0).toFixed(2)}%`],
+                    ].map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4"
+                      >
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
+                          {label}
+                        </p>
+                        <p className="mt-2 text-lg font-semibold text-white">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {detailTab === "financials" ? (
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {[
+                      ["Listing Price", money(locationDeal.listing_price)],
+                      ["Fair Value", money(locationDeal.fair_value)],
+                      ["Monthly Rent", money(locationDeal.estimated_monthly_rent)],
+                      ["Gross Yield", `${locationDeal.gross_rent_yield}%`],
+                      ["Monthly Cash Flow", `${money(locationDeal.estimated_monthly_cash_flow)}/mo`],
+                      ["Deal Score", `${locationDeal.deal_score}/100`],
+                    ].map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4"
+                      >
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
+                          {label}
+                        </p>
+                        <p className="mt-2 text-lg font-semibold text-white">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {detailTab === "location" ? (
+                  <div className="mt-5 overflow-hidden rounded-[22px] border border-white/10">
+                    <PropertyMap address={locationDeal.address} />
+                  </div>
+                ) : null}
               </section>
             ) : null}
 
@@ -516,84 +601,73 @@ export default function DealsPage() {
                 const grade = getInvestmentGrade(overallScore);
 
                 return (
-                  <div
+                  <article
                     key={`${deal.address}-${index}`}
-                    className="rounded-[34px] border border-white/10 bg-black/20 p-6 transition hover:-translate-y-0.5 hover:bg-white/[0.055]"
+                    className="rounded-[26px] border border-white/10 bg-black/20 p-4 transition hover:border-white/15 hover:bg-white/[0.045] sm:p-5"
                   >
-                    <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/35">
-                          #{index + 1} Investment Match
-                        </p>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+                            #{index + 1} Investment Match
+                          </p>
 
-                        <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">
+                          <span
+                            className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${getVerdictColor(
+                              deal.status
+                            )}`}
+                          >
+                            {deal.status}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-3 text-lg font-semibold leading-snug tracking-[-0.025em] text-white sm:text-xl">
                           {deal.address}
                         </h3>
 
-                        <div
-                          className={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] ${getVerdictColor(
-                            deal.status
-                          )}`}
-                        >
-                          {deal.status}
-                        </div>
-
-                        <div className="mt-5 flex flex-wrap gap-2">
-                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm font-semibold text-white/55">
-                            Yield {deal.gross_rent_yield}%
-                          </span>
-
-                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm font-semibold text-white/55">
-                            Discount {Number(deal.discount_percent || 0).toFixed(2)}%
-                          </span>
-
-                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm font-semibold text-white/55">
-                            Cash Flow {money(deal.estimated_monthly_cash_flow)}/mo
-                          </span>
-                        </div>
+                        <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white sm:text-2xl">
+                          {money(deal.listing_price)}
+                        </p>
                       </div>
 
-                      <div className="rounded-[30px] border border-white/10 bg-white/[0.075] p-5 text-center">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">
-                          Overall Score
-                        </p>
-                        <p className="mt-2 text-6xl font-semibold tracking-[-0.07em]">
+                      <div className="shrink-0 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.08] px-3 py-2.5 text-right">
+                        <p className="text-lg font-semibold text-emerald-200">
                           {grade}
                         </p>
-                        <p className="mt-1 text-2xl font-semibold text-white/70">
+                        <p className="text-xs font-semibold text-white/45">
                           {overallScore}/100
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-6 grid gap-4 md:grid-cols-5">
-                      {[
-                        ["Price", money(deal.listing_price)],
-                        ["Fair Value", money(deal.fair_value)],
-                        ["Monthly Rent", money(deal.estimated_monthly_rent)],
-                        ["Deal Score", `${deal.deal_score}/100`],
-                        ["Cash Flow", `${money(deal.estimated_monthly_cash_flow)}/mo`],
-                      ].map(([label, value]) => (
-                        <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-                            {label}
-                          </p>
-                          <p className="mt-2 text-lg font-semibold text-white">{value}</p>
-                        </div>
-                      ))}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-medium text-white/55">
+                        Yield {deal.gross_rent_yield}%
+                      </span>
+
+                      <span className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-medium text-white/55">
+                        Discount {Number(deal.discount_percent || 0).toFixed(2)}%
+                      </span>
+
+                      <span className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-medium text-white/55">
+                        Cash Flow {money(deal.estimated_monthly_cash_flow)}/mo
+                      </span>
                     </div>
 
-                    <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
                       <button
+                        type="button"
                         onClick={() => saveDeal(deal)}
-                        className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200"
+                        className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
                       >
-                        Save to Portfolio
+                        Save
                       </button>
+
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedDeal(deal);
+                          setDetailTab("overview");
 
                           document
                             .getElementById("featured-property-location")
@@ -602,19 +676,12 @@ export default function DealsPage() {
                               block: "start",
                             });
                         }}
-                        className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/15"
+                        className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15"
                       >
-                        View Location
+                        View Details &#8594;
                       </button>
-
-                      <Link
-                        href={`/analyze?address=${encodeURIComponent(deal.address)}&listing_price=${encodeURIComponent(String(deal.listing_price))}`}
-                        className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-center text-sm font-semibold text-white/60 transition hover:bg-white/10 hover:text-white"
-                      >
-                        Analyze
-                      </Link>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>

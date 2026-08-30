@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserButton } from "@/components/auth/ClerkCompat";
 import {
-  ArrowRightIcon,
   BellIcon,
   BillingIcon,
   BrainIcon,
@@ -120,8 +119,10 @@ function isCurrentPath(
   if (href === "/real-estate") {
     return (
       pathname.startsWith("/real-estate") ||
+      pathname.startsWith("/deals") ||
       pathname.startsWith("/analyze") ||
       pathname.startsWith("/saved") ||
+      pathname.startsWith("/portfolio") ||
       pathname.startsWith("/compare") ||
       pathname.startsWith("/reports")
     );
@@ -142,9 +143,6 @@ function isCurrentPath(
 type HeaderTheme = {
   eyebrowClasses: string;
   iconClasses: string;
-  actionClasses: string;
-  actionHref: string;
-  actionLabel: string;
 };
 
 function getHeaderTheme(
@@ -152,8 +150,10 @@ function getHeaderTheme(
 ): HeaderTheme {
   const isRealEstate =
     pathname.startsWith("/real-estate") ||
+    pathname.startsWith("/deals") ||
     pathname.startsWith("/analyze") ||
     pathname.startsWith("/saved") ||
+    pathname.startsWith("/portfolio") ||
     pathname.startsWith("/compare") ||
     pathname.startsWith("/reports");
 
@@ -162,10 +162,6 @@ function getHeaderTheme(
       eyebrowClasses: "text-emerald-200/70",
       iconClasses:
         "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
-      actionClasses:
-        "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/[0.16]",
-      actionHref: "/analyze",
-      actionLabel: "Analyze",
     };
   }
 
@@ -177,10 +173,6 @@ function getHeaderTheme(
       eyebrowClasses: "text-cyan-200/70",
       iconClasses:
         "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
-      actionClasses:
-        "border-cyan-300/20 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/[0.16]",
-      actionHref: "/trading/markets",
-      actionLabel: "Explore Markets",
     };
   }
 
@@ -188,10 +180,6 @@ function getHeaderTheme(
     eyebrowClasses: "text-violet-200/70",
     iconClasses:
       "border-violet-300/20 bg-violet-300/10 text-violet-200",
-    actionClasses:
-      "border-violet-300/20 bg-violet-300/10 text-violet-100 hover:bg-violet-300/[0.16]",
-    actionHref: "/trading",
-    actionLabel: "Open Intelligence",
   };
 }
 
@@ -218,8 +206,10 @@ export default function NestrovaHeader({
       ? "border-cyan-300/20 bg-cyan-300/[0.10] text-white"
       : (
           pathname.startsWith("/real-estate") ||
+          pathname.startsWith("/deals") ||
           pathname.startsWith("/analyze") ||
           pathname.startsWith("/saved") ||
+          pathname.startsWith("/portfolio") ||
           pathname.startsWith("/compare") ||
           pathname.startsWith("/reports")
         )
@@ -231,8 +221,10 @@ export default function NestrovaHeader({
       ? "border-cyan-300/20 bg-cyan-300/15 text-cyan-100"
       : (
           pathname.startsWith("/real-estate") ||
+          pathname.startsWith("/deals") ||
           pathname.startsWith("/analyze") ||
           pathname.startsWith("/saved") ||
+          pathname.startsWith("/portfolio") ||
           pathname.startsWith("/compare") ||
           pathname.startsWith("/reports")
         )
@@ -297,14 +289,6 @@ export default function NestrovaHeader({
 
           <div className="flex shrink-0 items-center gap-2.5 sm:gap-4 lg:gap-5">
             <NotificationBell />
-
-            <Link
-              href={headerTheme.actionHref}
-              className={`hidden items-center gap-2 rounded-[13px] border px-4 py-2.5 text-xs font-bold transition hover:-translate-y-0.5 md:inline-flex ${headerTheme.actionClasses}`}
-            >
-              {headerTheme.actionLabel}
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
 
             <div className="ml-1 sm:ml-2">
               <UserButton />

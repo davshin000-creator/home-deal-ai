@@ -101,8 +101,10 @@ function isCurrentPath(
   if (href === "/real-estate") {
     return (
       pathname.startsWith("/real-estate") ||
+      pathname.startsWith("/deals") ||
       pathname.startsWith("/analyze") ||
       pathname.startsWith("/saved") ||
+      pathname.startsWith("/portfolio") ||
       pathname.startsWith("/compare") ||
       pathname.startsWith("/reports")
     );
