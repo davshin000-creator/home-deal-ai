@@ -1,5 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import SiteFooter from "@/components/site/SiteFooter";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 import MarketsOpportunityExplorer, {
   type MarketOpportunity,
 } from "@/components/trading/MarketsOpportunityExplorer";
@@ -179,64 +180,11 @@ export default async function TradingMarketsPage() {
     data?.opportunities?.top_opportunities ?? [];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.14]" />
-        <div className="absolute -left-52 top-[-280px] h-[760px] w-[760px] rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="absolute right-[-320px] top-20 h-[780px] w-[780px] rounded-full bg-violet-400/10 blur-3xl" />
-      </div>
+    <UserAwareNestrovaShell
+      title="Trading"
+      subtitle="Explore current market conditions and ranked opportunities."
+    >
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/75 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-[1480px] items-center justify-between px-5 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
-              N
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold">Nestrova</p>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">
-                Market Intelligence
-              </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-7 text-sm font-medium text-white/50 md:flex">
-            <Link
-              href="/trading"
-              className="transition hover:text-white"
-            >
-              Overview
-            </Link>
-
-            <Link href="/trading/markets" className="text-white">
-              Markets
-            </Link>
-
-            <Link
-              href="/trading/strategies"
-              className="transition hover:text-white"
-            >
-              Strategies
-            </Link>
-
-            <Link
-              href="/trading/verified"
-              className="transition hover:text-white"
-            >
-              Verified
-            </Link>
-
-            <Link href="/" className="transition hover:text-white">
-              Platform
-            </Link>
-          </nav>
-
-          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">
-            Read Only
-          </div>
-        </div>
-      </header>
 
       <section className="relative mx-auto max-w-[1480px] px-5 pb-10 pt-16 md:px-8 md:pt-24">
         <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
@@ -500,7 +448,7 @@ export default async function TradingMarketsPage() {
       </section>
 
       <SiteFooter />
-    </main>
+    </UserAwareNestrovaShell>
   );
 }
 

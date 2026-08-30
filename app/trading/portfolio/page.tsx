@@ -1,21 +1,17 @@
-﻿import Link from "next/link";
 import PortfolioAI from "@/components/trading/PortfolioAI";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
 export const dynamic = "force-dynamic";
 
 export default function TradingPortfolioPage() {
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
+    <UserAwareNestrovaShell
+      title="Trading"
+      subtitle="Review portfolio intelligence across your tracked markets."
+    >
       <section className="mx-auto max-w-[1480px] px-5 py-10 md:px-8 md:py-14">
-        <Link
-          href="/trading"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-white/45 transition hover:text-white"
-        >
-          <span aria-hidden="true">←</span>
-          Back to Trading
-        </Link>
 
-        <div className="mt-8">
+        <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300/70">
             My AI Portfolio
           </p>
@@ -35,6 +31,6 @@ export default function TradingPortfolioPage() {
           <PortfolioAI />
         </div>
       </section>
-    </main>
+    </UserAwareNestrovaShell>
   );
 }

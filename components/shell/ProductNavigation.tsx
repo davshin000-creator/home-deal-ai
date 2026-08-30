@@ -32,6 +32,29 @@ const realEstateNavigation: ProductNavigationItem[] = [
   },
 ];
 
+const tradingNavigation: ProductNavigationItem[] = [
+  {
+    label: "Overview",
+    href: "/trading",
+  },
+  {
+    label: "Markets",
+    href: "/trading/markets",
+  },
+  {
+    label: "Watchlist",
+    href: "/trading/watchlist",
+  },
+  {
+    label: "Portfolio",
+    href: "/trading/portfolio",
+  },
+  {
+    label: "Briefing",
+    href: "/trading/briefing",
+  },
+];
+
 function isActivePath(
   pathname: string,
   item: ProductNavigationItem,
@@ -39,7 +62,10 @@ function isActivePath(
   const paths = item.activePaths ?? [item.href];
 
   return paths.some((path) => {
-    if (path === "/real-estate") {
+    if (
+      path === "/real-estate" ||
+      path === "/trading"
+    ) {
       return pathname === path;
     }
 
@@ -65,21 +91,43 @@ function isRealEstatePath(pathname: string) {
   );
 }
 
+function isTradingPath(pathname: string) {
+  return (
+    pathname === "/trading" ||
+    pathname.startsWith("/trading/")
+  );
+}
+
 export default function ProductNavigation() {
   const pathname = usePathname();
 
-  if (!isRealEstatePath(pathname)) {
+  const realEstate = isRealEstatePath(pathname);
+  const trading = isTradingPath(pathname);
+
+  if (!realEstate && !trading) {
     return null;
   }
+
+  const navigation = trading
+    ? tradingNavigation
+    : realEstateNavigation;
+
+  const navigationLabel = trading
+    ? "Trading navigation"
+    : "Real Estate navigation";
+
+  const activeClassName = trading
+    ? "border-cyan-300/20 bg-cyan-300/[0.11] text-cyan-100"
+    : "border-emerald-300/20 bg-emerald-300/[0.11] text-emerald-100";
 
   return (
     <div className="sticky top-[72px] z-30 border-b border-white/10 bg-[#08080b]/90 backdrop-blur-2xl">
       <div className="overflow-x-auto">
         <nav
-          aria-label="Real Estate navigation"
+          aria-label={navigationLabel}
           className="mx-auto flex min-w-max items-center gap-1 px-4 py-2.5 md:px-7 xl:px-8"
         >
-          {realEstateNavigation.map((item) => {
+          {navigation.map((item) => {
             const active = isActivePath(
               pathname,
               item,
@@ -96,7 +144,7 @@ export default function ProductNavigation() {
                   "shrink-0 rounded-[12px] border px-3.5 py-2",
                   "text-xs font-semibold transition",
                   active
-                    ? "border-emerald-300/20 bg-emerald-300/[0.11] text-emerald-100"
+                    ? activeClassName
                     : "border-transparent text-white/40 hover:border-white/10 hover:bg-white/[0.05] hover:text-white",
                 ].join(" ")}
               >

@@ -31,9 +31,7 @@ export default function NestrovaAppShell({
           <ProductNavigation />
 
           <main className="relative min-h-[calc(100vh-78px)] overflow-hidden">
-            <div className="pointer-events-none absolute left-[10%] top-[-180px] h-[420px] w-[420px] rounded-full bg-violet-500/[0.08] blur-[120px]" />
 
-            <div className="pointer-events-none absolute right-[-120px] top-[20%] h-[360px] w-[360px] rounded-full bg-cyan-400/[0.05] blur-[120px]" />
 
             <div className="relative">
               {children}

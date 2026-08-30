@@ -530,13 +530,7 @@ const resultLocation = result
 
   return (
     <RealEstateAnalyzeShell>
-      <main className="relative overflow-hidden bg-[#050505] text-white">
-        <div className="pointer-events-none fixed inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
-          <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-white/[0.075] blur-3xl" />
-          <div className="absolute right-[-260px] top-10 h-[820px] w-[820px] rounded-full bg-cyan-400/10 blur-3xl" />
-          <div className="absolute bottom-[-320px] left-[20%] h-[780px] w-[780px] rounded-full bg-emerald-400/10 blur-3xl" />
-        </div>
+      <main className="relative overflow-hidden text-white">
       <div className="mx-auto w-full max-w-[1500px] px-5 py-8 md:px-8 md:py-10">
         <Link
           href="/real-estate"

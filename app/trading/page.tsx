@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import ExecutiveBrief from "@/components/trading/ExecutiveBrief";
 import MarketOverview from "@/components/trading/MarketOverview";
 import MarketUniverseExplorer from "@/components/trading/MarketUniverseExplorer";
@@ -414,11 +414,6 @@ export default async function TradingPage() {
       title="Trading"
       subtitle="Stocks and crypto, explained more clearly."
     >
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.10]" />
-        <div className="absolute -left-52 top-[-260px] h-[680px] w-[680px] rounded-full bg-cyan-400/[0.08] blur-3xl" />
-        <div className="absolute right-[-280px] top-12 h-[700px] w-[700px] rounded-full bg-violet-400/[0.07] blur-3xl" />
-      </div>
 
       <div className="relative mx-auto w-full max-w-[1480px] px-5 py-6 md:px-8 md:py-8">
         <section className="rounded-[34px] border border-white/10 bg-white/[0.045] p-6 md:p-8">
