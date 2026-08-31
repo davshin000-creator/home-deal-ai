@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -190,7 +190,7 @@ export default async function NotificationsPage({
               Dashboard
             </Link>
             <Link href="/trading" className="transition hover:text-white">
-              Trading
+              Radar
             </Link>
             <Link
               href="/trading/watchlist"
@@ -412,7 +412,7 @@ export default async function NotificationsPage({
               </p>
 
               <p className="mt-3 max-w-3xl text-sm leading-7 text-white/42">
-                Enable alerts on your Trading Watchlist, set an Opportunity
+                Enable alerts on your Radar Watchlist, set an Opportunity
                 threshold or Risk condition, and run the Alert Engine to
                 generate your first notification.
               </p>

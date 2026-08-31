@@ -373,7 +373,7 @@ export default async function TradingWatchlistPage({
 
   return (
     <UserAwareNestrovaShell
-      title="Trading"
+      title="Radar"
       subtitle="Track saved markets and monitor changing conditions."
     >
 

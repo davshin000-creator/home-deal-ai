@@ -50,9 +50,9 @@ const UPGRADE_CONTENT: Record<
   },
 
   trading: {
-    eyebrow: "Trading Pro",
+    eyebrow: "Radar Pro",
     title: "Unlock premium market intelligence.",
-    planName: "Trading Pro",
+    planName: "Radar Pro",
     price: "$9.99/month",
     pricingHref: "/pricing#plans",
     accentClasses:
@@ -78,7 +78,7 @@ const UPGRADE_CONTENT: Record<
     glowClasses: "bg-amber-300/15",
     benefits: [
       "Everything in Real Estate Pro",
-      "Everything in Trading Pro",
+      "Everything in Radar Pro",
       "Eligible future AI products",
       "Early access to new features",
       "Save $2 every month",

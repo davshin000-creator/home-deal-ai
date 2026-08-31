@@ -231,7 +231,7 @@ export default function DashboardNotifications() {
             </p>
 
             <p className="mt-3 text-sm leading-7 text-white/40">
-              Enable alerts in your Trading Watchlist. New
+              Enable alerts in your Radar Watchlist. New
               Opportunity and Risk conditions will appear here.
             </p>
 

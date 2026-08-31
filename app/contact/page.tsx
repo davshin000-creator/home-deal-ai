@@ -1,4 +1,4 @@
-﻿import SiteFooter from "@/components/site/SiteFooter";
+import SiteFooter from "@/components/site/SiteFooter";
 
 export default function ContactPage() {
   return (

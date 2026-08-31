@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   createSupabaseAdminClient,
   getCurrentUserProfile,
@@ -49,7 +49,7 @@ const PLAN_CONFIGURATIONS: PlanConfiguration[] = [
     subscriptionType: "trading",
     planId:
       process.env.NEXT_PUBLIC_PAYPAL_TRADING_PLAN_ID,
-    displayName: "Trading Pro",
+    displayName: "Radar Pro",
   },
   {
     subscriptionType: "all_access",

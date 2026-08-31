@@ -411,7 +411,7 @@ export default async function TradingPage() {
 
   return (
     <UserAwareNestrovaShell
-      title="Trading"
+      title="Radar"
       subtitle="Stocks and crypto, explained more clearly."
     >
 
@@ -923,7 +923,7 @@ export default async function TradingPage() {
 
           <p className="mt-6 text-xs leading-6 text-white/25">
             {data?.disclaimer ??
-              "Nestrova Trading provides simulated research and educational market intelligence. It does not provide personalized financial advice or guaranteed results."}
+              "Nestrova Radar provides simulated research and educational market intelligence. It does not provide personalized financial advice or guaranteed results."}
           </p>
         </section>
       </div>

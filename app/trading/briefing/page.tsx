@@ -287,7 +287,7 @@ export default async function TradingBriefingPage() {
 
   return (
     <UserAwareNestrovaShell
-      title="Trading"
+      title="Radar"
       subtitle="Review the latest market intelligence and research signals."
     >
 
@@ -296,7 +296,7 @@ export default async function TradingBriefingPage() {
         <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.27em] text-cyan-300/70">
-              Nestrova Trading
+              Nestrova Radar
             </p>
 
             <h1 className="mt-5 max-w-5xl text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
@@ -642,7 +642,7 @@ export default async function TradingBriefingPage() {
 
         <p className="mt-8 text-xs leading-6 text-white/30">
           {data?.disclaimer ??
-            "Nestrova Trading provides simulated research and educational market intelligence. It does not provide personalized financial advice or guaranteed results."}
+            "Nestrova Radar provides simulated research and educational market intelligence. It does not provide personalized financial advice or guaranteed results."}
         </p>
       </section>
 

@@ -587,7 +587,7 @@ export async function POST(
       !canCreateTradingAlerts
     ) {
       return jsonError(
-        "Trading Pro or Nestrova AI Pro is required to create custom trading alerts.",
+        "Radar Pro or Nestrova AI Pro is required to create custom trading alerts.",
         403,
         "TRADING_SUBSCRIPTION_REQUIRED",
       );

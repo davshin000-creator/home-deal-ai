@@ -63,10 +63,10 @@ export default function AIHomeFeed({
       title:
         watchlistCount > 0
           ? `${watchlistCount} assets are being monitored.`
-          : "Your Trading Watchlist is ready.",
+          : "Your Radar Watchlist is ready.",
       description: canUseTrading
         ? "Nestrova is monitoring your saved assets for opportunity, risk, and regime changes."
-        : "Add up to 5 assets free or unlock unlimited monitoring with Trading Pro.",
+        : "Add up to 5 assets free or unlock unlimited monitoring with Radar Pro.",
       href: "/trading/watchlist",
       action: "Open Watchlist",
       accent: "cyan",
@@ -91,7 +91,7 @@ export default function AIHomeFeed({
         : "Custom trading alerts are locked.",
       description: canUseTrading
         ? "Nestrova will surface meaningful score, risk, and market regime changes."
-        : "Trading Pro or All Access is required to create personalized alerts.",
+        : "Radar Pro or All Access is required to create personalized alerts.",
       href: canUseTrading ? "/notifications" : "/pricing#plans",
       action: canUseTrading ? "Review Alerts" : "View Plans",
       accent: "amber",

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 type SearchItem = {
   id: string;
-  category: "Trading" | "Real Estate" | "Market" | "Research";
+  category: "Radar" | "Real Estate" | "Market" | "Research";
   title: string;
   description: string;
   keywords: string[];
@@ -16,7 +16,7 @@ type SearchItem = {
 const SEARCH_ITEMS: SearchItem[] = [
   {
     id: "btc",
-    category: "Trading",
+    category: "Radar",
     title: "BTC",
     description: "Bitcoin market intelligence and technical analysis",
     keywords: ["bitcoin", "btc", "crypto"],
@@ -24,7 +24,7 @@ const SEARCH_ITEMS: SearchItem[] = [
   },
   {
     id: "eth",
-    category: "Trading",
+    category: "Radar",
     title: "ETH",
     description: "Ethereum market intelligence and technical analysis",
     keywords: ["ethereum", "eth", "crypto"],
@@ -32,7 +32,7 @@ const SEARCH_ITEMS: SearchItem[] = [
   },
   {
     id: "nvda",
-    category: "Trading",
+    category: "Radar",
     title: "NVDA",
     description: "NVIDIA market intelligence and technical analysis",
     keywords: ["nvidia", "nvda", "stock"],
@@ -40,7 +40,7 @@ const SEARCH_ITEMS: SearchItem[] = [
   },
   {
     id: "aapl",
-    category: "Trading",
+    category: "Radar",
     title: "AAPL",
     description: "Apple market intelligence and technical analysis",
     keywords: ["apple", "aapl", "stock"],
@@ -88,7 +88,7 @@ const SEARCH_ITEMS: SearchItem[] = [
   {
     id: "trading-briefing",
     category: "Research",
-    title: "Daily Trading Briefing",
+    title: "Daily Radar Briefing",
     description: "Review the latest AI market briefing",
     keywords: ["briefing", "daily", "trading", "market"],
     href: "/trading/briefing",
@@ -163,7 +163,7 @@ export default function UniversalSearch() {
       if (!alreadyExists) {
         items.push({
           id: `ticker-${symbol}`,
-          category: "Trading",
+          category: "Radar",
           title: symbol,
           description: `Open the ${symbol} asset intelligence page`,
           keywords: [symbol],

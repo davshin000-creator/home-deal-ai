@@ -13,7 +13,7 @@ const products = [
     accent: "emerald",
   },
   {
-    title: "Trading",
+    title: "Radar",
     description:
       "Explore stocks and crypto with clear AI market intelligence.",
     action: "Explore Markets",
@@ -121,7 +121,7 @@ export default async function HomePage() {
               href="/trading"
               className="transition hover:text-white"
             >
-              Trading
+              Radar
             </Link>
 
             <Link

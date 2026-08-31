@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default function TradingPortfolioPage() {
   return (
     <UserAwareNestrovaShell
-      title="Trading"
+      title="Radar"
       subtitle="Review portfolio intelligence across your tracked markets."
     >
       <section className="mx-auto max-w-[1480px] px-5 py-10 md:px-8 md:py-14">

@@ -34,7 +34,7 @@ const platformFeatures = [
       "border-cyan-400/20 bg-cyan-400/10 text-cyan-200",
   },
   {
-    label: "Trading Intelligence",
+    label: "Radar",
     title: "Find opportunities before they disappear.",
     description:
       "Track opportunity scores, market regimes, watchlists, risk levels, and customized alerts.",
@@ -76,7 +76,7 @@ const freeFeatures: PlanFeature[] = [
     text: "5 AI property analyses per month",
   },
   {
-    text: "Trading market dashboard",
+    text: "Radar market dashboard",
   },
   {
     text: "Top AI opportunities",
@@ -113,7 +113,7 @@ const realEstateFeatures: PlanFeature[] = [
 
 const tradingFeatures: PlanFeature[] = [
   {
-    text: "Unlimited Trading Research",
+    text: "Unlimited Radar Research",
     emphasized: true,
   },
   {
@@ -143,7 +143,7 @@ const allAccessFeatures: PlanFeature[] = [
     emphasized: true,
   },
   {
-    text: "Everything in Trading Pro",
+    text: "Everything in Radar Pro",
     emphasized: true,
   },
   {
@@ -209,7 +209,7 @@ const comparisonRows: ComparisonRow[] = [
     allAccess: true,
   },
   {
-    feature: "Trading dashboard",
+    feature: "Radar dashboard",
     free: true,
     realEstate: true,
     trading: true,
@@ -223,7 +223,7 @@ const comparisonRows: ComparisonRow[] = [
     allAccess: "Unlimited",
   },
   {
-    feature: "Trading Research",
+    feature: "Radar Research",
     free: "10 / month",
     realEstate: "10 / month",
     trading: "Unlimited",
@@ -336,7 +336,7 @@ const faqs = [
   {
     question: "Why does Nestrova AI Pro cost $17.99?",
     answer:
-      "Real Estate Pro and Trading Pro cost $9.99 each. Nestrova AI Pro combines both and also unlocks Nestrova Research Intelligence, including Deep Research, Research Council, Research Compare, Research Watch, alerts, saved research, and PDF reports.",
+      "Real Estate Pro and Radar Pro cost $9.99 each. Nestrova AI Pro combines both and also unlocks Nestrova Research Intelligence, including Deep Research, Research Council, Research Compare, Research Watch, alerts, saved research, and PDF reports.",
   },
   {
     question: "Will Nestrova AI Pro include future products?",
@@ -668,7 +668,7 @@ export default function PricingPage() {
                   </p>
 
                   <p className="mt-1 text-sm font-semibold text-white/75">
-                    Real Estate + Trading for $17.99
+                    Real Estate + Radar for $17.99
                   </p>
                 </div>
 
@@ -881,7 +881,7 @@ export default function PricingPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-200/55">
-                      Trading Pro
+                      Radar Pro
                     </p>
 
                     <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
@@ -890,7 +890,7 @@ export default function PricingPage() {
                   </div>
 
                   <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">
-                    Trading
+                    Radar
                   </span>
                 </div>
 
@@ -1078,7 +1078,7 @@ export default function PricingPage() {
                   </th>
 
                   <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200/65">
-                    Trading
+                    Radar
                   </th>
 
                   <th className="bg-amber-300/[0.055] px-5 py-5 text-center text-xs font-bold uppercase tracking-[0.14em] text-amber-200">

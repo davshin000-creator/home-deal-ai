@@ -53,7 +53,7 @@ const mobileNavigation: MobileNavigationGroup[] = [
         icon: <BuildingIcon className="h-4 w-4" />,
       },
       {
-        label: "Trading",
+        label: "Radar",
         href: "/trading",
         icon: <MarketsIcon className="h-4 w-4" />,
       },

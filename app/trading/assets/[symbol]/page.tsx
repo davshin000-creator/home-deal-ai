@@ -441,7 +441,7 @@ export default function AssetDetailPage() {
 
         if (response.status === 401) {
           throw new Error(
-            "Sign in to access Trading Research.",
+            "Sign in to access Radar Research.",
           );
         }
 
@@ -453,7 +453,7 @@ export default function AssetDetailPage() {
 
         if (!response.ok) {
           throw new Error(
-            "Trading Research is temporarily unavailable.",
+            "Radar Research is temporarily unavailable.",
           );
         }
 
@@ -791,7 +791,7 @@ if (!response.ok || !data.success) {
           className="inline-flex items-center gap-2 text-sm font-semibold text-white/45 transition hover:text-white"
         >
           <span aria-hidden="true">←</span>
-          Back to Trading
+          Back to Radar
         </Link>
 
         <div className="mt-8 overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.035]">
@@ -959,7 +959,7 @@ if (!response.ok || !data.success) {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/60">
-                  Free Trading Research
+                  Free Radar Research
                 </p>
 
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.045em]">
@@ -967,7 +967,7 @@ if (!response.ok || !data.success) {
                 </h2>
 
                 <p className="mt-3 text-sm leading-7 text-white/50">
-                  You have used all free Trading Research analyses available for this month.
+                  You have used all free Radar Research analyses available for this month.
                 </p>
 
                 {researchLimitUsage ? (
@@ -986,7 +986,7 @@ if (!response.ok || !data.success) {
                 }
                 className="inline-flex h-12 shrink-0 items-center justify-center rounded-xl bg-white px-6 text-sm font-black text-black transition hover:bg-white/90"
               >
-                Upgrade to Trading Pro
+                Upgrade to Radar Pro
               </button>
             </div>
           </section>
@@ -996,16 +996,16 @@ if (!response.ok || !data.success) {
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
                   {researchAccess.unlimited
-                    ? "Trading Pro"
-                    : "Free Trading Research"}
+                    ? "Radar Pro"
+                    : "Free Radar Research"}
                 </p>
 
                 <p className="mt-3 text-xl font-black tracking-[-0.035em]">
                   {researchAccess.unlimited
-                    ? "Unlimited Trading Research"
+                    ? "Unlimited Radar Research"
                     : researchAccess.usage
                       ? `${researchAccess.usage.remaining} / ${researchAccess.usage.limit} analyses remaining this month`
-                      : "Trading Research"}
+                      : "Radar Research"}
                 </p>
 
                 {!researchAccess.unlimited &&
@@ -1035,12 +1035,12 @@ if (!response.ok || !data.success) {
 
                 <p className="mt-3 text-sm text-white/40">
                   {researchAccess.unlimited
-                    ? "No monthly Trading Research limit."
+                    ? "No monthly Radar Research limit."
                     : researchAccess.deduped
                       ? "Recently analyzed - No additional research usage charged."
                       : researchAccess.charged
                         ? "This research counted toward your monthly usage."
-                        : "Current monthly Trading Research usage."}
+                        : "Current monthly Radar Research usage."}
                 </p>
               </div>
 
@@ -1319,8 +1319,8 @@ if (!response.ok || !data.success) {
       <UpgradeGate
         isOpen={isResearchUpgradeGateOpen}
         product="trading"
-        featureName="Unlimited Trading Research"
-        description="Upgrade to Trading Pro or Nestrova AI Pro for unlimited Trading Research without the free monthly analysis limit."
+        featureName="Unlimited Radar Research"
+        description="Upgrade to Radar Pro or Nestrova AI Pro for unlimited Radar Research without the free monthly analysis limit."
         onClose={() =>
           setIsResearchUpgradeGateOpen(false)
         }
@@ -1329,7 +1329,7 @@ if (!response.ok || !data.success) {
       <UpgradeGate
   isOpen={isUpgradeGateOpen}
   product="trading"
-  featureName="Custom Trading Alerts"
+  featureName="Custom Radar Alerts"
   description="Create personalized alerts based on AI score, risk level, and market regime."
   onClose={() => setIsUpgradeGateOpen(false)}
 />
@@ -1337,8 +1337,8 @@ if (!response.ok || !data.success) {
 <UpgradeGate
   isOpen={isWatchlistUpgradeGateOpen}
   product="trading"
-  featureName="Unlimited Trading Watchlists"
-  description="Free accounts can save up to 5 assets. Upgrade to Trading Pro or Nestrova AI Pro to create unlimited watchlists."
+  featureName="Unlimited Radar Watchlists"
+  description="Free accounts can save up to 5 assets. Upgrade to Radar Pro or Nestrova AI Pro to create unlimited watchlists."
   onClose={() =>
     setIsWatchlistUpgradeGateOpen(false)
   }

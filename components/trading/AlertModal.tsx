@@ -110,7 +110,7 @@ if (
   data.code === "TRADING_SUBSCRIPTION_REQUIRED"
 ) {
   throw new Error(
-    "Trading Pro or Nestrova AI Pro is required to create this alert.",
+    "Radar Pro or Nestrova AI Pro is required to create this alert.",
   );
 }
 

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 type UnifiedDashboardHeroProps = {
   userName?: string | null;
@@ -79,7 +79,7 @@ export default function UnifiedDashboardHero({
 
           <article className="rounded-[24px] border border-white/10 bg-black/20 p-5">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
-              Trading Watchlist
+              Radar Watchlist
             </p>
 
             <p className="mt-3 text-4xl font-black text-cyan-200">
@@ -123,7 +123,7 @@ export default function UnifiedDashboardHero({
               href="/trading"
               className="rounded-[14px] border border-cyan-300/20 bg-cyan-300/10 px-5 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan-300/15"
             >
-              Open Trading
+              Open Radar
             </Link>
 
             <Link

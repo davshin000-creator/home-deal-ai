@@ -289,7 +289,7 @@ try {
       : subscriptionType === "real_estate"
         ? "Real Estate Pro"
         : subscriptionType === "trading"
-          ? "Trading Pro"
+          ? "Radar Pro"
           : "Free";
 
   const greeting = (() => {
@@ -313,7 +313,7 @@ const intelligenceItems = [
     href: "/real-estate",
   },
   {
-    label: "Trading watchlist",
+    label: "Radar watchlist",
     value: `${watchlistCount} assets`,
     href: "/trading/watchlist",
   },
@@ -481,7 +481,7 @@ const intelligenceItems = [
                   className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-cyan-300/[0.045]"
                 >
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/60">
-                    Trading
+                    Radar
                   </p>
 
                   <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
@@ -495,7 +495,7 @@ const intelligenceItems = [
 
                   <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
                     <span className="text-sm font-semibold">
-                      Open Trading
+                      Open Radar
                     </span>
 
                     <span className="text-lg text-cyan-200/65 transition group-hover:translate-x-1">

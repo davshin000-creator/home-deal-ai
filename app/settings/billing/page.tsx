@@ -118,7 +118,7 @@ function getStatusClasses(status: string): string {
 function getFeatureName(feature: FeatureKey): string {
   const names: Record<FeatureKey, string> = {
     real_estate: "Real Estate AI",
-    trading: "Trading Intelligence",
+    trading: "Radar",
     research: "AI Research",
     business: "Business AI",
     startup: "Startup Intelligence",
@@ -491,7 +491,7 @@ export default async function BillingPage() {
               </p>
 
               <p className="mt-2 text-sm leading-6 text-white/42">
-                Unlock Real Estate AI and Trading Intelligence
+                Unlock Real Estate AI and Radar
                 together for $17.99 per month.
               </p>
 
@@ -525,7 +525,7 @@ export default async function BillingPage() {
             />
 
             <AccessCard
-              title="Trading Intelligence"
+              title="Radar"
               description="Market opportunities, watchlists, asset research, alerts, Daily Briefs, and portfolio insights."
               enabled={canUseTrading}
               href="/trading"

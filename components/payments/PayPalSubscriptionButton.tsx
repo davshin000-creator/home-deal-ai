@@ -34,7 +34,7 @@ function getPlanConfig(
         process.env.NEXT_PUBLIC_PAYPAL_REAL_ESTATE_PLAN_ID,
     },
     trading: {
-      displayName: "Trading Pro",
+      displayName: "Radar Pro",
       planId:
         process.env.NEXT_PUBLIC_PAYPAL_TRADING_PLAN_ID,
     },
