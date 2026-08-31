@@ -353,17 +353,16 @@ const intelligenceItems = [
             </div>
 
             <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300/70">
-              Nestrova Intelligence Platform
+              Nestrova
             </p>
 
             <h1 className="mx-auto mt-5 max-w-3xl text-5xl font-semibold tracking-[-0.07em] md:text-7xl">
-              Your intelligence dashboard is ready.
+              Your Nestrova workspace.
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/48">
-              Sign in to access Real Estate Intelligence, Trading
-              Intelligence, Watchlist settings, reports, and your personalized
-              platform activity.
+              Sign in to access Real Estate, Radar, Research, saved
+              intelligence, alerts, and your personalized workspace.
             </p>
 
             <SignInButton mode="modal">
@@ -377,7 +376,7 @@ const intelligenceItems = [
                 href="/"
                 className="text-sm font-semibold text-white/45 transition hover:text-white"
               >
-                Return to platform →
+                Return to platform &rarr;
               </Link>
             </div>
           </div>

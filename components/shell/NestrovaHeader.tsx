@@ -269,7 +269,7 @@ export default function NestrovaHeader({
             </span>
 
             <div className="min-w-0">
-              <p className="hidden text-xs font-semibold tracking-[-0.01em] text-white/55 sm:block md:text-sm">
+              <p className="truncate text-[10px] font-semibold tracking-[-0.01em] text-white/45 sm:text-xs md:text-sm">
                 {greeting}, {firstName}
               </p>
 

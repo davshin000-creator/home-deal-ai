@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
 import {
   deleteAlert,
@@ -163,56 +164,10 @@ export default async function NotificationsPage({
     (error ? "Notifications could not be loaded." : null);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.14]" />
-        <div className="absolute -left-52 top-[-280px] h-[760px] w-[760px] rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="absolute right-[-300px] top-16 h-[800px] w-[800px] rounded-full bg-amber-400/[0.07] blur-3xl" />
-      </div>
-
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/75 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-[1480px] items-center justify-between px-5 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
-              N
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold">Nestrova</p>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">
-                Notification Center
-              </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-7 text-sm font-medium text-white/50 md:flex">
-            <Link href="/dashboard" className="transition hover:text-white">
-              Dashboard
-            </Link>
-            <Link href="/trading" className="transition hover:text-white">
-              Radar
-            </Link>
-            <Link
-              href="/trading/watchlist"
-              className="transition hover:text-white"
-            >
-              Watchlist
-            </Link>
-            <Link href="/notifications" className="text-white">
-              Notifications
-            </Link>
-          </nav>
-
-          <Link
-            href="/dashboard"
-            className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
-          >
-            Dashboard
-          </Link>
-        </div>
-      </header>
-
-      <section className="relative mx-auto max-w-[1480px] px-5 pb-10 pt-16 md:px-8 md:pt-24">
+    <UserAwareNestrovaShell
+      title="Notifications"
+      subtitle="Your intelligence alerts and updates."
+    ><section className="relative mx-auto max-w-[1480px] px-5 pb-10 pt-16 md:px-8 md:pt-24">
         <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.27em] text-cyan-300/70">
@@ -446,6 +401,6 @@ export default async function NotificationsPage({
           </p>
         </div>
       </section>
-    </main>
+    </UserAwareNestrovaShell>
   );
 }

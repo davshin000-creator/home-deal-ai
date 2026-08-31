@@ -157,7 +157,7 @@ async function getTradingState(): Promise<{
         data: null,
         error:
           gatewayResult.error ??
-          "Trading Intelligence is temporarily unavailable.",
+          "Radar is temporarily unavailable.",
       };
     }
 
@@ -170,7 +170,7 @@ async function getTradingState(): Promise<{
     ) {
       return {
         data: null,
-        error: "Trading Intelligence safety validation failed.",
+        error: "Radar safety validation failed.",
       };
     }
 
@@ -181,7 +181,7 @@ async function getTradingState(): Promise<{
   } catch {
     return {
       data: null,
-      error: "Trading Intelligence is temporarily unavailable.",
+      error: "Radar is temporarily unavailable.",
     };
   }
 }

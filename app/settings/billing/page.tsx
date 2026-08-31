@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SiteFooter from "@/components/site/SiteFooter";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 import { redirect } from "next/navigation";
 
 import { getCurrentUserProfile } from "@/lib/supabase/server";
@@ -237,41 +238,11 @@ export default async function BillingPage() {
     "Signed-in account";
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] px-5 py-8 text-white md:px-8 md:py-10">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.12]" />
-
-        <div className="absolute -left-48 -top-48 h-[720px] w-[720px] rounded-full bg-cyan-400/[0.08] blur-3xl" />
-
-        <div className="absolute right-[-260px] top-20 h-[760px] w-[760px] rounded-full bg-violet-400/[0.07] blur-3xl" />
-
-        <div className="absolute bottom-[-300px] left-[22%] h-[720px] w-[720px] rounded-full bg-emerald-400/[0.08] blur-3xl" />
-      </div>
-
-      <div className="relative mx-auto grid max-w-[1280px] gap-8">
-        <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55 transition hover:bg-white/10 hover:text-white"
-            >
-              ← Dashboard
-            </Link>
-
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-white/35">
-              {email}
-            </span>
-          </div>
-
-          <Link
-            href="/pricing"
-            className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-          >
-            View plans
-          </Link>
-        </header>
-
-        <section className="grid gap-8 py-6 xl:grid-cols-[1fr_420px] xl:items-end">
+    <UserAwareNestrovaShell
+      title="Settings"
+      subtitle="Account, access, and billing."
+    >
+      <div className="relative mx-auto grid w-full max-w-[1280px] gap-8 px-5 py-8 md:px-8 md:py-10"><section className="grid gap-8 py-6 xl:grid-cols-[1fr_420px] xl:items-end">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-white/30">
               Account and billing
@@ -323,116 +294,55 @@ export default async function BillingPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <article className="rounded-[40px] border border-white/10 bg-white/[0.055] p-7 backdrop-blur-2xl md:p-8">
-            <div className="flex flex-col gap-4 border-b border-white/10 pb-7 sm:flex-row sm:items-start sm:justify-between">
+          <article className="rounded-[32px] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/30">
-                  Subscription overview
+                  Billing
                 </p>
 
-                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
-                  {displayName}
-                </h2>
+                <p className="mt-3 text-sm text-white/45">
+                  {subscriptionStatus === "trialing"
+                    ? `Trial ends ${trialEndsAt}`
+                    : `Last updated ${subscriptionUpdatedAt}`}
+                </p>
               </div>
 
-              {subscriptionType === "all_access" && (
-                <span className="w-fit rounded-full bg-amber-200 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-black">
-                  Complete platform
-                </span>
-              )}
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/pricing"
+                  className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-neutral-200"
+                >
+                  Change plan
+                </Link>
+
+                {billingProfile.paypal_subscription_id ? (
+                  <a
+                    href="https://www.paypal.com/myaccount/autopay/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-2.5 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Manage in PayPal
+                  </a>
+                ) : (
+                  <Link
+                    href="/pricing"
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-2.5 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+                  >
+                    View plans
+                  </Link>
+                )}
+              </div>
             </div>
 
-            <dl className="mt-7 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[25px] border border-white/10 bg-black/20 p-5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/28">
-                  Subscription status
-                </dt>
-
-                <dd className="mt-3 text-lg font-semibold text-white/75">
-                  {getStatusLabel(subscriptionStatus)}
-                </dd>
-              </div>
-
-              <div className="rounded-[25px] border border-white/10 bg-black/20 p-5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/28">
-                  Trial ends
-                </dt>
-
-                <dd className="mt-3 text-lg font-semibold text-white/75">
-                  {subscriptionStatus === "trialing"
-                    ? trialEndsAt
-                    : "Not currently trialing"}
-                </dd>
-              </div>
-
-              <div className="rounded-[25px] border border-white/10 bg-black/20 p-5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/28">
-                  PayPal subscription
-                </dt>
-
-                <dd className="mt-3 break-all text-sm font-semibold text-white/65">
-                  {maskIdentifier(
-                    billingProfile.paypal_subscription_id,
-                  )}
-                </dd>
-              </div>
-
-              <div className="rounded-[25px] border border-white/10 bg-black/20 p-5">
-                <dt className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/28">
-                  Last updated
-                </dt>
-
-                <dd className="mt-3 text-lg font-semibold text-white/75">
-                  {subscriptionUpdatedAt}
-                </dd>
-              </div>
-            </dl>
-
             {billingProfile.cancel_at_period_end && (
-              <div className="mt-6 rounded-[25px] border border-amber-400/20 bg-amber-400/10 p-5">
+              <div className="mt-5 rounded-[20px] border border-amber-400/20 bg-amber-400/10 px-4 py-3">
                 <p className="text-sm font-semibold text-amber-200">
-                  Cancellation scheduled
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-amber-100/55">
-                  Your subscription is marked to end after the
-                  current billing period.
+                  Cancellation scheduled at the end of the current billing period.
                 </p>
               </div>
             )}
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/pricing"
-                className="rounded-full bg-white px-6 py-3 text-sm font-bold text-black transition hover:bg-neutral-200"
-              >
-                Change or upgrade plan
-              </Link>
-
-              {billingProfile.paypal_subscription_id ? (
-                <a
-                  href="https://www.paypal.com/myaccount/autopay/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
-                >
-                  Manage in PayPal ↗
-                </a>
-              ) : (
-                <Link
-                  href="/pricing"
-                  className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
-                >
-                  Connect a paid plan
-                </Link>
-              )}
-            </div>
-
-            <p className="mt-5 text-xs leading-5 text-white/28">
-              Billing and payment-method changes are completed
-              through PayPal. Nestrova controls access according
-              to the subscription status received from PayPal.
-            </p>
           </article>
 
           <aside className="rounded-[40px] border border-white/10 bg-white/[0.055] p-7 backdrop-blur-2xl md:p-8">
@@ -572,6 +482,6 @@ export default async function BillingPage() {
 
         <SiteFooter />
       </div>
-    </main>
+    </UserAwareNestrovaShell>
   );
 }
