@@ -21,7 +21,16 @@ type SavedDeal = {
 };
 
 function money(value: number) {
-  return `$${Math.round(Number(value || 0)).toLocaleString()}`;
+  const amount = Math.round(Number(value || 0));
+  const absolute = Math.abs(amount).toLocaleString();
+
+  return amount < 0 ? `-$${absolute}` : `$${absolute}`;
+}
+
+function cleanAddress(value: string) {
+  return String(value || "")
+    .replace(/\s*,?\s*(?:USA|United States|미국)\s*$/i, "")
+    .trim();
 }
 
 function getInvestmentGrade(score: number) {
@@ -199,7 +208,7 @@ export default function PortfolioPage() {
             </h2>
             <p className="mt-5 text-sm leading-6 text-white/55">
               {stats.bestDeal
-                ? `${stats.bestDeal.address} is currently your strongest saved opportunity.`
+                ? `${cleanAddress(stats.bestDeal.address)} is currently your strongest saved opportunity.`
                 : "Save properties from Search to activate your portfolio intelligence."}
             </p>
 
@@ -297,9 +306,9 @@ export default function PortfolioPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/70">
                       Best Saved Opportunity
                     </p>
-                    <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{stats.bestDeal.address}</h2>
+                    <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{cleanAddress(stats.bestDeal.address)}</h2>
                     <p className="mt-3 text-sm leading-6 text-white/60">
-                      Score {stats.bestDeal.deal_score}/100 쨌 Grade {getInvestmentGrade(Number(stats.bestDeal.deal_score || 0))} 쨌 Yield {stats.bestDeal.gross_rent_yield}% 쨌 Cash Flow {money(stats.bestDeal.estimated_monthly_cash_flow)}/mo
+                      Score {stats.bestDeal.deal_score}/100 &#183; Grade {getInvestmentGrade(Number(stats.bestDeal.deal_score || 0))} &#183; Yield {stats.bestDeal.gross_rent_yield}% &#183; Cash Flow {money(stats.bestDeal.estimated_monthly_cash_flow)}/mo
                     </p>
                   </section>
                 )}
@@ -349,7 +358,7 @@ export default function PortfolioPage() {
                         <tbody>
                           {deals.map((deal) => (
                             <tr key={deal.id} className="rounded-2xl bg-black/20 text-sm text-white/70">
-                              <td className="rounded-l-2xl px-4 py-4 font-semibold text-white">{deal.address}</td>
+                              <td className="rounded-l-2xl px-4 py-4 font-semibold text-white">{cleanAddress(deal.address)}</td>
                               <td className="px-4 py-4">
                                 <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-black">
                                   {getInvestmentGrade(Number(deal.deal_score || 0))}
