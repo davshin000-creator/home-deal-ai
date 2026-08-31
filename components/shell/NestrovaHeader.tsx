@@ -338,7 +338,7 @@ export default function NestrovaHeader({
                 aria-label="Close navigation"
                 className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.05] text-xl text-white/60"
               >
-                횞
+                &#215;
               </button>
             </div>
 

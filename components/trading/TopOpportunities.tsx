@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import {
   ArrowRightIcon,
   SparkIcon,
@@ -296,30 +296,30 @@ export default function TopOpportunities({
                       </p>
                     </div>
 
-                    <div className="grid min-w-0 grid-cols-3 gap-3 xl:w-[430px]">
-                      <div className="rounded-[20px] border border-cyan-300/15 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                    <div className="grid min-w-0 grid-cols-3 gap-2 sm:gap-3 xl:w-[430px]">
+                      <div className="min-w-0 rounded-[20px] border border-cyan-300/15 bg-black/20 px-3 py-4 sm:p-4">
+                        <p className="truncate text-[8px] font-bold uppercase tracking-[0.1em] text-white/28 sm:text-[9px] sm:tracking-[0.14em]">
                           Confidence
                         </p>
 
-                        <p className="mt-2 text-2xl font-black text-cyan-100">
+                        <p className="mt-2 text-xl font-black text-cyan-100 sm:text-2xl">
                           {confidence}%
                         </p>
 
-                        <p className="mt-1 text-[10px] text-white/28">
+                        <p className="mt-1 truncate text-[9px] text-white/28 sm:text-[10px]">
                           {confidenceLabel(
                             confidence,
                           )}
                         </p>
                       </div>
 
-                      <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                      <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/20 px-3 py-4 sm:p-4">
+                        <p className="truncate text-[8px] font-bold uppercase tracking-[0.1em] text-white/28 sm:text-[9px] sm:tracking-[0.14em]">
                           Risk
                         </p>
 
                         <p
-                          className={`mt-2 text-lg font-black ${riskClasses(
+                          className={`mt-2 truncate text-base font-black sm:text-lg ${riskClasses(
                             lead.risk,
                           )}`}
                         >
@@ -329,12 +329,12 @@ export default function TopOpportunities({
                         </p>
                       </div>
 
-                      <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                      <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/20 px-3 py-4 sm:p-4">
+                        <p className="truncate text-[8px] font-bold uppercase tracking-[0.1em] text-white/28 sm:text-[9px] sm:tracking-[0.14em]">
                           AI Score
                         </p>
 
-                        <p className="mt-2 text-lg font-black text-white/75">
+                        <p className="mt-2 text-base font-black text-white/75 sm:text-lg">
                           {Math.round(
                             Number(
                               lead.opportunity_score ??
@@ -343,7 +343,7 @@ export default function TopOpportunities({
                           )}
                         </p>
 
-                        <p className="mt-1 text-[10px] text-white/25">
+                        <p className="mt-1 truncate text-[9px] text-white/25 sm:text-[10px]">
                           supporting metric
                         </p>
                       </div>
@@ -356,18 +356,18 @@ export default function TopOpportunities({
                         Why Nestrova likes it
                       </p>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                         {reasons.map(
                           (reason) => (
                             <div
                               key={reason}
-                              className="flex gap-3 rounded-[18px] border border-white/8 bg-black/15 p-4"
+                              className="flex min-w-0 flex-col gap-2 rounded-[18px] border border-white/8 bg-black/15 p-3 sm:flex-row sm:gap-3 sm:p-4"
                             >
-                              <span className="mt-1 text-emerald-200">
+                              <span className="text-emerald-200 sm:mt-1">
                                 +
                               </span>
 
-                              <p className="text-xs leading-5 text-white/45">
+                              <p className="text-[10px] leading-4 text-white/45 sm:text-xs sm:leading-5">
                                 {reason}
                               </p>
                             </div>
