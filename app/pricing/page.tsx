@@ -7,6 +7,7 @@ import {
   UserButton,
 } from "@/components/auth/ClerkCompat";
 import SiteFooter from "@/components/site/SiteFooter";
+import NestrovaMark from "@/components/brand/NestrovaMark";
 
 type PlanFeature = {
   text: string;
@@ -537,9 +538,7 @@ export default function PricingPage() {
             <div className="relative overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.065] p-5 shadow-[0_50px_170px_rgba(0,0,0,0.58)] backdrop-blur-2xl md:p-6">
               <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
-                    N
-                  </div>
+                  <NestrovaMark className="h-11 w-11 rounded-[14px] text-[14px]" />
 
                   <div>
                     <p className="text-sm font-semibold">
