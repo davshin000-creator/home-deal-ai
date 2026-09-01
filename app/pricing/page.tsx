@@ -30,45 +30,30 @@ const platformFeatures = [
     title: "Analyze properties in seconds.",
     description:
       "Estimate fair value, rental potential, investment quality, and deal strength from one workspace.",
-    icon: "⌂",
-    accent:
-      "border-cyan-400/20 bg-cyan-400/10 text-cyan-200",
   },
   {
     label: "Radar",
     title: "Find opportunities before they disappear.",
     description:
       "Track opportunity scores, market regimes, watchlists, risk levels, and customized alerts.",
-    icon: "↗",
-    accent:
-      "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
   },
   {
     label: "Research Intelligence",
     title: "Investigate signals from multiple AI perspectives.",
     description:
       "Run Deep Research, Research Council, comparisons, saved research, watchlists, history, and change alerts from one evidence-driven workspace.",
-    icon: "◎",
-    accent:
-      "border-violet-400/20 bg-violet-400/10 text-violet-200",
   },
   {
     label: "AI Decision Engine",
     title: "Understand the signal, not just the number.",
     description:
       "Turn complex market and property data into clear explanations designed to support better decisions.",
-    icon: "N",
-    accent:
-      "border-violet-400/20 bg-violet-400/10 text-violet-200",
   },
   {
     label: "Growing Platform",
     title: "One account for future Nestrova products.",
     description:
       "All Access members receive eligible future AI products while their subscription remains active.",
-    icon: "+",
-    accent:
-      "border-amber-400/20 bg-amber-400/10 text-amber-200",
   },
 ];
 
@@ -702,13 +687,8 @@ export default function PricingPage() {
                 key={feature.label}
                 className="rounded-[34px] border border-white/10 bg-white/[0.05] p-6 backdrop-blur-2xl"
               >
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl border text-lg font-black ${feature.accent}`}
-                >
-                  {feature.icon}
-                </div>
 
-                <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
                   {feature.label}
                 </p>
 

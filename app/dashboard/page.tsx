@@ -535,7 +535,7 @@ const intelligenceItems = [
 
             <section className="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
               <article className="rounded-[30px] border border-white/10 bg-white/[0.04] p-6 md:p-7">
-                <div className="flex items-end justify-between gap-4">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/28">
                       Recent Activity

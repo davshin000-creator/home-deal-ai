@@ -2,44 +2,96 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
-type ProStatus = { ok: boolean; signed_in?: boolean; is_pro?: boolean; plan?: string; subscription_status?: string };
+type ProStatus = {
+  ok: boolean;
+  signed_in?: boolean;
+  is_pro?: boolean;
+  plan?: string;
+  subscription_status?: string;
+};
 
 export default function CheckoutSuccessPage() {
   const [status, setStatus] = useState<ProStatus | null>(null);
 
   useEffect(() => {
     async function loadStatus() {
-      const response = await fetch("/api/me/pro-status", { cache: "no-store" });
+      const response = await fetch("/api/me/pro-status", {
+        cache: "no-store",
+      });
+
       const data = await response.json();
       setStatus(data);
     }
+
     loadStatus();
   }, []);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] px-5 py-10 text-white md:px-8">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
-        <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-white/[0.075] blur-3xl" />
-        <div className="absolute right-[-260px] top-10 h-[820px] w-[820px] rounded-full bg-cyan-400/10 blur-3xl" />
+    <UserAwareNestrovaShell
+      title="Subscription"
+      subtitle="Your Nestrova access and membership."
+    >
+      <div className="mx-auto w-full max-w-[1120px] px-5 py-8 md:px-8 md:py-12">
+        <section className="rounded-[32px] border border-white/10 bg-white/[0.035] p-6 md:p-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
+            Subscription started
+          </p>
+
+          <h1 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.045em] text-white md:text-6xl">
+            Welcome to Nestrova Pro.
+          </h1>
+
+          <p className="mt-5 max-w-2xl text-base leading-7 text-white/50 md:text-lg">
+            Your 5-day free trial has started. Monthly billing through PayPal
+            begins after the trial unless you cancel.
+          </p>
+
+          <div className="mt-8 rounded-[24px] border border-white/10 bg-black/20 p-5 md:p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/30">
+              Account status
+            </p>
+
+            <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-white md:text-3xl">
+              {status === null
+                ? "Checking access..."
+                : status.is_pro
+                  ? "Pro Access Active"
+                  : "Pro access pending"}
+            </p>
+
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">
+              {status?.is_pro
+                ? "Your account now has access to the features included with your selected Nestrova plan."
+                : "If your subscription was just approved, your access may take a few seconds to update."}
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <Link
+              href="/real-estate"
+              className="rounded-[18px] border border-white/10 bg-white px-5 py-4 text-sm font-semibold text-black transition hover:bg-neutral-200"
+            >
+              Open Real Estate
+            </Link>
+
+            <Link
+              href="/trading"
+              className="rounded-[18px] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
+            >
+              Open Radar
+            </Link>
+
+            <Link
+              href="/research"
+              className="rounded-[18px] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.07] hover:text-white"
+            >
+              Open Research
+            </Link>
+          </div>
+        </section>
       </div>
-      <section className="relative mx-auto max-w-4xl rounded-[48px] border border-white/10 bg-white/[0.07] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-300">Subscription Started</p>
-        <h1 className="mt-4 text-5xl font-semibold tracking-[-0.06em] md:text-7xl">Welcome to Nestrova Pro.</h1>
-        <p className="mt-5 text-lg leading-8 text-white/55">Your subscription is active and your 5-day free trial has started. Monthly billing begins through PayPal after the trial unless you cancel.</p>
-        <div className="mt-8 rounded-[32px] border border-white/10 bg-black/25 p-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/35">Account Status</p>
-          <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{status === null ? "Checking..." : status.is_pro ? "Pro Access Active" : "Pro not confirmed yet"}</p>
-          <p className="mt-2 text-sm text-white/45">{status?.is_pro ? "You can now use the features included with your selected Nestrova plan." : "If your subscription was just approved, refresh this page in a few seconds."}</p>
-        </div>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/analyze" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200">Open Analyze</Link>
-          <Link href="/brain-console" className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white">Open Brain Console</Link>
-          <Link href="/portfolio" className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white">Open Portfolio</Link>
-        </div>
-      </section>
-    </main>
+    </UserAwareNestrovaShell>
   );
 }
-
