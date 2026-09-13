@@ -234,7 +234,7 @@ export default function SavedDealsPage() {
 
   return (
     <UserAwareNestrovaShell
-      title="Saved Properties"
+      title="Real Estate"
       subtitle="Review, compare, and manage your saved property opportunities."
     >
       <div className="mx-auto w-full max-w-[1380px] px-5 py-8 md:px-8 md:py-10">
