@@ -4,12 +4,15 @@ import { createClient } from "@supabase/supabase-js";
 import {
   FeatureKey,
   getFeatureLimit,
+  PLAN_LIMITS,
 } from "@/lib/revenue/permissions";
 
 import {
   hasFeature,
   normalizeSubscriptionType,
 } from "@/lib/subscriptions/entitlements";
+
+import { getCurrentUserProfile } from "@/lib/supabase/server";
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,6 +31,29 @@ export async function GET(request: Request) {
     const userId = searchParams.get("user_id");
     const feature = searchParams.get("feature") as FeatureKey;
 
+    const { user } = await getCurrentUserProfile();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required." },
+        { status: 401 }
+      );
+    }
+
+    if (userId !== user.id) {
+      return NextResponse.json(
+        { error: "Forbidden." },
+        { status: 403 }
+      );
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(PLAN_LIMITS.free, feature)) {
+      return NextResponse.json(
+        { error: "Invalid feature." },
+        { status: 400 }
+      );
+    }
+
     if (!userId || !feature) {
       return NextResponse.json(
         { error: "Missing user_id or feature." },
@@ -45,7 +71,9 @@ export async function GET(request: Request) {
       subscription_type,
       subscription_status,
       entitlements,
-      trial_ends_at
+      trial_ends_at,
+      current_period_end,
+      cancel_at_period_end
     `,
   )
   .eq("auth_user_id", userId)
@@ -131,49 +159,12 @@ return NextResponse.json({
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return NextResponse.json(
-        { error: "Missing Supabase service variables." },
-        { status: 500 }
-      );
+export async function POST() {
+  return NextResponse.json(
+    { error: "Usage writes are handled by server-side feature APIs." },
+    {
+      status: 405,
+      headers: { Allow: "GET" },
     }
-
-    const body = await request.json();
-    const userId = body.user_id;
-    const feature = body.feature;
-
-    if (!userId || !feature) {
-      return NextResponse.json(
-        { error: "Missing user_id or feature." },
-        { status: 400 }
-      );
-    }
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-    const { error } = await supabase.from("feature_usage").insert({
-      user_id: userId,
-      feature,
-      metadata: body.metadata || {},
-      created_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      return NextResponse.json(
-        { error: "Could not record usage." },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error("usage POST error:", error);
-    return NextResponse.json(
-      { error: "Unexpected usage record error." },
-      { status: 500 }
-    );
-  }
+  );
 }
-
