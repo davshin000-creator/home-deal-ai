@@ -8,8 +8,9 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nestrova",
-  description: "AI real estate investment intelligence",
+  metadataBase: new URL("https://nestrovaai.com"),
+  title: "Nestrova | Real Estate & Market Intelligence",
+  description: "AI-powered real estate investment analysis, property research, and market intelligence for informed decisions.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

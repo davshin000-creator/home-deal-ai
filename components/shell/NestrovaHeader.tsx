@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import NestrovaMark from "@/components/brand/NestrovaMark";
+import NestrovaMark from "@/components/brand/NestrovaDiagonalMark";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import NotificationBell from "@/components/notifications/NotificationBell";

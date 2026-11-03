@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 import PropertyMap from "@/components/PropertyMap";
+import DealResultNavigatorV3B from "@/components/real-estate/DealResultNavigatorV3B";
 import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
 
 type Deal = {
@@ -486,6 +487,29 @@ export default function DealsPage() {
                 View Portfolio
               </Link>
             </div>
+            <DealResultNavigatorV3B
+              deals={result?.deals ?? []}
+              selectedAddress={selectedDeal?.address ?? null}
+              onSelect={(address) => {
+                const chosen = result?.deals?.find(
+                  (deal) => deal.address === address
+                );
+
+                if (!chosen) return;
+
+                setSelectedDeal(chosen);
+                setDetailTab("location");
+
+                window.requestAnimationFrame(() => {
+                  document
+                    .getElementById("featured-property-location")
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                });
+              }}
+            />
             {locationDeal ? (
               <section
                 id="featured-property-location"

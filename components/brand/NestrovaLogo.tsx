@@ -1,4 +1,4 @@
-﻿import NestrovaMark from "./NestrovaMark";
+import NestrovaMark from "./NestrovaDiagonalMark";
 
 type NestrovaLogoProps = {
   markClassName?: string;

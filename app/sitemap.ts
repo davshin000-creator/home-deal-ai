@@ -1,4 +1,4 @@
-﻿import type { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { cities } from "@/data/cities";
 
 const SITE_URL = "https://nestrovaai.com";
@@ -93,6 +93,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
 
+    {
+      url: `${SITE_URL}/home`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
     ...cityPages,
   ];
 }

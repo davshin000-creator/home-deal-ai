@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import NestrovaMark from "@/components/brand/NestrovaMark";
+import NestrovaMark from "@/components/brand/NestrovaDiagonalMark";
 
 import {
   BellIcon,

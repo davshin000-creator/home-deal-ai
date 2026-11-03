@@ -4,20 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/ClerkCompat";
 import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
-import RealEstateQuickAnalyze from "@/components/real-estate/RealEstateQuickAnalyze";
+import RealEstateDiscoveryV3 from "@/components/real-estate/RealEstateDiscoveryV3";
 import { formatRealEstateCurrency } from "@/lib/real-estate/global/formatters";
 import type { RealEstateCountryCode } from "@/lib/real-estate/global/country-config";
 import {
   ArrowRightIcon,
-  BrainIcon,
-  DollarIcon,
-  GaugeIcon,
-  LocationIcon,
-  PropertyIcon,
-  RentIcon,
-  SearchPropertyIcon,
-  ShieldIcon,
-  SparkIcon,
 } from "@/components/ui/NestrovaIcons";
 import {
   GlassPanel,
@@ -334,7 +325,8 @@ export default function RealEstateDashboardPage() {
 
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-[#08080b] p-8 text-white">
+      <main className="min-h-screen bg-[#08080b] px-4 py-8 text-white">
+        <RealEstateDiscoveryV3 />
         <div className="mx-auto max-w-7xl animate-pulse">
           <div className="h-64 rounded-[36px] border border-white/10 bg-white/[0.04]" />
         </div>
@@ -344,15 +336,14 @@ export default function RealEstateDashboardPage() {
 
   if (!isSignedIn) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#08080b] px-5 text-white">
-        <div className="w-full max-w-2xl rounded-[36px] border border-white/10 bg-white/[0.05] p-10 text-center">
+      <main className="flex min-h-screen w-full min-w-0 flex-col items-stretch gap-8 overflow-x-hidden bg-[#08080b] px-4 py-8 text-white">
+        <RealEstateDiscoveryV3 />
+        <div className="mx-auto w-full max-w-2xl rounded-[36px] border border-white/10 bg-white/[0.05] p-10 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300/70">
             Real Estate Intelligence
           </p>
 
-          <h1 className="mt-5 text-4xl font-black tracking-[-0.05em]">
-            Sign in to view your property dashboard.
-          </h1>
+          <h2 className="mt-5 text-3xl font-black tracking-[-0.05em]">Sign in to access your saved property dashboard.</h2>
 
           <p className="mt-4 text-white/45">
             Analyze properties, save opportunities, and review your AI property portfolio.
@@ -374,76 +365,7 @@ export default function RealEstateDashboardPage() {
       title="Real Estate"
     >
       <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10">
-        <section className="rounded-[36px] border border-white/10 bg-white/[0.045] p-6 md:p-9">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/65">
-              Search
-            </p>
-
-            <form
-              action="/deals"
-              method="get"
-              className="mt-5 grid gap-3 md:grid-cols-[minmax(0,1.4fr)_120px_minmax(0,1fr)_auto]"
-            >
-              <input
-                name="city"
-                placeholder="City"
-                required
-                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
-              />
-
-              <input
-                name="state"
-                placeholder="State"
-                maxLength={2}
-                required
-                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold uppercase text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
-              />
-
-              <input
-                name="max_price"
-                placeholder="Max Price"
-                inputMode="numeric"
-                required
-                className="h-14 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-white outline-none placeholder:text-white/25 focus:border-emerald-300/35"
-              />
-
-              <button
-                type="submit"
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-7 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-emerald-200"
-              >
-                Search
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </form>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                ["Irvine", "CA", "1500000"],
-                ["Austin", "TX", "750000"],
-                ["Miami", "FL", "700000"],
-              ].map(([city, state, maxPrice]) => (
-                <Link
-                  key={`${city}-${state}`}
-                  href={`/deals?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&max_price=${encodeURIComponent(maxPrice)}`}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/45 transition hover:bg-white/[0.08] hover:text-white"
-                >
-                  {city}, {state}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-8 border-t border-white/10 pt-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
-              Analyze
-            </p>
-
-            <div className="mt-5 max-w-4xl">
-              <RealEstateQuickAnalyze />
-            </div>
-          </div>
-        </section>
+        <RealEstateDiscoveryV3 />
 
         {error ? (
           <section className="mt-6 rounded-[26px] border border-red-400/20 bg-red-400/[0.08] p-5">
