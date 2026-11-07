@@ -37,6 +37,7 @@ const schema = {
   return {
     title: `${city.city} Home Value AI | Nestrova`,
     description: `Analyze ${city.city} real estate prices, rental income, market trends, and investment opportunities with Nestrova AI.`,
+    alternates: { canonical: `https://nestrovaai.com/city/${city.slug}` },
     keywords: [
       `${city.city} home value`,
       `${city.city} real estate`,

@@ -124,6 +124,48 @@ export default function NestrovaRealEstateSEO() {
                 Learn how to evaluate an offer price
               </Link>
             </nav>
+
+            <div className="mt-7 border-t border-white/10 pt-6">
+              <h4 className="text-sm font-semibold text-white">
+                Explore regional investment research
+              </h4>
+
+              <p className="mt-2 text-xs leading-6 text-white/45">
+                Compare city-level investment context using
+                Nestrova's reference estimates. Figures are
+                not verified live market quotes.
+              </p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Link
+                  href="/market/irvine"
+                  className="text-sm text-[#8ce6d8] hover:underline"
+                >
+                  Irvine real estate market
+                </Link>
+
+                <Link
+                  href="/market/sacramento"
+                  className="text-sm text-[#8ce6d8] hover:underline"
+                >
+                  Sacramento rental analysis
+                </Link>
+
+                <Link
+                  href="/market/houston"
+                  className="text-sm text-[#8ce6d8] hover:underline"
+                >
+                  Houston real estate analysis
+                </Link>
+
+                <Link
+                  href="/market/austin"
+                  className="text-sm text-[#8ce6d8] hover:underline"
+                >
+                  Austin investment research
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 

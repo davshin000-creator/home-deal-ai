@@ -13,6 +13,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   priority: 0.8,
 }));
   
+  const priorityMarketSlugs = new Set([
+    "irvine",
+    "sacramento",
+    "houston",
+    "austin",
+  ]);
+
+  const priorityMarketPages = cities
+    .filter((city) => priorityMarketSlugs.has(city.slug))
+    .map((city) => ({
+      url: `${SITE_URL}/market/${city.slug}`,
+    }));
   return [
     {
       url: SITE_URL,
@@ -100,5 +112,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     ...cityPages,
+    ...priorityMarketPages,
   ];
 }

@@ -50,7 +50,7 @@ function getRecommendation(score: number) {
     return {
       label: "Strong Market",
       description:
-        "This market currently shows relatively strong investment fundamentals based on the available estimates.",
+        "Based on the stored estimates, this market scores relatively strongly. Verify current conditions before investing.",
     };
   }
 
@@ -134,6 +134,12 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">
             {market.city} Real Estate Market
           </h1>
+<p className="mt-4 max-w-3xl text-sm leading-6 text-slate-500">
+  The market figures and scores on this page are
+  estimates from a stored reference dataset, not
+  verified current market quotes or live MLS listings.
+  Confirm current prices, rents, and costs independently.
+</p>
 
           <p className="mt-5 text-lg leading-8 text-slate-600">
             AI-assisted market overview for {market.city}, {market.state},
