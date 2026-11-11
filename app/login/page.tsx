@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import NestrovaMark from "@/components/brand/NestrovaMark";
+import NestrovaMark from "@/components/brand/NestrovaDiagonalMark";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -24,7 +24,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/real-estate`,
       },
     });
 
@@ -101,14 +101,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-[20%] -top-[35%] h-[780px] w-[780px] rounded-full border-[110px] border-white/[0.055] blur-[1px]" />
+    <main className="nestrova-auth-canvas relative min-h-screen overflow-hidden font-sans text-white">
 
-        <div className="absolute -bottom-[42%] -left-[20%] h-[760px] w-[760px] rounded-full border-[110px] border-white/[0.04] blur-[1px]" />
-
-        <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.025] blur-3xl" />
-      </div>
 
       <div className="relative z-10 flex min-h-screen flex-col">
         <header className="flex w-full items-center justify-between px-6 py-6 md:px-10">
@@ -143,18 +137,16 @@ export default function LoginPage() {
           </Link>
         </header>
 
-        <section className="flex flex-1 items-center justify-center px-5 pb-16 pt-4 md:px-8">
-          <div className="w-full max-w-[460px]">
-            <div className="mb-8 flex justify-center">
-              <NestrovaMark className="h-12 w-12 rounded-[14px] text-[15px]" />
-            </div>
+        <section className="flex flex-1 items-center justify-center px-4 py-12 sm:px-6">
+          <div className="w-full max-w-[460px] rounded-[24px] border border-white/10 bg-[#142231]/95 px-6 py-9 shadow-[0_30px_90px_rgba(0,0,0,0.25)] sm:px-9 sm:py-11">
+
 
             <div className="text-center">
               <h1 className="text-3xl font-semibold tracking-[-0.05em] md:text-[34px]">
                 {codeSent ? "Check your email" : "Sign in to Nestrova"}
               </h1>
 
-              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-white/40">
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-300">
                 {codeSent
                   ? `We sent a 6-digit sign-in code to ${email}.`
                   : "Access your Nestrova intelligence workspace."}

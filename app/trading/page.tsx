@@ -299,7 +299,7 @@ function MetricCard({
   detail: string;
 }) {
   return (
-    <article className="rounded-[30px] border border-white/10 bg-white/[0.05] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+    <article className="rounded-[30px] border border-[#34475a]/70 bg-[#172636]/90 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30">
         {label}
       </p>
@@ -310,6 +310,43 @@ function MetricCard({
         {detail}
       </p>
     </article>
+  );
+}
+
+function NestrovaOverviewGlyph({
+  kind,
+}: {
+  kind: "market" | "confidence" | "risk";
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.55}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      {kind === "market" ? (
+        <>
+          <path d="m3 17 5.5-6 4.2 3.5L21 6" />
+          <path d="M16 6h5v5" />
+        </>
+      ) : kind === "confidence" ? (
+        <>
+          <circle cx="12" cy="12" r="8.25" />
+          <path d="m8 12.1 2.6 2.6 5.4-5.5" />
+        </>
+      ) : (
+        <>
+          <path d="M12 2.8 20 6v5.5c0 5-3.3 8.2-8 10.2-4.7-2-8-5.2-8-10.2V6L12 2.8Z" />
+          <path d="M12 8v5" />
+          <path d="M12 16.7h.01" />
+        </>
+      )}
+    </svg>
   );
 }
 
@@ -416,23 +453,22 @@ export default async function TradingPage() {
     >
 
       <div className="relative mx-auto w-full max-w-[1480px] px-5 py-6 md:px-8 md:py-8">
-        <section className="rounded-[34px] border border-white/10 bg-white/[0.045] p-6 md:p-8">
+        <div className="mb-5">
+          <MarketUniverseExplorer compact />
+        </div>
+        <section className="rounded-[24px] border border-[#34475a]/70 bg-[#172636]/90 p-5 md:p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-4xl">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200/65">
                 Market Today
               </p>
 
-              <h1 className="mt-4 text-[clamp(2.4rem,6vw,4.8rem)] font-black leading-[0.95] tracking-[-0.065em]">
-                Understand the market.
-                <span className="block text-white/35">
-                  Find what deserves your attention.
-                </span>
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
+                Market overview
               </h1>
 
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/45 md:text-base">
-                Nestrova summarizes market direction, risk, and the strongest
-                current opportunities across U.S. stocks and crypto.
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                Market direction, confidence, and risk at a glance.
               </p>
             </div>
 
@@ -461,28 +497,31 @@ export default async function TradingPage() {
             </div>
           ) : null}
 
-          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="nestrova-radar-compact-metrics nestrova-overview-premium mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
             <MetricTile
+              className="nestrova-radar-premium-stat"
               label="Market"
               value={cleanLabel(market?.regime)}
               detail="Current market direction"
-              icon={<PulseIcon className="h-5 w-5" />}
+              icon={<NestrovaOverviewGlyph kind="market" />}
               tone="emerald"
             />
 
             <MetricTile
+              className="nestrova-radar-premium-stat"
               label="Confidence"
               value={`${marketConfidence}%`}
               detail="How strong the current research signal is"
-              icon={<GaugeIcon className="h-5 w-5" />}
+              icon={<NestrovaOverviewGlyph kind="confidence" />}
               tone="cyan"
             />
 
             <MetricTile
+              className="nestrova-radar-premium-stat"
               label="Risk"
               value={cleanLabel(market?.risk)}
               detail="Current public market risk"
-              icon={<ShieldIcon className="h-5 w-5" />}
+              icon={<NestrovaOverviewGlyph kind="risk" />}
               tone={
                 String(market?.risk ?? "").toUpperCase() === "LOW"
                   ? "emerald"
@@ -493,25 +532,10 @@ export default async function TradingPage() {
             />
           </div>
 
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              href="/trading/markets"
-              className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-            >
-              Explore Markets
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
 
-            <Link
-              href="/trading/watchlist"
-              className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/[0.09] hover:text-white"
-            >
-              My Watchlist
-            </Link>
-          </div>
         </section>
 
-        <MarketUniverseExplorer compact />
+
 
         <section className="py-8">
           <div className="mb-5">
@@ -520,16 +544,16 @@ export default async function TradingPage() {
             </p>
 
             <h2 className="mt-2 text-3xl font-black tracking-[-0.05em]">
-              What Nestrova sees right now.
+              Market signals
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/40">
-              A simpler view of current direction, confidence, and risk across the strongest public research signals.
+              Current directional signals from available public research.
             </p>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-3">
-            <article className="rounded-[30px] border border-emerald-300/15 bg-emerald-300/[0.045] p-5">
+          <div className={`grid gap-4 ${weakeningNow.length > 0 ? "xl:grid-cols-2" : ""}`}>
+<article className="rounded-[30px] border border-emerald-300/15 bg-emerald-300/[0.045] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-200/55">
@@ -546,7 +570,7 @@ export default async function TradingPage() {
                 </span>
               </div>
 
-              <div className="mt-5 grid gap-2">
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {bullishNow.length > 0 ? (
                   bullishNow.map((item) => (
                     <Link
@@ -554,7 +578,7 @@ export default async function TradingPage() {
                       href={`/trading/assets/${encodeURIComponent(
                         item.symbol ?? "",
                       )}`}
-                      className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-emerald-300/20 hover:bg-white/[0.05]"
+                      className="flex items-center justify-between gap-4 rounded-[18px] border border-[#34475a]/60 bg-[#112132]/90 px-4 py-3 transition hover:border-emerald-300/20 hover:bg-white/[0.05]"
                     >
                       <div className="min-w-0">
                         <p className="font-bold">
@@ -583,14 +607,14 @@ export default async function TradingPage() {
                     </Link>
                   ))
                 ) : (
-                  <p className="rounded-[18px] border border-white/10 bg-black/20 p-4 text-xs leading-5 text-white/35">
+                  <p className="rounded-[18px] border border-[#34475a]/60 bg-[#112132]/90 p-4 text-xs leading-5 text-white/35">
                     No clearly bullish public research signals are available right now.
                   </p>
                 )}
               </div>
             </article>
-
-            <article className="rounded-[30px] border border-orange-300/15 bg-orange-300/[0.04] p-5">
+{weakeningNow.length > 0 && (
+<article className="rounded-[30px] border border-orange-300/15 bg-orange-300/[0.04] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-orange-200/55">
@@ -615,7 +639,7 @@ export default async function TradingPage() {
                       href={`/trading/assets/${encodeURIComponent(
                         item.symbol ?? "",
                       )}`}
-                      className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-orange-300/20 hover:bg-white/[0.05]"
+                      className="flex items-center justify-between gap-4 rounded-[18px] border border-[#34475a]/60 bg-[#112132]/90 px-4 py-3 transition hover:border-orange-300/20 hover:bg-white/[0.05]"
                     >
                       <div className="min-w-0">
                         <p className="font-bold">
@@ -644,14 +668,18 @@ export default async function TradingPage() {
                     </Link>
                   ))
                 ) : (
-                  <p className="rounded-[18px] border border-white/10 bg-black/20 p-4 text-xs leading-5 text-white/35">
+                  <p className="rounded-[18px] border border-[#34475a]/60 bg-[#112132]/90 p-4 text-xs leading-5 text-white/35">
                     No clearly bearish public research signals are available right now.
                   </p>
                 )}
               </div>
             </article>
-
-            <article className="rounded-[30px] border border-cyan-300/15 bg-cyan-300/[0.04] p-5">
+)}
+</div>
+{highestConfidence.length > 0 && (
+  <details className="mt-4 rounded-[18px] border border-[#34475a]/60 bg-[#132334]/70 p-4">
+    <summary className="cursor-pointer text-sm font-medium text-slate-200">More: highest-confidence signals</summary>
+<article className="rounded-[30px] border border-cyan-300/15 bg-cyan-300/[0.04] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
@@ -675,7 +703,7 @@ export default async function TradingPage() {
                     href={`/trading/assets/${encodeURIComponent(
                       item.symbol ?? "",
                     )}`}
-                    className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 transition hover:border-cyan-300/20 hover:bg-white/[0.05]"
+                    className="flex items-center justify-between gap-4 rounded-[18px] border border-[#34475a]/60 bg-[#112132]/90 px-4 py-3 transition hover:border-cyan-300/20 hover:bg-white/[0.05]"
                   >
                     <div className="min-w-0">
                       <p className="font-bold">
@@ -705,7 +733,8 @@ export default async function TradingPage() {
                 ))}
               </div>
             </article>
-          </div>
+  </details>
+)}
         </section>
 
         <section className="py-8">
@@ -737,7 +766,7 @@ export default async function TradingPage() {
         <section className="grid gap-5 py-4 lg:grid-cols-2">
           <Link
             href="/trading/watchlist"
-            className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:border-cyan-300/20 hover:bg-white/[0.065]"
+            className="group rounded-[30px] border border-[#34475a]/70 bg-[#172636]/85 p-6 transition hover:border-cyan-300/20 hover:bg-white/[0.065]"
           >
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200/60">
               Your Trading
@@ -758,7 +787,7 @@ export default async function TradingPage() {
 
           <Link
             href="/trading/portfolio"
-            className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-6 transition hover:border-violet-300/20 hover:bg-white/[0.065]"
+            className="group rounded-[30px] border border-[#34475a]/70 bg-[#172636]/85 p-6 transition hover:border-violet-300/20 hover:bg-white/[0.065]"
           >
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200/60">
               Your Trading
@@ -779,7 +808,7 @@ export default async function TradingPage() {
         </section>
 
         <section className="py-10">
-          <div className="rounded-[34px] border border-white/10 bg-white/[0.035] p-6 md:p-8">
+          <div className="rounded-[34px] border border-[#34475a]/70 bg-[#172636]/85 p-6 md:p-8">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
                 Advanced Research
@@ -798,7 +827,7 @@ export default async function TradingPage() {
             <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <Link
                 href="/trading/briefing"
-                className="rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:bg-white/[0.05]"
+                className="rounded-[24px] border border-[#34475a]/60 bg-[#112132]/90 p-5 transition hover:bg-white/[0.05]"
               >
                 <p className="text-sm font-bold">
                   AI Briefing
@@ -810,7 +839,7 @@ export default async function TradingPage() {
 
               <Link
                 href="/trading/council"
-                className="rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:bg-white/[0.05]"
+                className="rounded-[24px] border border-[#34475a]/60 bg-[#112132]/90 p-5 transition hover:bg-white/[0.05]"
               >
                 <p className="text-sm font-bold">
                   AI Council
@@ -822,7 +851,7 @@ export default async function TradingPage() {
 
               <Link
                 href="/trading/strategies"
-                className="rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:bg-white/[0.05]"
+                className="rounded-[24px] border border-[#34475a]/60 bg-[#112132]/90 p-5 transition hover:bg-white/[0.05]"
               >
                 <p className="text-sm font-bold">
                   Strategy Research
@@ -834,7 +863,7 @@ export default async function TradingPage() {
 
               <Link
                 href="/trading/verified"
-                className="rounded-[24px] border border-white/10 bg-black/20 p-5 transition hover:bg-white/[0.05]"
+                className="rounded-[24px] border border-[#34475a]/60 bg-[#112132]/90 p-5 transition hover:bg-white/[0.05]"
               >
                 <p className="text-sm font-bold">
                   Verified Research
@@ -848,7 +877,7 @@ export default async function TradingPage() {
         </section>
 
         <section className="pb-8 pt-2">
-          <details className="rounded-[30px] border border-white/10 bg-white/[0.03]">
+          <details className="rounded-[30px] border border-[#34475a]/70 bg-[#172636]/75">
             <summary className="cursor-pointer px-6 py-5 text-sm font-semibold text-white/55">
               Technical system details
             </summary>

@@ -132,48 +132,33 @@ export default async function ResearchPage() {
       title="Research"
       subtitle="AI research and market intelligence."
     >
-      <div className="min-h-screen bg-[#050607] text-white">
+      <div className="min-h-screen bg-[#0d1724] text-white">
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full bg-violet-400/[0.08] blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-cyan-400/[0.06] blur-3xl" />
 
-        <div className="relative mx-auto max-w-[1480px] px-5 py-16 md:px-8 md:py-24">
+        <div className="relative mx-auto max-w-[1480px] px-5 py-8 md:px-8 md:py-10">
           <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-4xl">
-              <div className="inline-flex items-center gap-3 rounded-full border border-violet-300/15 bg-violet-300/[0.07] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-violet-200/80">
-                <span className="h-2 w-2 rounded-full bg-violet-300 shadow-[0_0_18px_rgba(196,181,253,0.75)]" />
-                Continuous Discovery
-              </div>
 
-              <h1 className="mt-7 text-5xl font-semibold tracking-[-0.065em] md:text-7xl">
-                Nestrova Research
+
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
+                Research any asset.
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/48">
-                Research stocks and crypto with Nestrova AI.
-                Start with any symbol and get the important
-                information without the complexity.
-              </p>
+              <p className="nestrova-research-intro mt-3 max-w-xl text-sm leading-6 text-slate-300">
+  Search a stock or crypto symbol for a clear, evidence-based outlook.
+</p>
 
               <ResearchQuickSearch />
             </div>
 
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.045] p-5">
-              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/28">
-                Research Source
-              </p>
-
-              <p className="mt-2 text-sm font-semibold text-white/70">
-                Public Nestrova Gateway
-              </p>
-
-              <p className="mt-2 text-xs text-white/30">
-                Updated: {generatedAt}
-              </p>
-            </div>
+            <p className="self-end text-xs leading-6 text-slate-400">Source: Public Nestrova Gateway | Updated: {generatedAt}</p>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <details className="mt-6 rounded-xl border border-[#34475a]/55 bg-[#132334]/55 px-4 py-3">
+  <summary className="cursor-pointer text-sm font-medium text-slate-300">Research coverage and metrics</summary>
+<div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
               [
                 "Active Discoveries",
@@ -196,7 +181,7 @@ export default async function ResearchPage() {
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5"
+                className="rounded-[24px] border border-[#34475a]/70 bg-[#172636]/85 p-5"
               >
                 <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/28">
                   {label}
@@ -208,6 +193,7 @@ export default async function ResearchPage() {
               </div>
             ))}
           </div>
+</details>
         </div>
       </section>
 
@@ -219,7 +205,7 @@ export default async function ResearchPage() {
             </p>
 
             <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] md:text-4xl">
-              What Nestrova is seeing now.
+              Latest signals
             </h2>
           </div>
 
@@ -232,8 +218,8 @@ export default async function ResearchPage() {
         </div>
 
         {discoveries.length > 0 ? (
-          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {discoveries.map(
+          <div className="nestrova-research-signal-grid mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {discoveries.slice(0, 3).map(
               (item, index) => {
                 const confidence =
                   Math.round(
@@ -261,7 +247,7 @@ export default async function ResearchPage() {
                           )}`
                         : "/trading/markets"
                     }
-                    className="group rounded-[26px] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
+                    className="group rounded-[26px] border border-[#34475a]/70 bg-[#172636]/85 p-5 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -287,9 +273,6 @@ export default async function ResearchPage() {
                     </div>
 
                     <div className="mt-5">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/25">
-                        Research View
-                      </p>
 
                       <p className="mt-2 text-sm font-semibold text-white/60">
                         {cleanLabel(
@@ -313,7 +296,7 @@ export default async function ResearchPage() {
                     </div>
 
                     <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
-                      <span className="text-xs text-white/30">
+                      <span className="text-xs text-white/55">
                         {tone.label}
                       </span>
 
@@ -351,15 +334,21 @@ export default async function ResearchPage() {
           </p>
 
           <h2 className="mt-3 text-3xl font-black tracking-[-0.05em]">
-            Choose how deep you want to go.
+            Research tools
           </h2>
 
           <p className="mt-3 max-w-2xl text-sm leading-7 text-white/40">
-            Start simple, then use advanced tools only when you need more detail.
+            Open additional research tools when you need more detail.
           </p>
         </div>
 
-        <div className="mt-7 grid gap-5 lg:grid-cols-3">
+        <details className="nestrova-tools-disclosure mt-5 rounded-2xl border border-[#34475a]/60 bg-[#132334]/70 px-5 py-4">
+  <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-3 text-sm font-semibold text-slate-100 focus-visible:outline-2 focus-visible:outline-[#68d4c5]">
+    <span>Show research tools</span>
+    <span className="text-xs font-normal text-slate-400">Deep Research · AI Council · Compare</span>
+  </summary>
+  <div className="pt-4">
+<div className="mt-7 grid gap-5 lg:grid-cols-3">
           {[
             {
               title: "Deep Research",
@@ -386,7 +375,7 @@ export default async function ResearchPage() {
             <Link
               key={item.title}
               href={item.href}
-              className="group rounded-[30px] border border-white/10 bg-white/[0.045] p-6 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
+              className="group rounded-[30px] border border-[#34475a]/70 bg-[#172636]/90 p-6 transition hover:-translate-y-1 hover:border-violet-300/20 hover:bg-white/[0.065]"
             >
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-200/55">
                 Research
@@ -406,8 +395,10 @@ export default async function ResearchPage() {
             </Link>
           ))}
         </div>
+  </div>
+</details>
 
-        <details className="mt-7 rounded-[28px] border border-white/10 bg-white/[0.03]">
+        <details className="mt-7 rounded-[28px] border border-[#34475a]/70 bg-[#172636]/75">
           <summary className="cursor-pointer px-6 py-5 text-sm font-semibold text-white/55">
             Advanced Research
           </summary>
@@ -443,7 +434,7 @@ export default async function ResearchPage() {
                 <Link
                   key={item.title}
                   href={item.href}
-                  className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-4 text-sm font-semibold text-white/55 transition hover:bg-white/[0.05] hover:text-white"
+                  className="rounded-[20px] border border-[#34475a]/60 bg-[#112132]/90 px-4 py-4 text-sm font-semibold text-white/55 transition hover:bg-white/[0.05] hover:text-white"
                 >
                   {item.title}
                 </Link>

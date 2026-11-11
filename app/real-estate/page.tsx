@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/ClerkCompat";
 import UserAwareNestrovaShell from "@/components/shell/UserAwareNestrovaShell";
-import RealEstateDiscoveryV3 from "@/components/real-estate/RealEstateDiscoveryV3";
+import RealEstateWorkspaceV9 from "@/components/real-estate/RealEstateWorkspaceV9";
 import { formatRealEstateCurrency } from "@/lib/real-estate/global/formatters";
 import type { RealEstateCountryCode } from "@/lib/real-estate/global/country-config";
 import {
@@ -325,8 +325,8 @@ export default function RealEstateDashboardPage() {
 
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-[#08080b] px-4 py-8 text-white">
-        <RealEstateDiscoveryV3 />
+      <main className="min-h-screen bg-[#0d1724] px-4 py-8 text-white">
+        <RealEstateWorkspaceV9 />
         <div className="mx-auto max-w-7xl animate-pulse">
           <div className="h-64 rounded-[36px] border border-white/10 bg-white/[0.04]" />
         </div>
@@ -336,26 +336,8 @@ export default function RealEstateDashboardPage() {
 
   if (!isSignedIn) {
     return (
-      <main className="flex min-h-screen w-full min-w-0 flex-col items-stretch gap-8 overflow-x-hidden bg-[#08080b] px-4 py-8 text-white">
-        <RealEstateDiscoveryV3 />
-        <div className="mx-auto w-full max-w-2xl rounded-[36px] border border-white/10 bg-white/[0.05] p-10 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300/70">
-            Real Estate Intelligence
-          </p>
-
-          <h2 className="mt-5 text-3xl font-black tracking-[-0.05em]">Sign in to access your saved property dashboard.</h2>
-
-          <p className="mt-4 text-white/45">
-            Analyze properties, save opportunities, and review your AI property portfolio.
-          </p>
-
-          <Link
-            href="/analyze"
-            className="mt-7 inline-flex rounded-[14px] bg-white px-6 py-3 text-sm font-bold text-black"
-          >
-            Start Property Analysis
-          </Link>
-        </div>
+      <main className="min-h-screen w-full overflow-x-hidden bg-[#0d1724] px-4 py-8 text-white">
+        <RealEstateWorkspaceV9 />
       </main>
     );
   }
@@ -365,7 +347,7 @@ export default function RealEstateDashboardPage() {
       title="Real Estate"
     >
       <div className="mx-auto w-full max-w-[1580px] px-5 py-8 md:px-8 md:py-10">
-        <RealEstateDiscoveryV3 />
+        <RealEstateWorkspaceV9 />
 
         {error ? (
           <section className="mt-6 rounded-[26px] border border-red-400/20 bg-red-400/[0.08] p-5">
@@ -393,26 +375,43 @@ export default function RealEstateDashboardPage() {
             <div className="h-96 rounded-[32px] border border-white/10 bg-white/[0.04]" />
           </section>
         ) : properties.length === 0 ? (
-          <section className="mt-6 rounded-[32px] border border-white/10 bg-white/[0.04] p-9 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300/70">
-              Property Portfolio
-            </p>
+          <section
+  aria-labelledby="saved-properties-empty-title"
+  className="mt-6 rounded-[22px] border border-[#34475a]/65 bg-[#172636]/80 px-6 py-7 sm:px-8"
+>
+  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="max-w-2xl">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#68d4c5]">
+        Your collection
+      </p>
+      <h2
+        id="saved-properties-empty-title"
+        className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-white"
+      >
+        Saved properties
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-slate-300">
+        Your shortlist is empty. Save properties to compare
+        estimated value, rental potential, and investment risk.
+      </p>
+    </div>
 
-            <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
-              No saved properties yet.
-            </h2>
-
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/40">
-              Saved properties will appear here.
-            </p>
-
-            <Link
-              href="/analyze"
-              className="mt-6 inline-flex rounded-[14px] bg-emerald-300 px-5 py-3 text-sm font-bold text-black"
-            >
-              Analyze
-            </Link>
-          </section>
+    <div className="flex shrink-0 flex-wrap gap-3">
+      <Link
+        href="#nestrova-property-workspace-title"
+        className="inline-flex items-center justify-center rounded-xl bg-[#68d4c5] px-5 py-3 text-sm font-semibold text-[#0d1724] transition hover:bg-[#91e6da]"
+      >
+        Explore properties
+      </Link>
+      <Link
+        href="/saved"
+        className="inline-flex items-center justify-center rounded-xl border border-white/15 px-5 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/[0.06]"
+      >
+        Open saved
+      </Link>
+    </div>
+  </div>
+</section>
         ) : (
           <>
             {bestProperty ? (
@@ -434,14 +433,14 @@ export default function RealEstateDashboardPage() {
                         bestProperty.address || "",
                       )}&price=${
                         bestProperty.listing_price || ""
-                      }`}
+                      }&saved=1`}
                       className="text-sm font-semibold text-emerald-200/70 transition hover:text-emerald-200"
                     >
-                      View full analysis ??
+                      View full analysis
                     </Link>
                   </div>
 
-                  <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+                  <div className="nestrova-saved-feature mt-5 grid gap-5">
                     <div className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6">
                       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
@@ -506,7 +505,7 @@ export default function RealEstateDashboardPage() {
                             bestProperty.address || "",
                           )}&price=${
                             bestProperty.listing_price || ""
-                          }`}
+                          }&saved=1`}
                           className="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-3 text-sm font-bold text-black transition hover:bg-neutral-200"
                         >
                           View Analysis
@@ -560,7 +559,7 @@ export default function RealEstateDashboardPage() {
                             property.address || "",
                           )}&price=${
                             property.listing_price || ""
-                          }`}
+                          }&saved=1`}
                           className="group rounded-[26px] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-emerald-300/20 hover:bg-white/[0.065]"
                         >
                           <div className="flex items-start justify-between gap-4">
@@ -603,7 +602,7 @@ export default function RealEstateDashboardPage() {
                             </div>
 
                             <span className="text-sm font-semibold text-emerald-200/60 transition group-hover:text-emerald-200">
-                              Open ??
+                              Open property
                             </span>
                           </div>
                         </Link>

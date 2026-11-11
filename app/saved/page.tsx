@@ -176,10 +176,10 @@ export default function SavedDealsPage() {
 
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-[#050505] px-5 py-10 text-white">
+      <main className="min-h-screen bg-[#0d1724] px-5 py-10 text-white">
         <div className="mx-auto max-w-6xl animate-pulse">
           <div className="h-10 w-52 rounded-full bg-white/10" />
-          <div className="mt-8 h-72 rounded-[40px] border border-white/10 bg-white/[0.05]" />
+          <div className="mt-8 h-72 rounded-[24px] border border-[#34475a]/70 bg-[#172636]/90" />
         </div>
       </main>
     );
@@ -187,7 +187,7 @@ export default function SavedDealsPage() {
 
   if (!isSignedIn) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-[#050505] px-5 py-12 text-white">
+      <main className="relative min-h-screen overflow-hidden bg-[#0d1724] px-5 py-12 text-white">
         <div className="pointer-events-none fixed inset-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.13]" />
           <div className="absolute -left-48 -top-48 h-[720px] w-[720px] rounded-full bg-emerald-400/10 blur-3xl" />
@@ -195,12 +195,12 @@ export default function SavedDealsPage() {
         </div>
 
         <section className="relative mx-auto flex min-h-[75vh] max-w-4xl items-center justify-center">
-          <div className="w-full rounded-[44px] border border-white/10 bg-white/[0.06] p-8 text-center shadow-[0_40px_140px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12">
+          <div className="w-full rounded-[24px] border border-[#34475a]/70 bg-[#172636]/90 p-8 text-center shadow-[0_40px_140px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/70">
               Nestrova Saved Deals
             </p>
 
-            <h1 className="mt-5 text-5xl font-semibold tracking-[-0.06em] md:text-7xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-5xl">
               Your saved properties are waiting.
             </h1>
 
@@ -237,16 +237,17 @@ export default function SavedDealsPage() {
       title="Real Estate"
       subtitle="Review, compare, and manage your saved property opportunities."
     >
+      <div className="nestrova-v9f8-saved min-w-0 w-full">
       <div className="mx-auto w-full max-w-[1380px] px-5 py-8 md:px-8 md:py-10">
-        <section className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.05] p-7 shadow-[0_35px_120px_rgba(0,0,0,0.35)] md:p-9">
+        <section className="overflow-hidden rounded-[38px] border border-[#34475a]/70 bg-[#172636]/90 p-7 shadow-[0_35px_120px_rgba(0,0,0,0.35)] md:p-9">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
+              <div className="inline-flex items-center gap-3 rounded-full border border-[#34475a]/60 bg-[#112132]/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.8)]" />
                 Property Watchlist
               </div>
 
-              <h1 className="mt-6 text-5xl font-semibold tracking-[-0.065em] md:text-7xl">
+              <h1 className="mt-4 text-3xl font-semibold tracking-[-0.045em] md:text-5xl">
                 My Saved Deals
               </h1>
 
@@ -256,7 +257,7 @@ export default function SavedDealsPage() {
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-black/25 px-6 py-5">
+            <div className="rounded-[28px] border border-[#34475a]/60 bg-[#112132]/90 px-6 py-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
                 Saved Properties
               </p>
@@ -296,7 +297,7 @@ export default function SavedDealsPage() {
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-80 animate-pulse rounded-[34px] border border-white/10 bg-white/[0.05]"
+                  className="h-80 animate-pulse rounded-[34px] border border-[#34475a]/70 bg-[#172636]/90"
                 />
               ))}
             </div>
@@ -305,7 +306,7 @@ export default function SavedDealsPage() {
               {properties.map((property) => (
                 <article
                   key={property.id}
-                  className="relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.055] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.25)] backdrop-blur-xl"
+                  className="relative overflow-hidden rounded-[34px] border border-[#34475a]/70 bg-[#172636]/90 p-6 shadow-[0_24px_90px_rgba(0,0,0,0.25)] backdrop-blur-xl"
                 >
                   <div className="absolute -right-24 -top-24 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
 
@@ -337,7 +338,7 @@ export default function SavedDealsPage() {
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                      <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                      <div className="rounded-[22px] border border-[#34475a]/60 bg-[#112132]/90 p-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
                           Investment Score
                         </p>
@@ -347,7 +348,7 @@ export default function SavedDealsPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                      <div className="rounded-[22px] border border-[#34475a]/60 bg-[#112132]/90 p-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
                           Listing
                         </p>
@@ -357,7 +358,7 @@ export default function SavedDealsPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                      <div className="rounded-[22px] border border-[#34475a]/60 bg-[#112132]/90 p-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
                           Fair Value
                         </p>
@@ -367,7 +368,7 @@ export default function SavedDealsPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                      <div className="rounded-[22px] border border-[#34475a]/60 bg-[#112132]/90 p-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
                           Est. Rent
                         </p>
@@ -418,8 +419,8 @@ export default function SavedDealsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-[40px] border border-white/10 bg-white/[0.05] p-8 text-center backdrop-blur-2xl md:p-12">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[20px] border border-white/10 bg-black/25 text-lg font-bold text-white/50">
+            <div className="rounded-[24px] border border-[#34475a]/70 bg-[#172636]/90 p-8 text-center backdrop-blur-2xl md:p-12">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[20px] border border-[#34475a]/60 bg-[#112132]/90 text-lg font-bold text-white/50">
                 SD
               </div>
 
@@ -443,6 +444,7 @@ export default function SavedDealsPage() {
         </section>
 
       </div>
-    </UserAwareNestrovaShell>
+          </div>
+</UserAwareNestrovaShell>
   );
 }

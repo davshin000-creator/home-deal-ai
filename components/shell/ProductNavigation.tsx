@@ -11,16 +11,8 @@ type ProductNavigationItem = {
 
 const realEstateNavigation: ProductNavigationItem[] = [
   {
-    label: "Overview",
+    label: "Explore",
     href: "/real-estate",
-  },
-  {
-    label: "Search",
-    href: "/deals",
-  },
-  {
-    label: "Analyze",
-    href: "/analyze",
   },
   {
     label: "Saved",
@@ -117,15 +109,15 @@ export default function ProductNavigation() {
     : "Real Estate navigation";
 
   const activeClassName = trading
-    ? "border-cyan-300/20 bg-cyan-300/[0.11] text-cyan-100"
-    : "border-emerald-300/20 bg-emerald-300/[0.11] text-emerald-100";
+    ? "border-cyan-300/25 bg-cyan-300/[0.085] text-cyan-50"
+    : "border-[#68d4c5]/25 bg-[#68d4c5]/[0.085] text-[#eafffa]";
 
   return (
-    <div className="sticky top-[72px] z-30 border-b border-white/10 bg-[#08080b]/90 backdrop-blur-2xl">
+    <div className="sticky top-[72px] z-30 nestrova-premium-tabs border-b border-[#34475a]/55 bg-[#101d2b]/95 backdrop-blur-2xl">
       <div className="overflow-x-auto">
         <nav
           aria-label={navigationLabel}
-          className="mx-auto flex min-w-max items-center gap-1 px-4 py-2.5 md:px-7 xl:px-8"
+          className="mx-auto flex min-w-max items-center gap-1.5 px-4 py-2.5 md:px-7 xl:px-8"
         >
           {navigation.map((item) => {
             const active = isActivePath(
@@ -141,11 +133,11 @@ export default function ProductNavigation() {
                   active ? "page" : undefined
                 }
                 className={[
-                  "shrink-0 rounded-[12px] border px-3.5 py-2",
-                  "text-xs font-semibold transition",
+                  "nestrova-segment-tab inline-flex min-h-10 shrink-0 items-center rounded-[10px] border px-4 py-2",
+                  "text-xs font-medium tracking-[-0.01em] transition-colors duration-150",
                   active
                     ? activeClassName
-                    : "border-transparent text-white/40 hover:border-white/10 hover:bg-white/[0.05] hover:text-white",
+                    : "border-transparent text-slate-300/75 hover:border-white/10 hover:bg-white/[0.045] hover:text-white",
                 ].join(" ")}
               >
                 {item.label}

@@ -22,7 +22,12 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 
@@ -50,5 +55,1035 @@ body {
 
   75% {
     transform: rotate(4deg);
+  }
+}
+
+
+/* NESTROVA_V9E2R2_THEME */
+:root {
+  --nestrova-canvas: #0d1724;
+  --nestrova-surface: #172636;
+  --nestrova-elevated: #1d3042;
+  --nestrova-border: #304355;
+  --nestrova-muted: #a2b4c1;
+  --nestrova-accent: #68d4c5;
+}
+
+.nestrova-app-canvas {
+  background-color: var(--nestrova-canvas);
+  background-image:
+    radial-gradient(
+      ellipse 900px 550px at 100% 0%,
+      rgba(104, 212, 197, 0.055),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 750px 500px at 0% 100%,
+      rgba(85, 125, 160, 0.055),
+      transparent 75%
+    );
+}
+
+.nestrova-auth-canvas {
+  background-color: var(--nestrova-canvas) !important;
+  background-image:
+    radial-gradient(
+      ellipse 800px 520px at 15% 0%,
+      rgba(104, 212, 197, 0.08),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 750px 550px at 100% 100%,
+      rgba(85, 125, 160, 0.075),
+      transparent 74%
+    ) !important;
+  color: #f2f6f9;
+}
+
+.nestrova-auth-canvas h1 {
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+.nestrova-auth-canvas input[type="email"],
+.nestrova-auth-canvas input[type="text"] {
+  background-color: #172636 !important;
+  border-color: rgba(173, 200, 217, 0.25) !important;
+  color: #f2f6f9 !important;
+}
+
+.nestrova-auth-canvas input::placeholder {
+  color: #a2b4c1 !important;
+}
+
+.nestrova-auth-canvas :is(input, button, a):focus-visible {
+  outline: 2px solid #68d4c5;
+  outline-offset: 3px;
+}
+
+
+/* NESTROVA_V9E8_THEME */
+
+/* Shared application top bar. Scoped to the verified Shell. */
+.nestrova-app-canvas > .flex > .min-w-0 > :first-child {
+  background-color: rgba(16, 29, 43, 0.97) !important;
+  border-bottom-color: rgba(164, 187, 204, 0.17) !important;
+}
+
+/* Restrained, consistent keyboard interaction. */
+.nestrova-app-canvas :is(a, button, input, select):focus-visible {
+  outline: 2px solid var(--nestrova-accent, #68d4c5);
+  outline-offset: 3px;
+}
+
+/* Preserve readable inputs against midnight surfaces. */
+.nestrova-app-canvas input::placeholder {
+  color: #8fa6b7;
+}
+
+
+/* NESTROVA_V9E9_NAV */
+
+/* Quiet premium sidebar surface. */
+.nestrova-premium-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(17, 31, 45, 0.985) 0%,
+    rgba(13, 26, 40, 0.985) 100%
+  );
+  box-shadow: 1px 0 0 rgba(162, 188, 205, 0.035);
+}
+
+/* Uniform navigation geometry and refined motion. */
+.nestrova-premium-sidebar nav a {
+  min-height: 46px;
+  border-radius: 13px;
+  letter-spacing: -0.01em;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Harmonize existing custom line icons. */
+.nestrova-premium-sidebar nav a svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 1.75;
+}
+
+/* Calm, readable secondary navigation. */
+.nestrova-premium-tabs {
+  box-shadow: 0 8px 24px rgba(4, 12, 22, 0.10);
+}
+
+.nestrova-premium-tabs nav a {
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.nestrova-premium-tabs nav a[aria-current="page"] {
+  box-shadow:
+    inset 0 -1px 0 rgba(104, 212, 197, 0.22);
+}
+
+/* Accessible keyboard focus without distracting animation. */
+.nestrova-premium-sidebar a:focus-visible,
+.nestrova-premium-tabs a:focus-visible {
+  outline: 2px solid #68d4c5;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nestrova-premium-sidebar nav a,
+  .nestrova-premium-tabs nav a {
+    transition: none;
+  }
+}
+
+/* NESTROVA_V9E10_NAV */
+
+/* Unified sidebar: higher contrast, quieter brand surface. */
+.nestrova-premium-sidebar {
+  background: #102031 !important;
+  border-right-color: rgba(129, 162, 185, 0.22) !important;
+}
+
+.nestrova-premium-sidebar nav a {
+  min-height: 50px !important;
+  padding: 8px 11px !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #b8cbd8 !important;
+  font-size: 13px !important;
+  font-weight: 520 !important;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease !important;
+}
+
+.nestrova-premium-sidebar nav a:hover {
+  background: rgba(148, 179, 199, 0.085) !important;
+  color: #f0f8fc !important;
+}
+
+.nestrova-premium-sidebar nav a:is(
+  [aria-current="page"],
+  [class*="shadow-[inset_2px"]
+) {
+  background: #1e3945 !important;
+  border-color: rgba(104, 212, 197, 0.32) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 3px 0 0 #68d4c5,
+    0 3px 14px rgba(0, 0, 0, 0.08) !important;
+  font-weight: 620 !important;
+}
+
+/* Consistent icon chips for all six product/account links. */
+.nestrova-premium-sidebar nav a span:has(> svg) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  border: 1px solid rgba(149, 181, 200, 0.18) !important;
+  border-radius: 10px !important;
+  background: #1b3042 !important;
+  color: #b0c9d8 !important;
+}
+
+.nestrova-premium-sidebar nav a svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 1.75;
+}
+
+.nestrova-premium-sidebar nav a:is(
+  [aria-current="page"],
+  [class*="shadow-[inset_2px"]
+) span:has(> svg) {
+  border-color: rgba(104, 212, 197, 0.26) !important;
+  background: #254c53 !important;
+  color: #85e4d7 !important;
+}
+
+/* Clearly grouped product navigation rather than loose text links. */
+.nestrova-premium-tabs {
+  background: #102031 !important;
+  border-bottom: 1px solid rgba(129, 162, 185, 0.22) !important;
+}
+
+.nestrova-premium-tabs nav {
+  display: flex !important;
+  align-items: center !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  gap: 4px !important;
+  margin: 7px 0 7px clamp(12px, 2vw, 32px) !important;
+  padding: 5px !important;
+  border: 1px solid rgba(137, 168, 188, 0.25);
+  border-radius: 15px;
+  background: #0b1928;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.nestrova-premium-tabs .nestrova-segment-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #b6c8d5 !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  letter-spacing: -0.01em;
+}
+
+.nestrova-premium-tabs .nestrova-segment-tab:hover {
+  background: #192e40 !important;
+  color: #f0f8fc !important;
+}
+
+.nestrova-premium-tabs .nestrova-segment-tab[aria-current="page"] {
+  background: #294a51 !important;
+  border-color: rgba(104, 212, 197, 0.35) !important;
+  color: #f5fffd !important;
+  font-weight: 660 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.13) !important;
+}
+
+.nestrova-premium-tabs .nestrova-segment-tab[aria-current="page"]::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #76e0d2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nestrova-premium-sidebar nav a,
+  .nestrova-premium-tabs .nestrova-segment-tab {
+    transition: none !important;
+  }
+}
+
+/* NESTROVA_V9E11_TEXT_NAV */
+
+/* Hide icon chips only inside the sidebar navigation. */
+.nestrova-premium-sidebar nav a span:has(> svg) {
+  display: none !important;
+}
+
+/* Compact and consistent text navigation. */
+.nestrova-premium-sidebar nav a {
+  min-height: 43px !important;
+  padding: 9px 15px !important;
+  gap: 0 !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  color: #bdccd7 !important;
+}
+
+/* Calm hover state. */
+.nestrova-premium-sidebar nav a:hover {
+  background: rgba(148, 179, 199, 0.075) !important;
+  color: #f4f9fc !important;
+}
+
+/* Clear but restrained active state. */
+.nestrova-premium-sidebar nav a:is(
+  [aria-current="page"],
+  [class*="shadow-[inset_2px"]
+) {
+  background: rgba(104, 212, 197, 0.085) !important;
+  border-color: rgba(104, 212, 197, 0.20) !important;
+  border-radius: 10px !important;
+  box-shadow: inset 2px 0 0 #68d4c5 !important;
+  color: #f6fffd !important;
+  font-weight: 620 !important;
+}
+
+/* Maintain keyboard accessibility. */
+.nestrova-premium-sidebar nav a:focus-visible {
+  outline: 2px solid #68d4c5 !important;
+  outline-offset: 3px;
+}
+
+/* NESTROVA_V9E12_READABILITY */
+
+/* More balanced hierarchy under the Radar headline. */
+.nestrova-app-canvas .nestrova-radar-secondary {
+  display: block;
+  margin-top: 0.3rem;
+  color: #b6c5d2 !important;
+  font-size: clamp(2rem, 3.1vw, 3.1rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.16;
+  letter-spacing: -0.045em;
+}
+
+/* Comfortable line length and contrast in Research. */
+.nestrova-app-canvas .nestrova-research-intro {
+  max-width: 66ch;
+  color: #b6c5d2 !important;
+  font-size: clamp(1rem, 1.1vw, 1.125rem);
+  line-height: 1.7;
+}
+
+/* Preserve keyboard navigation visibility. */
+.nestrova-premium-sidebar a:focus-visible,
+.nestrova-premium-tabs a:focus-visible {
+  outline: 2px solid #68d4c5;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+  .nestrova-app-canvas .nestrova-radar-secondary {
+    font-size: clamp(1.8rem, 4.3vw, 2.7rem) !important;
+  }
+}
+
+/* NESTROVA_V9E13B_R1 */
+.nestrova-hide-title-icon {
+  display: none !important;
+}
+
+.nestrova-app-canvas summary {
+  list-style-position: inside;
+}
+
+.nestrova-app-canvas details[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
+/* NESTROVA_V9E14 */
+
+/* Radar: compact metrics with unchanged values. */
+.nestrova-radar-compact-metrics > article {
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  min-height: 0 !important;
+}
+
+/* Research: shorter, calmer featured signal cards. */
+.nestrova-research-signal-grid > a {
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  transform: none !important;
+}
+
+.nestrova-research-signal-grid > a:hover {
+  border-color: rgba(104, 212, 197, 0.3) !important;
+  background-color: #203247 !important;
+}
+
+/* Research tools remain discoverable and keyboard accessible. */
+.nestrova-research-tools-fold {
+  border-top: 1px solid rgba(145, 174, 194, 0.15);
+}
+
+.nestrova-research-tools-fold > summary {
+  list-style: none;
+}
+
+.nestrova-research-tools-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nestrova-research-tools-fold > summary:hover {
+  color: #68d4c5;
+}
+
+.nestrova-research-tools-fold > summary:focus-visible {
+  outline: 2px solid #68d4c5;
+  outline-offset: -2px;
+}
+
+.nestrova-research-tools-fold[open] > summary {
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .nestrova-research-tools-fold > summary {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nestrova-research-signal-grid > a {
+    transition: none !important;
+  }
+}
+
+/* NESTROVA_V9E15 */
+
+/* Refined market overview cards, without changing API values. */
+.nestrova-overview-premium > article {
+  border: 1px solid rgba(128, 166, 187, 0.23) !important;
+  border-radius: 19px !important;
+  background: linear-gradient(
+    155deg,
+    rgba(23, 42, 58, 0.98),
+    rgba(14, 28, 43, 0.98)
+  ) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.nestrova-overview-premium > article [class*="text-3xl"],
+.nestrova-overview-premium > article [class*="text-4xl"] {
+  font-family: Georgia, Cambria, "Times New Roman", serif !important;
+  font-weight: 500 !important;
+  font-size: clamp(1.9rem, 2.5vw, 2.5rem) !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1.15;
+}
+
+.nestrova-overview-premium > article [class*="uppercase"] {
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  color: #a4bac8 !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.13em !important;
+}
+
+.nestrova-overview-premium > article svg {
+  stroke-width: 1.55;
+}
+
+.nestrova-overview-premium > article [class*="text-white/35"],
+.nestrova-overview-premium > article [class*="text-white/40"] {
+  color: #96adbd !important;
+}
+
+/* NESTROVA_V9E18_RADAR */
+
+/* Radar only: target MetricTile's actual value element. */
+.nestrova-overview-premium
+  > article.nestrova-radar-premium-stat
+  > div:first-child
+  > div:first-child
+  > div {
+  font-family: Georgia, Cambria, "Times New Roman", serif !important;
+  font-size: clamp(1.9rem, 2.6vw, 2.45rem) !important;
+  font-weight: 400 !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.045em !important;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Quiet, readable uppercase labels. */
+.nestrova-overview-premium
+  > article.nestrova-radar-premium-stat
+  > div:first-child
+  > div:first-child
+  > p {
+  font-family: var(--font-geist-sans), Arial, sans-serif !important;
+  color: #aec4d1 !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+}
+
+/* Refined icon containers without changing the glyphs. */
+.nestrova-overview-premium
+  > article.nestrova-radar-premium-stat
+  > div:first-child
+  > span {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+@media (max-width: 640px) {
+  .nestrova-overview-premium
+    > article.nestrova-radar-premium-stat
+    > div:first-child
+    > div:first-child
+    > div {
+    font-size: 2rem !important;
+  }
+}
+
+/* NESTROVA_V9F4B_ANALYZE */
+
+/* Analyze-only sidebar: preserve access and usage information. */
+main.nestrova-analysis-v9
+  > div
+  > section:first-child
+  > :nth-child(2) {
+  border: 1px solid rgba(126, 161, 183, 0.24) !important;
+  border-radius: 24px !important;
+  background: #172636 !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* Readable secondary text on midnight surfaces. */
+main.nestrova-analysis-v9 [class*="text-white/30"],
+main.nestrova-analysis-v9 [class*="text-white/35"] {
+  color: #9eb5c6 !important;
+}
+
+main.nestrova-analysis-v9 [class*="text-white/45"] {
+  color: #afc0cf !important;
+}
+
+@media (max-width: 768px) {
+  main.nestrova-analysis-v9
+    > div
+    > section:first-child
+    > :nth-child(2) {
+    border-radius: 20px !important;
+  }
+}
+
+/* NESTROVA_V9F4C_R1 */
+
+/* Keep plan names and remaining quota within the right panel. */
+main.nestrova-analysis-v9
+  > div > section:first-child > :nth-child(2) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+main.nestrova-analysis-v9
+  > div > section:first-child > :nth-child(2)
+  :is(p, span, h2, h3, dd) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+main.nestrova-analysis-v9
+  > div > section:first-child > :nth-child(2)
+  [class*="grid-cols-2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+main.nestrova-analysis-v9
+  > div > section:first-child > :nth-child(2)
+  [class*="text-4xl"],
+main.nestrova-analysis-v9
+  > div > section:first-child > :nth-child(2)
+  [class*="text-5xl"] {
+  font-size: clamp(1.7rem, 2.2vw, 2.5rem) !important;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+@media (max-width: 640px) {
+  main.nestrova-analysis-v9
+    > div > section:first-child > :nth-child(2)
+    [class*="grid-cols-2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* NESTROVA_V9F6_PREMIUM */
+
+/*
+  Editorial design layer for Analyze only.
+  No result values, status calculations, links, or APIs change.
+*/
+
+main.nestrova-analysis-editorial {
+  --analysis-surface: #162637;
+  --analysis-inner: #111f2e;
+  --analysis-border: rgba(139, 171, 192, 0.21);
+  --analysis-text: #f0f5f8;
+  --analysis-muted: #a8bbca;
+  --analysis-accent: #81d4c5;
+
+  background: #0d1724 !important;
+  color: var(--analysis-text);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+/* One restrained surface style for all report sections. */
+main.nestrova-analysis-editorial
+  :is(section, article)[class*="bg-"] {
+  background-color: var(--analysis-surface) !important;
+  background-image: none !important;
+  border-color: var(--analysis-border) !important;
+  box-shadow: none !important;
+}
+
+/* Remove heavy outlines, exaggerated corners and glows. */
+main.nestrova-analysis-editorial
+  :is(section, article)[class*="rounded"] {
+  border-radius: 20px !important;
+  box-shadow: none !important;
+}
+
+main.nestrova-analysis-editorial
+  :is(section, article)[class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* Quiet nested panels instead of competing colored blocks. */
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-violet-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-indigo-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-fuchsia-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-purple-"] {
+  background-color: #1b2c3d !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-cyan-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-sky-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-blue-"] {
+  background-color: #182d3b !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Positive signals retain meaning, without bright green panels. */
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-emerald-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-green-"] {
+  background-color: #192f31 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Warning/risk panels are restrained, not saturated yellow. */
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-amber-"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-yellow-"] {
+  background-color: #2a2a2a !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove ornamental gradients from report panels. */
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-[linear-gradient"],
+main.nestrova-analysis-editorial
+  :is(div, section, article)[class*="bg-[radial-gradient"] {
+  background-image: none !important;
+}
+
+/* Keep headings calm, consistent and readable. */
+main.nestrova-analysis-editorial h1 {
+  font-weight: 600 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.15 !important;
+}
+
+main.nestrova-analysis-editorial h2 {
+  font-size: clamp(1.3rem, 2vw, 1.8rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.25 !important;
+}
+
+main.nestrova-analysis-editorial h3 {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.3 !important;
+}
+
+main.nestrova-analysis-editorial [class*="font-black"] {
+  font-weight: 650 !important;
+}
+
+/* Simplify excessive uppercase labels. */
+main.nestrova-analysis-editorial
+  [class*="uppercase"][class*="tracking"] {
+  font-weight: 600 !important;
+  letter-spacing: 0.11em !important;
+}
+
+/* Reduce competing report accent colors. */
+main.nestrova-analysis-editorial [class*="text-violet-"],
+main.nestrova-analysis-editorial [class*="text-purple-"],
+main.nestrova-analysis-editorial [class*="text-indigo-"] {
+  color: #b9c8d4 !important;
+}
+
+main.nestrova-analysis-editorial [class*="text-cyan-"],
+main.nestrova-analysis-editorial [class*="text-sky-"],
+main.nestrova-analysis-editorial [class*="text-blue-"] {
+  color: #a8d1d7 !important;
+}
+
+main.nestrova-analysis-editorial [class*="text-emerald-"],
+main.nestrova-analysis-editorial [class*="text-green-"] {
+  color: #8dd5c3 !important;
+}
+
+main.nestrova-analysis-editorial [class*="text-amber-"],
+main.nestrova-analysis-editorial [class*="text-yellow-"] {
+  color: #d8c79a !important;
+}
+
+/* Stronger readability for descriptions and small metadata. */
+main.nestrova-analysis-editorial [class*="text-white/30"],
+main.nestrova-analysis-editorial [class*="text-white/35"],
+main.nestrova-analysis-editorial [class*="text-white/40"] {
+  color: #a4b8c7 !important;
+}
+
+main.nestrova-analysis-editorial [class*="text-white/45"],
+main.nestrova-analysis-editorial [class*="text-white/50"] {
+  color: #b6c7d2 !important;
+}
+
+/* Compact data cards. */
+main.nestrova-analysis-editorial dl > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  border-radius: 12px;
+}
+
+main.nestrova-analysis-editorial dt {
+  color: #aec0cc;
+  line-height: 1.5;
+}
+
+main.nestrova-analysis-editorial dd {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+
+/* Cleaner financial comparison tables. */
+main.nestrova-analysis-editorial table {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+main.nestrova-analysis-editorial
+  :is(th, td) {
+  border-color: rgba(148, 170, 189, 0.13) !important;
+  line-height: 1.5;
+}
+
+main.nestrova-analysis-editorial th {
+  color: #aebfcb !important;
+  font-weight: 600;
+}
+
+/* Preserve accessible controls, with restrained rounded corners. */
+main.nestrova-analysis-editorial
+  :is(button, a)[class*="rounded"] {
+  border-radius: 11px !important;
+}
+
+main.nestrova-analysis-editorial
+  :is(button, a):focus-visible {
+  outline: 2px solid #81d4c5;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  main.nestrova-analysis-editorial h1 {
+    font-size: clamp(1.65rem, 6vw, 2.15rem) !important;
+    overflow-wrap: anywhere;
+  }
+
+  main.nestrova-analysis-editorial h2 {
+    font-size: 1.35rem !important;
+  }
+}
+
+/* NESTROVA_V9F7A */
+
+/* Keep the saved portfolio focused on actual property data. */
+.nestrova-saved-feature {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.nestrova-saved-feature > :nth-child(2) {
+  display: none !important;
+}
+
+.nestrova-saved-feature > :first-child {
+  min-width: 0;
+  width: 100%;
+  border-radius: 20px !important;
+  background: #172636 !important;
+  border-color: rgba(139, 171, 192, 0.2) !important;
+}
+
+.nestrova-saved-feature [class*="font-black"] {
+  font-weight: 600 !important;
+}
+
+/* Smaller screens: prevent membership text from overflowing. */
+@media (max-width: 640px) {
+  main.nestrova-analysis-v9 aside[aria-label="Membership and analysis access"]
+    > div[class*="grid-cols-2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* NESTROVA_V9F8A */
+
+/*
+  Shared visual system for Saved, Portfolio, and Analyze.
+  Visual changes only: existing actions, data, and API behavior remain.
+*/
+
+.nestrova-v9f8-saved,
+.nestrova-v9f8-portfolio,
+.nestrova-v9f8-analysis {
+  --n9-surface: #172636;
+  --n9-inner: #111e2d;
+  --n9-border: rgba(143, 173, 193, 0.22);
+  --n9-muted: #adbecc;
+  --n9-accent: #85d5c7;
+
+  min-width: 0;
+  color: #eef4f8;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+.nestrova-v9f8-saved main,
+.nestrova-v9f8-portfolio main {
+  min-width: 0;
+  background-color: #0d1724 !important;
+}
+
+/* Quiet, consistent cards throughout the property workspace. */
+.nestrova-v9f8-saved :is(section, article)[class*="rounded"],
+.nestrova-v9f8-portfolio :is(section, article)[class*="rounded"] {
+  border-radius: 20px !important;
+  border-color: var(--n9-border) !important;
+  box-shadow: none !important;
+}
+
+.nestrova-v9f8-saved :is(section, article)[class*="bg-"],
+.nestrova-v9f8-portfolio :is(section, article)[class*="bg-"] {
+  background-color: var(--n9-surface) !important;
+  background-image: none !important;
+}
+
+/* Shared typography: clear hierarchy without oversized headlines. */
+.nestrova-v9f8-saved h1,
+.nestrova-v9f8-portfolio h1 {
+  font-size: clamp(1.85rem, 2.8vw, 2.65rem) !important;
+  font-weight: 600 !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.nestrova-v9f8-saved h2,
+.nestrova-v9f8-portfolio h2 {
+  font-size: clamp(1.3rem, 2vw, 1.75rem) !important;
+  font-weight: 600 !important;
+  line-height: 1.28 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.nestrova-v9f8-saved h3,
+.nestrova-v9f8-portfolio h3 {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.nestrova-v9f8-saved [class*="font-black"],
+.nestrova-v9f8-portfolio [class*="font-black"] {
+  font-weight: 600 !important;
+}
+
+/* Readable secondary text. */
+.nestrova-v9f8-saved [class*="text-white/25"],
+.nestrova-v9f8-saved [class*="text-white/30"],
+.nestrova-v9f8-saved [class*="text-white/35"],
+.nestrova-v9f8-portfolio [class*="text-white/25"],
+.nestrova-v9f8-portfolio [class*="text-white/30"],
+.nestrova-v9f8-portfolio [class*="text-white/35"] {
+  color: #a6bac9 !important;
+}
+
+.nestrova-v9f8-saved [class*="text-white/40"],
+.nestrova-v9f8-saved [class*="text-white/45"],
+.nestrova-v9f8-portfolio [class*="text-white/40"],
+.nestrova-v9f8-portfolio [class*="text-white/45"] {
+  color: #b8c8d3 !important;
+}
+
+/* One accent system instead of competing bright labels. */
+.nestrova-v9f8-saved [class*="text-emerald-"],
+.nestrova-v9f8-portfolio [class*="text-emerald-"] {
+  color: #8dd7c9 !important;
+}
+
+.nestrova-v9f8-saved [class*="text-violet-"],
+.nestrova-v9f8-portfolio [class*="text-violet-"],
+.nestrova-v9f8-saved [class*="text-cyan-"],
+.nestrova-v9f8-portfolio [class*="text-cyan-"] {
+  color: #a8c5d2 !important;
+}
+
+/* Unified interactions. */
+.nestrova-v9f8-saved :is(a, button)[class*="rounded"],
+.nestrova-v9f8-portfolio :is(a, button)[class*="rounded"] {
+  border-radius: 12px !important;
+}
+
+.nestrova-v9f8-saved :is(a, button):focus-visible,
+.nestrova-v9f8-portfolio :is(a, button):focus-visible,
+.nestrova-v9f8-analysis :is(a, button):focus-visible {
+  outline: 2px solid #85d5c7;
+  outline-offset: 3px;
+}
+
+/* Consistent numbers and financial metrics. */
+.nestrova-v9f8-saved dd,
+.nestrova-v9f8-portfolio dd,
+.nestrova-v9f8-analysis dd {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Saved summary on the Real Estate page. */
+.nestrova-saved-feature {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.nestrova-saved-feature > :nth-child(2) {
+  display: none !important;
+}
+
+.nestrova-saved-feature > :first-child {
+  min-width: 0;
+  width: 100%;
+  border-radius: 20px !important;
+  border-color: rgba(143, 173, 193, 0.22) !important;
+  background: #172636 !important;
+  box-shadow: none !important;
+}
+
+/* Analysis: match the same restrained layout. */
+.nestrova-v9f8-analysis
+  :is(section, article)[class*="rounded"] {
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+
+.nestrova-v9f8-analysis h1 {
+  font-size: clamp(1.85rem, 3vw, 2.5rem) !important;
+  font-weight: 600 !important;
+}
+
+.nestrova-v9f8-analysis h2 {
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+.nestrova-v9f8-analysis
+  [class*="font-black"] {
+  font-weight: 600 !important;
+}
+
+/* Protect layouts at tablet and mobile widths. */
+@media (max-width: 768px) {
+  .nestrova-v9f8-saved,
+  .nestrova-v9f8-portfolio {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .nestrova-v9f8-saved h1,
+  .nestrova-v9f8-portfolio h1 {
+    font-size: 1.85rem !important;
+  }
+
+  .nestrova-v9f8-analysis h1 {
+    overflow-wrap: anywhere;
   }
 }

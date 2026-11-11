@@ -12,10 +12,17 @@ export async function GET(request: Request) {
       ? next
       : "/dashboard";
 
-  const canonicalOrigin =
-    process.env.NODE_ENV === "production"
-      ? "https://nestrovaai.com"
-      : requestUrl.origin;
+  // V9E19E: "next start" also runs in production mode.
+  // Allow only the explicit local test origins.
+  const isLocalPreview =
+    requestUrl.protocol === "http:" &&
+    requestUrl.port === "3100" &&
+    (requestUrl.hostname === "localhost" ||
+      requestUrl.hostname === "127.0.0.1");
+
+  const canonicalOrigin = isLocalPreview
+    ? requestUrl.origin
+    : "https://nestrovaai.com";
 
   let redirectResponse = NextResponse.redirect(
     new URL(safeNext, canonicalOrigin)

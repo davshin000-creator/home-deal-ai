@@ -238,6 +238,8 @@ export async function POST(request: Request) {
     }
 
     // ----- SIGNED-IN FLOW (unchanged from before) -----
+    // NESTROVA_V9F5B_SIGNED_PERF
+    const signedRequestStartedAt = performance.now();
     const subscriptionType =
   normalizeSubscriptionType(
     profile?.subscription_type ??
@@ -316,6 +318,7 @@ const hasUnlimitedAnalysis =
       created_at: new Date().toISOString(),
     });
 
+    const providerStartedAt = performance.now();
     let data: Record<string, any>;
 
     try {
@@ -387,6 +390,8 @@ const hasUnlimitedAnalysis =
       throw providerError;
     }
 
+    const providerDurationMs = performance.now() - providerStartedAt;
+    const usageWriteStartedAt = performance.now();
     const usageInsert = await admin.from("feature_usage").insert({
       user_id: user.id,
       feature: "analysis",
@@ -405,7 +410,9 @@ const hasUnlimitedAnalysis =
       );
     }
 
-    const historyInsert = await admin.from("deal_history").insert({
+    const usageRecordMs = performance.now() - usageWriteStartedAt;
+    const persistenceStartedAt = performance.now();
+    const dealHistoryWrite = admin.from("deal_history").insert({
       user_id: user.id,
       address,
       listing_price: listingPrice,
@@ -425,16 +432,13 @@ const hasUnlimitedAnalysis =
       created_at: new Date().toISOString(),
     });
 
-    if (historyInsert.error) {
-      console.error("deal_history_insert_error", historyInsert.error);
-    }
 
     const newCount = used + 1;
 
     const remaining =
       usage.limit === -1 ? -1 : Math.max(0, usage.limit - newCount);
 
-    await admin.from("analytics_events").insert({
+    const completedEventWrite = admin.from("analytics_events").insert({
       user_id: user.id,
       event_name: "analyze_completed",
       page_path: "/analyze",
@@ -464,13 +468,49 @@ const hasUnlimitedAnalysis =
       analysis: data,
     };
 
-    const { error: historyError } = await admin
+    const analysisHistoryWrite = admin
       .from("analysis_history")
       .insert(historyPayload);
 
-    if (historyError) {
-      console.error("analysis_history_insert_failed", historyError);
+    const [dealOutcome, eventOutcome, analysisOutcome] =
+      await Promise.allSettled([
+        dealHistoryWrite,
+        completedEventWrite,
+        analysisHistoryWrite,
+      ]);
+
+    if (dealOutcome.status === "rejected") {
+      console.error("deal_history_insert_error", dealOutcome.reason);
+    } else if (dealOutcome.value.error) {
+      console.error("deal_history_insert_error", dealOutcome.value.error);
     }
+
+    if (eventOutcome.status === "rejected") {
+      console.error("analyze_completed_event_error", eventOutcome.reason);
+    } else if (eventOutcome.value.error) {
+      console.error("analyze_completed_event_error", eventOutcome.value.error);
+    }
+
+    if (analysisOutcome.status === "rejected") {
+      console.error("analysis_history_insert_failed", analysisOutcome.reason);
+    } else if (analysisOutcome.value.error) {
+      console.error("analysis_history_insert_failed", analysisOutcome.value.error);
+    }
+
+    const persistenceMs = performance.now() - persistenceStartedAt;
+
+    // No address, identity, or financial data in timing logs.
+    console.info("NESTROVA_ANALYSIS_TIMING", {
+      pre_provider_ms: Math.round(
+        providerStartedAt - signedRequestStartedAt
+      ),
+      provider_ms: Math.round(providerDurationMs),
+      usage_record_ms: Math.round(usageRecordMs),
+      persistence_ms: Math.round(persistenceMs),
+      signed_route_total_ms: Math.round(
+        performance.now() - signedRequestStartedAt
+      ),
+    });
 
     return NextResponse.json({
       ...data,

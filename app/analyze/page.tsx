@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SignInButton, useUser } from "@/components/auth/ClerkCompat";
 import { supabase } from "@/lib/supabase";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
@@ -20,7 +20,6 @@ import {
   FiveYearForecast,
   NegotiationAI,
   PriceValueComparison,
-  PropertyHeroCard,
   ScoreProgressCard,
 } from "@/components/real-estate/report";
 import {
@@ -175,7 +174,7 @@ function getVerdictStyle(status: string) {
 }
 
 export default function AnalyzePage() {
-  const { isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
 
   const [address, setAddress] = useState("");
   const [listingPrice, setListingPrice] = useState("");
@@ -199,6 +198,7 @@ export default function AnalyzePage() {
   const [isAllAccess, setIsAllAccess] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [analysisSeconds, setAnalysisSeconds] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -210,6 +210,8 @@ export default function AnalyzePage() {
   const [guestUnlocked, setGuestUnlocked] = useState(false);
   const [guestSubmitting, setGuestSubmitting] = useState(false);
   const [guestRequiresSignup, setGuestRequiresSignup] = useState(false);
+  const autoRunStartedRef = useRef(false);
+  const savedReportRequestedRef = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -227,6 +229,77 @@ export default function AnalyzePage() {
       setCountryCode(countryConfig.code);
     }
   }, []);
+  // NESTROVA_V9F4B_AUTOSTART
+  // Start one analysis for a deliberate Explore -> Analyze navigation.
+  useEffect(() => {
+    if (
+      autoRunStartedRef.current ||
+      !isLoaded ||
+      !isSignedIn ||
+      !address.trim() ||
+      !Number.isFinite(Number(listingPrice)) ||
+      Number(listingPrice) <= 0
+    ) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("autostart") !== "1") return;
+
+    const queryAddress = params.get("address")?.trim();
+    const queryPrice =
+      params.get("listing_price") || params.get("price");
+
+    if (
+      queryAddress !== address.trim() ||
+      queryPrice?.trim() !== listingPrice.trim()
+    ) {
+      return;
+    }
+
+    const requestedCountry = params.get("country");
+
+    if (requestedCountry) {
+      const requestedConfig =
+        getRealEstateCountryConfig(requestedCountry);
+
+      if (
+        requestedConfig.enabled &&
+        requestedConfig.code !== countryCode
+      ) {
+        return;
+      }
+    }
+
+    // Mark as started before any asynchronous analysis work.
+    autoRunStartedRef.current = true;
+
+    // Remove the flag so a page refresh will not charge another
+    // analysis request automatically.
+    params.delete("autostart");
+
+    const query = params.toString();
+    const cleanUrl =
+      window.location.pathname +
+      (query ? `?${query}` : "") +
+      window.location.hash;
+
+    window.history.replaceState(
+      window.history.state,
+      "",
+      cleanUrl
+    );
+
+    // Reuse the existing API, subscription and usage-limit handling.
+    void analyzeProperty();
+  }, [
+    isLoaded,
+    isSignedIn,
+    address,
+    listingPrice,
+    countryCode,
+  ]);
 
   useEffect(() => {
   async function loadAccountStatus() {
@@ -274,10 +347,74 @@ const usageResponse = await fetch(
 
   loadAccountStatus();
 }, [isSignedIn, user?.id]);
-    
 
 
+
+  // NESTROVA_V9F7A_SAVED
+  // Viewing a saved report is a read-only operation.
+  useEffect(() => {
+    if (
+      savedReportRequestedRef.current ||
+      !isLoaded ||
+      !isSignedIn ||
+      !address.trim()
+    ) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    // V9F7B: older Saved links may not contain saved=1.
+    // Restore the existing report whenever an address was supplied,
+    // except when Explore explicitly requested a fresh analysis.
+    if (
+      autoRunStartedRef.current ||
+      params.get("autostart") === "1" ||
+      params.get("address")?.trim() !== address.trim()
+    ) {
+      return;
+    }
+
+    savedReportRequestedRef.current = true;
+    setMessage("Loading previously saved analysis...");
+
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/analyze/saved?address=${encodeURIComponent(address.trim())}`,
+          { method: "GET", cache: "no-store", credentials: "same-origin" }
+        );
+
+        const payload = (await response.json().catch(() => null)) as {
+          analysis?: AnalysisResult;
+          error?: string;
+        } | null;
+
+        if (
+          response.ok &&
+          payload?.analysis &&
+          typeof payload.analysis.address === "string"
+        ) {
+          setResult(payload.analysis);
+          setIsGuestResult(false);
+          setMessage(
+            "Showing a previously completed analysis. Select Analyze only if updated estimates are needed."
+          );
+        } else {
+          setMessage(
+            payload?.error ??
+              "No previous detailed report was found. Select Analyze to create one."
+          );
+        }
+      } catch {
+        setMessage(
+          "Saved report could not be loaded. You can run a new analysis manually."
+        );
+      }
+    })();
+  }, [isLoaded, isSignedIn, address]);
   async function analyzeProperty() {
+  setAnalysisSeconds(null);
   setMessage("");
   setResult(null);
   setGuestUnlocked(false);
@@ -297,6 +434,7 @@ const usageResponse = await fetch(
   setLoading(true);
 
   try {
+    const analysisStartedAt = performance.now();
     const response = await fetch("/api/analyze", {
       method: "POST",
       headers: {
@@ -314,6 +452,7 @@ const usageResponse = await fetch(
     });
 
     const data = await response.json().catch(() => ({}));
+    setAnalysisSeconds((performance.now() - analysisStartedAt) / 1000);
 
     if (!response.ok) {
   if (
@@ -513,13 +652,15 @@ const displayAddress = result
 
 const heroTitle = result
   ? displayAddress
-  : "Analyze Your Next Property.";
+  : "Property analysis";
 
-const heroDescription = result
+const heroDescription = loading
+  ? "Analyzing the selected property. Results will appear here when ready."
+  : result
   ? `${resultAction} - ${overallScore}/100 investment score - estimated fair value ${moneyForCountry(
       result.fair_value,
     )}.`
-  : "Get an AI-powered valuation, rental estimate, negotiation strategy, financing breakdown, and investment recommendation.";
+  : "Review property valuation, rental potential, and investment risk in one place.";
 
 const resultLocation = result
   ? parsePropertyLocationForCountry(displayAddress)
@@ -530,22 +671,27 @@ const resultLocation = result
 
   return (
     <RealEstateAnalyzeShell>
-      <main className="relative overflow-hidden text-white">
-      <div className="mx-auto w-full max-w-[1500px] px-5 py-8 md:px-8 md:py-10">
-        <section className="grid gap-6 xl:grid-cols-[1fr_430px]">
-          <div className="rounded-[44px] border border-white/10 bg-white/[0.06] p-8 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+      <main className="nestrova-analysis-v9 nestrova-v9f8-analysis nestrova-analysis-editorial relative min-h-screen overflow-hidden bg-[#0d1724] text-white">
+      <div className="mx-auto w-full max-w-[1420px] px-5 py-6 md:px-8 md:py-8">
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
+          <div className="rounded-[24px] border border-[#34475a]/70 bg-[#172636]/90 p-6 shadow-[0_18px_60px_rgba(0,0,0,0.16)] md:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#68d4c5]/20 bg-[#68d4c5]/[0.07] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9fe7dc]">
               <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.85)]" />
               Analyze
             </div>
 
-            <h1 className="mt-5 max-w-4xl text-3xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-5xl">
+            <h1 className="mt-5 max-w-4xl text-3xl font-semibold leading-[1.12] tracking-[-0.04em] md:text-[2.65rem]">
   {heroTitle}
 </h1>
 
-<p className="mt-4 max-w-3xl text-sm leading-7 text-white/45 md:text-base">
+<p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
   {heroDescription}
 </p>
+{analysisSeconds !== null && (
+  <p role="status" className="mt-2 text-xs text-[#a6c2d1]">
+    Analysis API response: {analysisSeconds.toFixed(1)}s
+  </p>
+)}
 
 {result ? (
   <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -626,48 +772,97 @@ const resultLocation = result
             {message && <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-sm text-white/70">{message}</div>}
           </div>
 
-          <aside className="rounded-[44px] border border-white/10 bg-white/[0.07] p-6 shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">Investment Analysis</p>
-            <h2 className="mt-3 text-6xl font-semibold tracking-[-0.07em]">{result ? grade : isPro ? "PRO" : "FREE"}</h2>
-            <p className="mt-5 text-sm leading-6 text-white/55">
-              {result
-                ? `${result.address} received an overall investment score of ${overallScore}/100.`
-                : isPro
-                  ? "Pro access verified. Monthly Pro limit applies."
-                  : "Free access verified. Upgrade when you need more analyses."}
-            </p>
+          <aside
+  aria-label="Membership and analysis access"
+  className="min-w-0 self-start rounded-[24px] border border-[#34475a]/70 bg-[#172636]/95 p-5 md:p-6"
+>
+  <div className="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+        Nestrova membership
+      </p>
+      <h2 className="mt-2 text-xl font-semibold tracking-[-0.035em] text-white">
+        Your access
+      </h2>
+    </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-3">
-              <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">Plan</p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isAllAccess ? "All Access" : isPro ? "Pro" : "Free"}</p>
-              </div>
-              <div className="rounded-[26px] border border-white/10 bg-black/25 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">Remaining</p>
-                <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isAllAccess
-                  ? "Unlimited"
-                  : usageRemaining !== null
-                    ? Math.max(0, usageRemaining)
-                    : "--"}</p>
-              </div>
-            </div>
+    <span className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+      isPro
+        ? "border-[#68d4c5]/30 bg-[#68d4c5]/[0.08] text-[#9ce8dc]"
+        : "border-white/15 bg-white/[0.04] text-slate-300"
+    }`}>
+      {isPro ? "Pro active" : "Free plan"}
+    </span>
+  </div>
 
-            <div className="mt-7 rounded-[30px] border border-white/10 bg-black/25 p-5">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">Security Layer</p>
-                <p className="text-xs font-semibold text-emerald-300">Server</p>
-              </div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-                <div className={`h-full rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.75)] ${loading ? "w-[58%]" : result ? "w-[92%]" : "w-[40%]"}`} />
-              </div>
-              <div className="mt-5 grid gap-3 text-sm text-white/58">
-                <p>Clerk user verified</p>
-                <p>Supabase Pro status checked</p>
-                <p>Server proxy calls analysis API</p>
-                <p>Usage limit enforced by plan</p>
-              </div>
-            </div>
-          </aside>
+  <p className="mt-4 text-base font-medium text-slate-100">
+    {isPro
+      ? isAllAccess
+        ? "Nestrova AI Pro · All Access"
+        : "Real Estate Pro"
+      : "Nestrova Free"}
+  </p>
+
+  {result && (
+    <p className="mt-2 text-sm text-slate-300">
+      Property grade {grade} · Investment score {overallScore}/100
+    </p>
+  )}
+
+  <div className="mt-6 grid grid-cols-2 gap-3">
+    <div className={`min-w-0 rounded-xl border p-4 ${
+      !isPro
+        ? "border-[#68d4c5]/35 bg-[#68d4c5]/[0.07]"
+        : "border-white/10 bg-[#101e2c]"
+    }`}>
+      <p className="text-sm font-semibold text-white">Free</p>
+      <p className="mt-2 text-xs leading-5 text-slate-300">
+        Up to 5 property analyses per month
+      </p>
+      {!isPro && (
+        <p className="mt-3 text-xs font-medium text-[#9ce8dc]">
+          Current plan
+        </p>
+      )}
+    </div>
+
+    <div className={`min-w-0 rounded-xl border p-4 ${
+      isPro
+        ? "border-[#68d4c5]/35 bg-[#68d4c5]/[0.07]"
+        : "border-white/10 bg-[#101e2c]"
+    }`}>
+      <p className="text-sm font-semibold text-white">Pro</p>
+      <p className="mt-2 text-xs leading-5 text-slate-300">
+        Unlimited property analyses
+      </p>
+      {isPro && (
+        <p className="mt-3 text-xs font-medium text-[#9ce8dc]">
+          Current plan
+        </p>
+      )}
+    </div>
+  </div>
+
+  <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+    <span className="text-xs text-slate-400">
+      Monthly analysis allowance
+    </span>
+    <span className="text-right text-sm font-semibold text-white">
+      {isPro
+        ? "Unlimited"
+        : typeof usageRemaining === "number" && usageRemaining >= 0
+          ? `${usageRemaining} remaining`
+          : "Checking usage"}
+    </span>
+  </div>
+
+  <Link
+    href={isPro ? "/settings/billing" : "/pricing#plans"}
+    className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/[0.09]"
+  >
+    {isPro ? "Manage membership" : "Explore Pro"}
+  </Link>
+</aside>
         </section>
 
         {loading && <section className="mt-8 grid gap-4">{[1,2,3].map((item) => <div key={item} className="animate-pulse rounded-[34px] border border-white/10 bg-white/[0.055] p-6"><div className="h-5 w-48 rounded-full bg-white/10" /><div className="mt-5 h-8 w-2/3 rounded-full bg-white/10" /><div className="mt-6 grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((metric) => <div key={metric} className="h-16 rounded-2xl bg-white/10" />)}</div></div>)}</section>}
@@ -675,33 +870,54 @@ const resultLocation = result
         {result && (
           <>
             <section className="mt-8">
-              <PropertyHeroCard
-                address={result.address}
-                city={resultLocation.city}
-                state={resultLocation.state}
-                imageUrl={
-                  result.image_url ??
-                  result.thumbnail ??
-                  result.photo_url ??
-                  null
-                }
-                recommendation={resultAction}
-                score={overallScore}
-                listingPrice={result.listing_price}
-                fairValue={result.fair_value}
-                monthlyRent={
-                  result.estimated_monthly_rent
-                }
-                cashFlow={
-                  result.estimated_monthly_cash_flow
-                }
-                discountPercent={
-                  result.discount_percent
-                }
-                confidence={
-                  result.confidence_score ?? 90
-                }
-              />
+              <section
+  aria-label="Property overview"
+  className="mt-6 rounded-[22px] border border-[#34475a]/65 bg-[#172636]/90 p-5 sm:p-7"
+>
+  <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="min-w-0 flex-1">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#78d9cc]">
+        Property overview
+      </p>
+      <h2 className="mt-2 text-xl font-semibold tracking-[-0.035em] text-white sm:text-2xl">
+        Investment snapshot
+      </h2>
+      <p className="mt-2 text-xs leading-5 text-slate-400">
+        AI-generated estimates, not a verified live listing.
+      </p>
+    </div>
+    <div className="shrink-0 rounded-xl border border-[#68d4c5]/25 bg-[#68d4c5]/[0.08] px-4 py-2 text-sm font-semibold text-[#9ce7da]">
+      Score {overallScore}/100
+    </div>
+  </div>
+
+  <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+    <div className="min-w-0 rounded-xl border border-white/10 bg-[#101e2c] p-4">
+      <dt className="text-xs text-slate-400">Listing price estimate</dt>
+      <dd className="mt-2 break-words text-lg font-semibold text-white">
+        {moneyForCountry(result.listing_price)}
+      </dd>
+    </div>
+    <div className="min-w-0 rounded-xl border border-white/10 bg-[#101e2c] p-4">
+      <dt className="text-xs text-slate-400">Estimated fair value</dt>
+      <dd className="mt-2 break-words text-lg font-semibold text-white">
+        {moneyForCountry(result.fair_value)}
+      </dd>
+    </div>
+    <div className="min-w-0 rounded-xl border border-white/10 bg-[#101e2c] p-4">
+      <dt className="text-xs text-slate-400">Estimated monthly rent</dt>
+      <dd className="mt-2 break-words text-lg font-semibold text-white">
+        {moneyForCountry(result.estimated_monthly_rent)}
+      </dd>
+    </div>
+    <div className="min-w-0 rounded-xl border border-white/10 bg-[#101e2c] p-4">
+      <dt className="text-xs text-slate-400">Estimated monthly cash flow</dt>
+      <dd className="mt-2 break-words text-lg font-semibold text-white">
+        {moneyForCountry(result.estimated_monthly_cash_flow)}
+      </dd>
+    </div>
+  </dl>
+</section>
             </section>
 
             <section className="mt-6">
@@ -826,7 +1042,7 @@ const resultLocation = result
           </p>
         </div>
 
-        
+
       </div>
 
       <div className="mt-7 grid gap-5 lg:grid-cols-2">

@@ -343,7 +343,7 @@ const faqs = [
 
 function CheckIcon() {
   return (
-    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-[11px] font-black text-emerald-300">
+    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-xs font-black text-emerald-300">
       ✓
     </span>
   );
@@ -423,9 +423,9 @@ export default function PricingPage() {
   return (
     <main
       id="top"
-      className="min-h-screen overflow-hidden bg-[#050505] px-5 py-8 text-white md:px-8 md:py-10"
+      className="nestrova-app-canvas min-h-screen overflow-x-hidden px-4 py-7 text-white sm:px-6 md:px-8 md:py-9"
     >
-      <div className="pointer-events-none fixed inset-0">
+      <div aria-hidden="true" className="hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.12]" />
 
         <div className="absolute -left-44 -top-44 h-[760px] w-[760px] rounded-full bg-cyan-400/[0.08] blur-3xl" />
@@ -435,7 +435,7 @@ export default function PricingPage() {
         <div className="absolute bottom-[-340px] left-[18%] h-[780px] w-[780px] rounded-full bg-emerald-400/[0.09] blur-3xl" />
       </div>
 
-      <div className="relative mx-auto grid max-w-[1480px] gap-16">
+      <div className="relative mx-auto grid max-w-[1360px] gap-7">
         <header className="flex items-center justify-between gap-4">
           <a
             href="/"
@@ -446,7 +446,7 @@ export default function PricingPage() {
           </a>
 
           {!isLoaded ? (
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/35">
+            <span className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white/55">
               Loading...
             </span>
           ) : isSignedIn ? (
@@ -461,248 +461,28 @@ export default function PricingPage() {
           )}
         </header>
 
-        <section className="grid gap-12 py-8 xl:grid-cols-[1fr_570px] xl:items-center">
-          <div>
-            <div className="inline-flex items-center gap-3 rounded-full border border-amber-300/20 bg-amber-300/[0.08] px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-              <span className="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_16px_rgba(252,211,77,0.85)]" />
-              Founding Member Pricing
-            </div>
+        <section
+          aria-labelledby="nestrova-plans-title"
+          className="border-b border-white/10 pb-5 sm:pb-7"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70d6c6]">
+            Nestrova Membership
+          </p>
 
-            <h1 className="mt-8 max-w-5xl text-6xl font-semibold leading-[0.9] tracking-[-0.075em] md:text-8xl">
-              One AI platform.
-              <span className="block bg-gradient-to-r from-white via-cyan-100 to-emerald-200 bg-clip-text text-transparent">
-                Smarter decisions.
-              </span>
-            </h1>
+          <h1
+            id="nestrova-plans-title"
+            className="mt-3 max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl"
+          >
+            Simple plans. Powerful tools.
+          </h1>
 
-            <p className="mt-8 max-w-3xl text-lg leading-8 text-white/52 md:text-xl md:leading-9">
-              Analyze real estate, discover trading
-              opportunities, run multi-perspective AI research,
-              create intelligent alerts, and manage decisions
-              from one unified Nestrova platform.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#plans"
-                className="rounded-full bg-white px-7 py-4 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-              >
-                View plans
-              </a>
-
-              <a
-                href="/dashboard"
-                className="rounded-full border border-white/10 bg-white/[0.055] px-7 py-4 text-sm font-semibold text-white/65 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-              >
-                Continue free
-              </a>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3 text-xs font-semibold text-white/38">
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
-                5-day free trial
-              </span>
-
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
-                Cancel anytime
-              </span>
-
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
-                Secure PayPal billing
-              </span>
-
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2">
-                New features added regularly
-              </span>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-12 rounded-full bg-cyan-400/10 blur-3xl" />
-
-            <div className="relative overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.065] p-5 shadow-[0_50px_170px_rgba(0,0,0,0.58)] backdrop-blur-2xl md:p-6">
-              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
-                <div className="flex items-center gap-3">
-                  <NestrovaMark className="h-11 w-11 rounded-[14px] text-[14px]" />
-
-                  <div>
-                    <p className="text-sm font-semibold">
-                      Nestrova Intelligence
-                    </p>
-
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
-                      Unified workspace
-                    </p>
-                  </div>
-                </div>
-
-                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-                  Online
-                </span>
-              </div>
-
-              <div className="mt-5 rounded-[30px] border border-white/10 bg-black/25 p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/65">
-                  Today&apos;s AI Brief
-                </p>
-
-                <div className="mt-4 flex items-start justify-between gap-5">
-                  <div>
-                    <p className="text-2xl font-semibold tracking-[-0.04em]">
-                      Opportunities are strengthening.
-                    </p>
-
-                    <p className="mt-3 text-sm leading-6 text-white/40">
-                      Nestrova combines property intelligence,
-                      market research, risk analysis, and custom
-                      monitoring in one workspace.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-center">
-                    <p className="text-[9px] uppercase tracking-[0.14em] text-cyan-200/55">
-                      Confidence
-                    </p>
-
-                    <p className="mt-1 text-2xl font-semibold text-cyan-200">
-                      83%
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
-                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                    Property Score
-                  </p>
-
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <p className="text-3xl font-semibold">
-                      86
-                    </p>
-
-                    <span className="text-xs font-semibold text-emerald-300/70">
-                      Strong
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-xs text-white/35">
-                    Investment quality
-                  </p>
-                </div>
-
-                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
-                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                    Top Opportunity
-                  </p>
-
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <p className="text-3xl font-semibold">
-                      BTC
-                    </p>
-
-                    <p className="text-2xl font-semibold text-cyan-300">
-                      91
-                    </p>
-                  </div>
-
-                  <p className="mt-3 text-xs text-white/35">
-                    AI research score
-                  </p>
-                </div>
-
-                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
-                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                    Active Alerts
-                  </p>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <p className="text-3xl font-semibold">
-                      3
-                    </p>
-
-                    <span className="h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.9)]" />
-                  </div>
-
-                  <p className="mt-3 text-xs text-white/35">
-                    Conditions recently matched
-                  </p>
-                </div>
-
-                <div className="rounded-[27px] border border-white/10 bg-black/20 p-5">
-                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/28">
-                    Products
-                  </p>
-
-                  <p className="mt-3 text-3xl font-semibold">
-                    2+
-                  </p>
-
-                  <p className="mt-3 text-xs text-amber-200/60">
-                    More AI tools coming
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between rounded-[25px] border border-emerald-400/20 bg-emerald-400/[0.07] px-5 py-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.14em] text-emerald-200/50">
-                    Best overall value
-                  </p>
-
-                  <p className="mt-1 text-sm font-semibold text-white/75">
-                    Real Estate + Radar for $17.99
-                  </p>
-                </div>
-
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-black">
-                  Save $2
-                </span>
-              </div>
-            </div>
-          </div>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
+            Choose the tools that fit your workflow.
+            Compare real estate intelligence, market research,
+            and full platform access with clear monthly pricing.
+          </p>
         </section>
 
-        <section>
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/35">
-              Why Nestrova
-            </p>
-
-            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
-              Replace scattered research with one AI
-              workspace.
-            </h2>
-
-            <p className="mt-5 text-base leading-7 text-white/45">
-              Spend less time switching between tools and more
-              time understanding the opportunities that matter.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {platformFeatures.map((feature) => (
-              <article
-                key={feature.label}
-                className="rounded-[34px] border border-white/10 bg-white/[0.05] p-6 backdrop-blur-2xl"
-              >
-
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
-                  {feature.label}
-                </p>
-
-                <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">
-                  {feature.title}
-                </h3>
-
-                <p className="mt-3 text-sm leading-6 text-white/42">
-                  {feature.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
 
         <section
           id="plans"
@@ -713,9 +493,7 @@ export default function PricingPage() {
               Monthly plans · 5-day trial on paid plans
             </div>
 
-            <h2 className="mt-6 text-5xl font-semibold tracking-[-0.065em] md:text-7xl">
-              Choose the intelligence you need.
-            </h2>
+            <h2 className="sr-only">Available membership plans</h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/45">
               Start with one product or unlock the complete
@@ -734,10 +512,10 @@ export default function PricingPage() {
                 disableFunding: "card,credit,paylater",
               }}
             >
-              <div className="mt-12 grid items-start gap-6 md:grid-cols-2 xl:grid-cols-4">
-                <article className="flex flex-col rounded-[40px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-2xl">
-              <div className="xl:min-h-[250px]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/30">
+              <div className="mt-6 grid items-stretch gap-4 md:grid-cols-2 2xl:grid-cols-4">
+                <article className="flex flex-col rounded-[22px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-sm">
+              <div className="xl:min-h-[205px]">
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/55">
                   Free
                 </p>
 
@@ -755,7 +533,7 @@ export default function PricingPage() {
                     $0
                   </p>
 
-                  <p className="pb-2 text-sm text-white/35">
+                  <p className="pb-2 text-sm text-white/55">
                     forever
                   </p>
                 </div>
@@ -775,17 +553,17 @@ export default function PricingPage() {
                   Continue free
                 </a>
 
-                <p className="mt-4 text-center text-xs leading-5 text-white/28">
+                <p className="mt-4 text-center text-xs leading-5 text-white/55">
                   No payment method required.
                 </p>
               </div>
             </article>
 
-            <article className="flex flex-col rounded-[40px] border border-cyan-400/20 bg-cyan-400/[0.055] p-7 shadow-[0_32px_100px_rgba(34,211,238,0.05)] backdrop-blur-2xl">
-              <div className="xl:min-h-[250px]">
+            <article className="flex flex-col rounded-[22px] border border-cyan-400/20 bg-cyan-400/[0.055] p-7 shadow-[0_32px_100px_rgba(34,211,238,0.05)] backdrop-blur-sm">
+              <div className="xl:min-h-[205px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200/55">
+                    <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200/55">
                       Real Estate Pro
                     </p>
 
@@ -794,7 +572,7 @@ export default function PricingPage() {
                     </h3>
                   </div>
 
-                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-200">
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-cyan-200">
                     Property
                   </span>
                 </div>
@@ -809,7 +587,7 @@ export default function PricingPage() {
                     $9.99
                   </p>
 
-                  <p className="pb-2 text-sm text-white/35">
+                  <p className="pb-2 text-sm text-white/55">
                     / month
                   </p>
                 </div>
@@ -826,12 +604,12 @@ export default function PricingPage() {
               <div className="pt-8">
                 <div className="rounded-[26px] border border-cyan-300/15 bg-black/30 p-4">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-200/55">
                       5-day free trial
                     </p>
 
                     <div className="text-right">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">
                         Due today
                       </p>
                       <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
@@ -844,22 +622,22 @@ export default function PricingPage() {
                     <PayPalSubscriptionButton subscriptionType="real_estate" />
                   </div>
 
-                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/38">
+                  <p className="mt-3 text-center text-xs font-medium leading-5 text-white/55">
                     Then $9.99/month · Cancel anytime
                   </p>
 
-                  <p className="text-center text-[10px] leading-5 text-white/22">
+                  <p className="text-center text-xs leading-5 text-white/55">
                     Secure checkout powered by PayPal
                   </p>
                 </div>
               </div>
             </article>
 
-            <article className="flex flex-col rounded-[40px] border border-emerald-400/20 bg-emerald-400/[0.055] p-7 shadow-[0_32px_100px_rgba(52,211,153,0.05)] backdrop-blur-2xl">
-              <div className="xl:min-h-[250px]">
+            <article className="flex flex-col rounded-[22px] border border-white/10 bg-white/[0.045] p-7 shadow-[0_32px_100px_rgba(52,211,153,0.05)] backdrop-blur-sm">
+              <div className="xl:min-h-[205px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-200/55">
+                    <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-200/55">
                       Radar Pro
                     </p>
 
@@ -868,7 +646,7 @@ export default function PricingPage() {
                     </h3>
                   </div>
 
-                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-emerald-200">
                     Radar
                   </span>
                 </div>
@@ -883,7 +661,7 @@ export default function PricingPage() {
                     $9.99
                   </p>
 
-                  <p className="pb-2 text-sm text-white/35">
+                  <p className="pb-2 text-sm text-white/55">
                     / month
                   </p>
                 </div>
@@ -900,12 +678,12 @@ export default function PricingPage() {
               <div className="pt-8">
                 <div className="rounded-[26px] border border-emerald-300/15 bg-black/30 p-4">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/55">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-200/55">
                       5-day free trial
                     </p>
 
                     <div className="text-right">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">
                         Due today
                       </p>
                       <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
@@ -918,24 +696,24 @@ export default function PricingPage() {
                     <PayPalSubscriptionButton subscriptionType="trading" />
                   </div>
 
-                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/38">
+                  <p className="mt-3 text-center text-xs font-medium leading-5 text-white/55">
                     Then $9.99/month · Cancel anytime
                   </p>
 
-                  <p className="text-center text-[10px] leading-5 text-white/22">
+                  <p className="text-center text-xs leading-5 text-white/55">
                     Secure checkout powered by PayPal
                   </p>
                 </div>
               </div>
             </article>
 
-            <article className="relative flex flex-col overflow-hidden rounded-[40px] border border-amber-300/30 bg-gradient-to-b from-amber-300/[0.12] via-white/[0.075] to-emerald-400/[0.055] p-7 shadow-[0_38px_130px_rgba(252,211,77,0.09)] backdrop-blur-2xl">
+            <article className="relative flex flex-col overflow-hidden rounded-[22px] border border-[#70d6c6]/35 bg-[#70d6c6]/[0.045] p-7 shadow-[0_38px_130px_rgba(252,211,77,0.09)] backdrop-blur-sm">
               <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-amber-300/15 blur-3xl" />
 
-              <div className="relative xl:min-h-[250px]">
+              <div className="relative xl:min-h-[205px]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-200/70">
+                    <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-200/70">
                       Nestrova AI Pro
                     </p>
 
@@ -944,7 +722,7 @@ export default function PricingPage() {
                     </h3>
                   </div>
 
-                  <span className="rounded-full bg-amber-200 px-3 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-black">
+                  <span className="rounded-full bg-amber-200 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-black">
                     Most Popular
                   </span>
                 </div>
@@ -973,19 +751,19 @@ export default function PricingPage() {
 
               <div className="relative">
                 <PlanFeatureList
-                  features={allAccessFeatures}
+                  features={allAccessFeatures.slice(0, 6)}
                 />
               </div>
 
               <div className="relative pt-8">
                 <div className="rounded-[26px] border border-amber-200/20 bg-black/30 p-4">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/65">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-200/65">
                       5-day free trial
                     </p>
 
                     <div className="text-right">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/28">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">
                         Due today
                       </p>
                       <p className="mt-1 text-xl font-semibold tracking-[-0.04em] text-white">
@@ -998,11 +776,11 @@ export default function PricingPage() {
                     <PayPalSubscriptionButton subscriptionType="all_access" />
                   </div>
 
-                  <p className="mt-3 text-center text-[11px] font-medium leading-5 text-white/42">
+                  <p className="mt-3 text-center text-xs font-medium leading-5 text-white/42">
                     Then $17.99/month · Cancel anytime
                   </p>
 
-                  <p className="text-center text-[10px] leading-5 text-white/25">
+                  <p className="text-center text-xs leading-5 text-white/55">
                     Secure checkout powered by PayPal
                   </p>
                 </div>
@@ -1016,7 +794,7 @@ export default function PricingPage() {
             </div>
           )}
 
-          <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-6 text-white/30">
+          <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-6 text-white/55">
             Paid subscriptions renew automatically until
             canceled. Founding-member prices may change for new
             subscribers as Nestrova adds products and
@@ -1024,13 +802,20 @@ export default function PricingPage() {
           </p>
         </section>
 
-        <section className="overflow-hidden rounded-[46px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl">
+        <details className="group overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold text-white/85 marker:hidden sm:px-8">
+            <span>Compare all plan features</span>
+            <span aria-hidden="true" className="text-[#70d6c6] transition-transform group-open:rotate-45">
+              +
+            </span>
+          </summary>
+        <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.05] backdrop-blur-sm">
           <div className="border-b border-white/10 px-7 py-8 md:px-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/30">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/55">
               Compare plans
             </p>
 
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
+            <h2 className="mt-4 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
               See exactly what each plan unlocks.
             </h2>
 
@@ -1044,11 +829,11 @@ export default function PricingPage() {
             <table className="min-w-[960px] w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="w-[30%] px-7 py-5 text-xs font-semibold uppercase tracking-[0.16em] text-white/30 md:px-10">
+                  <th className="w-[30%] px-7 py-5 text-xs font-semibold uppercase tracking-[0.16em] text-white/55 md:px-10">
                     Feature
                   </th>
 
-                  <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-white/35">
+                  <th className="px-5 py-5 text-center text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
                     Free
                   </th>
 
@@ -1104,15 +889,16 @@ export default function PricingPage() {
             </table>
           </div>
         </section>
+        </details>
 
-        <section className="rounded-[46px] border border-white/10 bg-white/[0.05] p-7 backdrop-blur-2xl md:p-10">
+        <section className="rounded-[22px] border border-white/10 bg-white/[0.05] p-7 backdrop-blur-sm md:p-10">
           <div className="grid gap-10 xl:grid-cols-[390px_1fr]">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-white/30">
+              <p className="text-xs font-bold uppercase tracking-[0.26em] text-white/55">
                 Frequently asked questions
               </p>
 
-              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] md:text-6xl">
+              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                 Clear answers before you subscribe.
               </h2>
 
@@ -1147,46 +933,6 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[48px] border border-white/10 bg-white/[0.07] p-8 text-center shadow-[0_40px_140px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:p-14">
-          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
-
-          <div className="pointer-events-none absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
-
-          <div className="relative">
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/30">
-              Start today
-            </p>
-
-            <h2 className="mx-auto mt-5 max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] md:text-7xl">
-              Ready to make smarter decisions?
-            </h2>
-
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/45">
-              Begin free or unlock the complete Nestrova AI
-              platform with a 5-day trial.
-            </p>
-
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <a
-                href="#plans"
-                className="rounded-full bg-white px-8 py-4 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200"
-              >
-                Choose your plan
-              </a>
-
-              <a
-                href="/dashboard"
-                className="rounded-full border border-white/10 bg-white/[0.06] px-8 py-4 text-sm font-semibold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-              >
-                Continue free
-              </a>
-            </div>
-
-            <p className="mt-6 text-xs text-white/28">
-              Secure PayPal checkout · Cancel anytime
-            </p>
-          </div>
-        </section>
 
         <SiteFooter />
       </div>

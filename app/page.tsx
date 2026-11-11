@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import RealEstateDashboardPage from "@/app/real-estate/page";
-import NestrovaRealEstateSEO from "@/components/seo/NestrovaRealEstateSEO";
 
 export const metadata: Metadata = {
   title: "Nestrova | Real Estate Search & AI Investment Analysis",
@@ -23,7 +22,6 @@ export default function HomePage() {
   return (
     <>
       <RealEstateDashboardPage />
-      <NestrovaRealEstateSEO />
     </>
   );
 }

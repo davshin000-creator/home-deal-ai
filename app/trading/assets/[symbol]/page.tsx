@@ -552,7 +552,7 @@ export default function AssetDetailPage() {
   isWatchlistUpgradeGateOpen,
   setIsWatchlistUpgradeGateOpen,
 ] = useState(false);
-  
+
   const [statusType, setStatusType] = useState<
     "success" | "error" | null
   >(null);
@@ -1083,8 +1083,8 @@ if (!response.ok || !data.success) {
                       AI Score
                     </p>
 
-                    <p className="mt-3 text-xl font-black text-white/65">
-                      ?
+                    <p className="mt-3 text-sm font-medium text-slate-200">
+                      Not available
                     </p>
                   </div>
 
@@ -1093,8 +1093,8 @@ if (!response.ok || !data.success) {
                       Confidence
                     </p>
 
-                    <p className="mt-3 text-xl font-black text-white/65">
-                      ?
+                    <p className="mt-3 text-sm font-medium text-slate-200">
+                      Not available
                     </p>
                   </div>
 

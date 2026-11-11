@@ -161,7 +161,7 @@ function getHeaderTheme(
     return {
       eyebrowClasses: "text-emerald-200/70",
       iconClasses:
-        "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
+        "nestrova-hide-title-icon border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
     };
   }
 
@@ -172,14 +172,14 @@ function getHeaderTheme(
     return {
       eyebrowClasses: "text-cyan-200/70",
       iconClasses:
-        "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
+        "nestrova-hide-title-icon border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
     };
   }
 
   return {
     eyebrowClasses: "text-violet-200/70",
     iconClasses:
-      "border-violet-300/20 bg-violet-300/10 text-violet-200",
+      "nestrova-hide-title-icon border-violet-300/20 bg-violet-300/10 text-violet-200",
   };
 }
 
@@ -269,9 +269,7 @@ export default function NestrovaHeader({
             </span>
 
             <div className="min-w-0">
-              <p className="truncate text-[10px] font-semibold tracking-[-0.01em] text-white/45 sm:text-xs md:text-sm">
-                {greeting}, {firstName}
-              </p>
+
 
               <div className="mt-1 flex min-w-0 items-center gap-3">
                 <h1 className="min-w-0 truncate text-base font-black tracking-[-0.04em] text-white sm:text-xl">

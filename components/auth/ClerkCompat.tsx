@@ -46,10 +46,27 @@ export function SignInButton({
 }
 
 export function UserButton({ ...props }: { [key: string]: any }) {
+  const { isLoaded, isSignedIn } = useUser();
+
   async function signOut() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     window.location.href = "/";
+  }
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return (
+      <a
+        href="/login"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-[13px] border border-white/15 bg-white/[0.07] px-4 py-2.5 text-xs font-bold text-white/80 transition hover:bg-white/[0.12] hover:text-white"
+      >
+        Sign In
+      </a>
+    );
   }
 
   return (

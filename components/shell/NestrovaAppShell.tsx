@@ -17,7 +17,7 @@ export default function NestrovaAppShell({
   subtitle,
 }: NestrovaAppShellProps) {
   return (
-    <div className="min-h-screen bg-[#08080b] text-white">
+    <div className="nestrova-app-canvas min-h-screen font-sans text-white">
       <div className="flex min-h-screen">
         <NestrovaSidebar />
 

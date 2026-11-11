@@ -22,16 +22,16 @@ export default function NestrovaRealEstateSEO() {
   return (
     <section
       aria-labelledby="real-estate-investment-guide"
-      className="mx-auto w-full max-w-[1480px] px-4 pb-20 pt-8 text-white sm:px-6 lg:px-8"
+      className="w-full py-6 text-white"
     >
-      <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[#101720] p-6 sm:p-9 lg:p-12">
+      <div className="rounded-[22px] border border-white/10 bg-[#121d29] p-5 sm:p-7">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#79ddcf]">
           Real Estate Investment Research
         </p>
 
         <h2
           id="real-estate-investment-guide"
-          className="mt-5 max-w-4xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl"
+          className="mt-4 max-w-4xl text-2xl font-semibold leading-tight tracking-[-0.045em] sm:text-3xl"
         >
           Understand a real estate investment
           before making a decision.
@@ -45,11 +45,11 @@ export default function NestrovaRealEstateSEO() {
           the costs and risks that can affect an investment.
         </p>
 
-        <div className="mt-9 grid gap-4 lg:grid-cols-3">
+        <div className="mt-7 grid gap-3 lg:grid-cols-3">
           {topics.map((topic, index) => (
             <article
               key={topic.title}
-              className="rounded-[22px] border border-white/10 bg-white/[0.035] p-6"
+              className="rounded-[16px] border border-white/10 bg-white/[0.035] p-5"
             >
               <span className="text-xs font-bold text-[#79ddcf]">
                 {String(index + 1).padStart(2, "0")}

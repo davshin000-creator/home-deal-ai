@@ -29,8 +29,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${market.city} Real Estate Market Analysis | Nestrova`,
-    description: `Explore the ${market.city}, ${market.state} real estate market, including estimated home prices, rent, rental yield, and Nestrova investment score.`,
+    title: market.slug === "sacramento"
+      ? "Sacramento Rental Property Analysis & Market Estimates | Nestrova"
+      : `${market.city} Real Estate Market Analysis | Nestrova`,
+    description: market.slug === "sacramento"
+      ? "Review Sacramento rental property estimates, gross rental yield, vacancy, operating costs and projected cash flow. Verify current rents before investing."
+      : `Explore the ${market.city}, ${market.state} real estate market, including estimated home prices, rent, rental yield, and Nestrova investment score.`,
     alternates: {
       canonical: `https://nestrovaai.com/market/${market.slug}`,
     },
@@ -310,6 +314,99 @@ export default async function MarketPage({ params }: MarketPageProps) {
           decision.
         </p>
       </section>
+          {market.slug === "sacramento" && (
+        <section
+          id="sacramento-rental-guide-v8"
+          aria-labelledby="sacramento-rental-guide-heading"
+          className="mx-auto my-12 max-w-6xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm sm:p-10"
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-teal-700">
+            Sacramento rental property research
+          </p>
+
+          <h2
+            id="sacramento-rental-guide-heading"
+            className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl"
+          >
+            How to evaluate a Sacramento rental property
+          </h2>
+
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
+            Start with an estimated purchase price and realistic
+            monthly rent. Then test vacancy, taxes, insurance,
+            repairs, management expenses and financing costs.
+            A property with attractive gross rent may still
+            have negative monthly cash flow.
+          </p>
+
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-slate-50 p-5">
+              <h3 className="font-semibold">Gross rental yield</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Multiply monthly scheduled rent by 12, divide
+                by the property purchase price, and multiply
+                by 100 to estimate annual gross rental yield.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-5">
+              <h3 className="font-semibold">Operating costs</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Account for vacancy, property taxes, insurance,
+                maintenance, management, and reserves for
+                major future repairs.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-5">
+              <h3 className="font-semibold">Monthly cash flow</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Subtract vacancy allowances, operating costs,
+                capital reserves, and debt payments from
+                estimated rental income. Test multiple scenarios.
+              </p>
+            </div>
+          </div>
+
+          <h3 className="mt-8 text-lg font-semibold">
+            Where should rental assumptions come from?
+          </h3>
+
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+            Compare recent, similar rental properties and
+            verified property details before choosing an
+            estimate. Nestrova's displayed regional market
+            figures are stored reference estimates, not
+            verified current rents, appraisals, or live MLS data.
+          </p>
+
+          <nav
+            aria-label="Sacramento rental research tools"
+            className="mt-7 flex flex-wrap gap-4 text-sm font-semibold"
+          >
+            <Link
+              href="/property-deal-analyzer"
+              className="text-teal-700 underline-offset-4 hover:underline"
+            >
+              Understand property deal analysis
+            </Link>
+
+            <Link
+              href="/analyze"
+              className="text-teal-700 underline-offset-4 hover:underline"
+            >
+              Explore property analysis
+            </Link>
+
+            <Link
+              href="/pricing"
+              className="text-teal-700 underline-offset-4 hover:underline"
+            >
+              View available plans
+            </Link>
+          </nav>
+        </section>
+      )}
     </main>
   );
 }
